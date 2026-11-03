@@ -1,0 +1,1842 @@
+<meta charset="utf-8">
+<title>Laundry Shop Manager</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Brand: Bula & Banlaw Laundry (generic placeholder) — royal blue, teal, sky blue, white, bubble grey. Layout: tablet-landscape counter app. Left rail of four jobs, big tap targets; owner view is a single dashboard column. Signature: teal claim tags with a punched hole, and porthole machine tiles. */
+:root{
+  --bg:#E8F5F5; --surface:#FFFFFF; --surface-2:#F0F7F8; --ink:#16246A; --muted:#566284; --line:#CBDFE3;
+  --accent:#2537A0; --accent-ink:#FFFFFF; --accent-soft:#E0E6FA;
+  --teal:#19B5AF; --sky:#4AA8E0; --bubble:#A9B4C8;
+  --tag:#19B5AF; --tag-ink:#0A1F5A;
+  --good:#1D7F5C; --good-soft:#D8F0E6; --warn:#A06400; --warn-soft:#FBEACB; --crit:#B83A28; --crit-soft:#F8DDD8;
+  --shadow:0 1px 2px rgba(22,36,106,.06),0 6px 20px rgba(22,36,106,.07);
+  --f-display:"Saira Condensed","Figtree",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:12px; color-scheme:light;
+}
+:root[data-app-theme="dark"]{
+  --bg:#0A1230; --surface:#111B44; --surface-2:#172456; --ink:#E6ECFF; --muted:#9DA9CF; --line:#263370;
+  --accent:#7D91FF; --accent-ink:#0A1230; --accent-soft:#1E2B6E;
+  --teal:#2CC6BF; --sky:#5BB6EC; --bubble:#6F7BA0;
+  --tag:#24BDB6; --tag-ink:#03201F;
+  --good:#53C08E; --good-soft:#123327; --warn:#E3A93C; --warn-soft:#3A2B0D; --crit:#F07C68; --crit-soft:#3E1C17;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 6px 20px rgba(0,0,0,.3); color-scheme:dark}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--f-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--surface)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+h1,h2,h3{margin:0;font-family:var(--f-display);font-weight:800;letter-spacing:-.01em;text-wrap:balance}
+h2{font-size:26px;text-transform:uppercase;letter-spacing:.01em;color:var(--accent)} h3{font-size:16px;font-weight:600}
+.eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.brand-mark{width:44px;height:50px;flex:none;display:block}
+.brand b{font-family:var(--f-display);font-size:22px;font-weight:800;white-space:nowrap;color:var(--accent);text-transform:uppercase;letter-spacing:.01em;line-height:1.05}
+.brand small{display:block;color:var(--muted);font-size:12px}
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{min-height:38px;padding:0 14px;border-radius:999px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.select{min-height:44px;border-radius:10px;border:1px solid var(--line);background:var(--surface);padding:0 10px;font-weight:600}
+.iconbtn{width:44px;height:44px;border-radius:999px;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink)}
+.iconbtn svg{width:20px;height:20px}
+.sync{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);font-weight:600;font-size:13.5px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--good);flex:none}
+.sync.off .dot{background:var(--warn)}
+.sync.off{background:var(--warn-soft);border-color:transparent}
+
+/* Shell */
+.shell{display:grid;grid-template-columns:96px minmax(0,1fr);min-height:calc(100% - 66px)}
+.rail{background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:6px;padding:12px 8px;
+  padding-left:max(8px,env(safe-area-inset-left,0px))}
+.rail button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px 4px;border-radius:12px;font-size:12.5px;font-weight:600;color:var(--muted);min-height:64px}
+.rail button svg{width:26px;height:26px}
+.rail button[aria-current="page"]{background:var(--accent-soft);color:var(--ink)}
+.rail button[aria-current="page"] svg{color:var(--accent)}
+.badge{min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:var(--tag);color:var(--tag-ink);font-size:11.5px;font-weight:700;display:inline-grid;place-items:center}
+main{min-width:0;padding-block:18px 32px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.shell main{padding-left:20px}
+.screen-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px;margin-bottom:16px}
+.screen-head p{margin:2px 0 0;color:var(--muted)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.btn{min-height:48px;padding:0 18px;border-radius:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:var(--surface)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.ink{background:var(--ink);color:var(--surface);border-color:transparent}
+.btn.small{min-height:44px;padding:0 12px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.block{width:100%}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:48px;padding:0 16px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.chip small{color:var(--muted);font-weight:500}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.crit{background:var(--crit-soft);color:var(--crit)} .pill.plain{background:var(--surface-2);color:var(--muted)}
+
+/* Claim tag (signature) */
+.tag{position:relative;display:inline-flex;align-items:center;gap:6px;background:var(--tag);color:var(--tag-ink);font-family:var(--f-mono);font-weight:700;
+  padding:4px 10px 4px 22px;border-radius:4px 8px 8px 4px;font-size:14px;line-height:1.2;white-space:nowrap}
+.tag::before{content:"";position:absolute;left:7px;top:50%;width:8px;height:8px;margin-top:-4px;border-radius:50%;background:var(--surface);box-shadow:inset 0 1px 1px rgba(0,0,0,.25)}
+.tag.big{font-size:30px;padding:8px 18px 8px 36px;border-radius:6px 14px 14px 6px}
+.tag.big::before{left:12px;width:14px;height:14px;margin-top:-7px}
+
+/* Counter */
+.counter{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:18px;align-items:start}
+.stack{display:grid;gap:14px}
+.field-label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px}
+.kg-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:14px;align-items:stretch}
+.kg-display{border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2);padding:12px 14px;display:flex;flex-direction:column;justify-content:center}
+.kg-display .v{font-family:var(--f-mono);font-size:44px;font-weight:700;line-height:1}
+.kg-display .v.empty{color:var(--muted)}
+.kg-display .u{font-weight:600;color:var(--muted)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.keypad button{min-height:52px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);font-family:var(--f-mono);font-size:20px;font-weight:700}
+.keypad button:active{background:var(--accent-soft)}
+.stepper{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 6px 6px 14px;border:1.5px solid var(--line);border-radius:12px;min-height:56px}
+.stepper .ctl{display:flex;align-items:center;gap:6px}
+.stepper .ctl button{width:44px;height:44px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);font-size:22px;font-weight:700}
+.stepper .ctl output{min-width:28px;text-align:center;font-family:var(--f-mono);font-weight:700;font-size:18px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:6px 14px;border:1.5px solid var(--line);border-radius:12px;width:100%;text-align:left}
+.switch{width:52px;height:30px;border-radius:999px;background:var(--line);position:relative;flex:none;transition:background .15s}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+[aria-checked="true"] .switch{background:var(--accent)}
+[aria-checked="true"] .switch::after{transform:translateX(22px)}
+.input{width:100%;min-height:48px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);padding:0 14px}
+.input:focus{border-color:var(--accent);outline:none}
+.sugg{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sugg button{min-height:44px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface-2);font-weight:600;font-size:14px}
+.sugg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.summary{position:sticky;top:84px}
+.lines{display:grid;gap:6px;margin:12px 0;padding:12px 0;border-block:1px dashed var(--line)}
+.line{display:flex;justify-content:space-between;gap:10px}
+.total{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.total b{font-family:var(--f-mono);font-size:30px}
+
+/* Orders board */
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(232px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.col{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:10px;display:grid;gap:8px;align-content:start;min-height:200px}
+.col-head{display:flex;justify-content:space-between;align-items:center;padding:2px 4px 4px}
+.col-head h3{font-size:15px}
+.ocard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:8px;box-shadow:var(--shadow)}
+.ocard .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ocard .meta{font-size:13px;color:var(--muted)}
+.ocard .open{text-align:left;display:grid;gap:6px;border-radius:8px}
+.ocard.old{border-color:var(--warn)}
+.empty-col{font-size:13px;color:var(--muted);padding:8px 4px}
+
+/* Machines */
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.mtile{background:var(--surface);border:1.5px solid var(--line);border-radius:16px;padding:14px 10px 12px;display:grid;justify-items:center;gap:6px;text-align:center;min-height:186px}
+.mtile.run{border-color:var(--accent)}
+.mtile.long{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,var(--surface))}
+.port{width:96px;height:96px;position:relative}
+.port svg{width:100%;height:100%;display:block}
+.port .lbl{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:22px}
+.drum{transform-origin:50px 50px}
+.mtile.run .drum{animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mtile .st{font-weight:700;font-size:14px}
+.mtile .sub{font-size:12.5px;color:var(--muted);min-height:18px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);margin-bottom:12px}
+
+.mgrid.compact{grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-bottom:16px}
+.mgrid.compact .mtile{min-height:0;padding:10px 6px;border-radius:12px}
+.mgrid.compact .port{width:64px;height:64px}
+.mgrid.compact .port .lbl{font-size:16px}
+.mgrid.compact .st{font-size:12.5px}.mgrid.compact .sub{font-size:11.5px}
+.live-note{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--good-soft);color:var(--good);font-weight:600;font-size:14px;margin-bottom:14px}
+.live-note .dot{background:var(--good)}
+.live-note.stale{background:var(--warn-soft);color:var(--warn)}
+.live-note.stale .dot{background:var(--warn)}
+.live-kpis .v{font-size:26px}
+.card .board{grid-auto-columns:minmax(200px,1fr)}
+.piece-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.head-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.jobs-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:6px}
+.jobs-tools .search{flex:1 1 260px;min-width:0}
+.datebar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.datepick .input{min-height:48px;width:auto;max-width:100%}
+.tools-note{margin:0 0 12px;font-size:13px}
+.jlist{display:grid;gap:8px}
+.jrow{display:grid;grid-template-columns:auto minmax(0,1.3fr) minmax(0,1.4fr) minmax(0,1.3fr);gap:8px 16px;align-items:center;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-height:64px}
+.jrow:hover{border-color:var(--accent)}
+.jrow > span{display:flex;flex-direction:column;gap:4px;min-width:0;align-items:flex-start}
+.hist-sum{display:flex;flex-wrap:wrap;gap:8px 18px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--line);margin-bottom:12px;font-size:14px}
+.hist{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.hist-row{display:grid;grid-template-columns:auto 12px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);font-size:14px}
+.hist-row:last-child{border-bottom:0}
+.h-time{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.h-dot{width:10px;height:10px;border-radius:50%;background:var(--line);flex:none}
+.k-in .h-dot{background:var(--accent)} .k-pay .h-dot{background:var(--good)} .k-out .h-dot{background:var(--teal)} .k-stage .h-dot{background:var(--sky)}
+.h-job{border:0;cursor:pointer;min-height:32px}
+.tl{list-style:none;margin:0;padding:0 0 0 4px;border-left:2px solid var(--line)}
+.tl-row{display:grid;grid-template-columns:12px minmax(0,1fr);gap:10px;align-items:start;padding:7px 0;margin-left:-7px;font-size:14px}
+.tl-row .h-dot{margin-top:5px;width:12px;height:12px;border:2px solid var(--surface)}
+.jd-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.jd-sum{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.jd-sum small{display:inline}
+@media (max-width:760px){
+  .jrow{grid-template-columns:auto minmax(0,1fr)}
+  .jr-st,.jr-pay{grid-column:2}
+  .hist-row{grid-template-columns:auto 12px minmax(0,1fr)}
+  .hist-row .h-job{grid-column:3;justify-self:start}
+}
+@media (max-width:760px){
+  .edit-table thead{display:none}
+  .edit-table tr{display:grid;grid-template-columns:minmax(0,1fr) auto 44px;gap:8px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+  .edit-table td{border:0;padding:0}
+  .edit-table td:first-child{grid-column:1 / -1}
+  .edit-table .cell-in{min-width:0}
+}
+.card-acts{display:flex;gap:6px}
+.card-acts .btn:first-child{flex:1}
+.icon-btn{width:44px;padding:0;flex:none}
+.icon-btn svg{width:18px;height:18px}
+.pick button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.pick button:disabled{opacity:.55;cursor:default}
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:16px;align-items:start}
+.staff-list{display:grid}
+.staff-row{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.staff-row:last-child{border-bottom:0}
+.staff-row.is-off{opacity:.6}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+.staff-main{display:flex;flex-direction:column;min-width:0}
+.staff-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:420px){.staff-row{grid-template-columns:40px minmax(0,1fr)}.staff-acts{grid-column:2;justify-content:flex-start}}
+.owner-tabs .seg{max-width:100%}
+.owner-tabs .seg button{white-space:nowrap}
+@media (max-width:520px){.owner-tabs .seg{display:grid;grid-template-columns:1fr 1fr;width:100%;border-radius:16px}.owner-tabs .seg button{border-radius:12px}}
+.mpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.mp{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);min-height:64px}
+.mp b{font-family:var(--f-display);font-size:20px}
+.mp small{font-size:12px;color:var(--muted)}
+.mp:not(:disabled):hover{border-color:var(--accent);background:var(--accent-soft)}
+.mp:disabled{opacity:.5;cursor:not-allowed}
+.skip summary{cursor:pointer;color:var(--muted);font-weight:600;font-size:14px;min-height:44px;display:flex;align-items:center}
+.skip[open]{display:grid;gap:10px}
+.mtile.oos{opacity:.5}
+.mach-list{display:grid}
+.cell-in{width:100%;min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px;font:inherit;color:inherit}
+.mach-row{display:grid;grid-template-columns:72px minmax(0,1fr) auto 44px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.mach-row.is-off{opacity:.65}
+.mach-row .cell-in{min-width:0}
+.stage-table .check{min-height:44px}
+.nowrap{white-space:nowrap}
+@media (max-width:760px){.stage-table tr{grid-template-columns:1fr 1fr}.stage-table td:first-child{grid-column:auto}.mach-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.count-row{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;min-height:44px;padding:4px 0;background:none;border:0;border-bottom:1px solid var(--line);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.count-row:last-child{border-bottom:0}
+.count-hist{display:grid;gap:10px;max-height:60vh;overflow:auto}
+.ch-item{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.ch-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px}
+.ch-lines{display:grid;gap:4px;font-size:14px}
+.ch-lines div{display:grid;grid-template-columns:1fr auto 52px;gap:10px}
+.ch-lines div span:last-child{text-align:right}
+.simple-pill{background:var(--accent-soft);color:var(--accent);vertical-align:middle;font-size:12px}
+.log-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px}
+.log .log-row{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:8px}
+.log-what{display:flex;flex-direction:column;min-width:0}
+.log-qty{font-weight:700}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;font-size:13px}
+.uses{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.use-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 2px 2px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:13px}
+.use-chip button{width:32px;height:32px;border-radius:50%;color:var(--muted);font-size:16px}
+.edit-table .cell-in{width:100%;min-width:120px;min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px}
+/* Supplies */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+th,td{padding:12px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+td.r,th.r{text-align:right}
+.count-in{width:110px;min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px;font-family:var(--f-mono);text-align:right}
+.two{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px;align-items:start}
+.log{display:grid;gap:8px;font-size:14px}
+.log div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding-bottom:8px}
+
+/* Owner */
+.owner-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi .v{color:var(--accent);font-family:var(--f-mono);font-size:30px;font-weight:700;line-height:1.1;margin-top:6px}
+.kpi .s{font-size:13px;color:var(--muted);margin-top:4px}
+.dash{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+.bars{display:grid;gap:4px}
+.bar{display:grid;grid-template-columns:36px minmax(0,1fr) 28px;align-items:center;gap:8px;font-size:13px}
+.bar .track{height:14px;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.bar .fill{height:100%;border-radius:4px;background:var(--accent)}
+.bar .fill{background:var(--barc, var(--accent))}
+.bar .n{text-align:right;font-family:var(--f-mono);font-weight:700}
+.branch-block{display:grid;gap:10px;padding-block:12px;border-bottom:1px solid var(--line)}
+.branch-block:last-child{border-bottom:0}
+.mcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 24px}
+.alerts{display:grid;gap:10px}
+.alert{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border-radius:10px;background:var(--surface-2);font-size:14px}
+.alert .ic{width:10px;height:10px;border-radius:50%;margin-top:6px}
+.alert.crit .ic{background:var(--crit)} .alert.warn .ic{background:var(--warn)} .alert.info .ic{background:var(--accent)}
+.sync-list{display:grid;gap:8px;font-size:14px}
+.sync-list div{display:flex;justify-content:space-between;gap:8px}
+.set-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.form-row{display:grid;grid-template-columns:minmax(0,1fr) 130px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.form-row:last-child{border-bottom:0}
+.form-row input{min-height:44px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);padding:0 10px;font-family:var(--f-mono);text-align:right;width:100%}
+.check{display:flex;align-items:center;gap:10px;min-height:44px}
+.check input{width:22px;height:22px;accent-color:var(--accent)}
+.sample-note{font-size:12.5px;color:var(--muted);margin-top:8px}
+
+/* Modal */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(8,18,22,.5);display:grid;place-items:center;
+  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.modal{background:var(--surface);border-radius:18px;width:min(520px,100%);max-height:100%;overflow:auto;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
+.x{width:44px;height:44px;border-radius:10px;font-size:22px;color:var(--muted);flex:none}
+.pick{display:grid;gap:8px}
+.pick button{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:56px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;text-align:left}
+.pick button:hover{border-color:var(--accent)}
+.pin-dots{display:flex;justify-content:center;gap:14px;margin:8px 0 14px}
+.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted)}
+.pin-dots i.on{background:var(--ink);border-color:var(--ink)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:300px;margin:0 auto}
+.pin-pad button{min-height:60px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);font-family:var(--f-mono);font-size:22px;font-weight:700}
+.pin-err{color:var(--crit);text-align:center;min-height:22px;font-weight:600;font-size:14px}
+.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+
+/* Claim stub */
+.stub{position:relative;border:1.5px solid var(--line);border-radius:12px;background:var(--surface-2);padding:18px 18px 16px 30px;display:grid;gap:12px}
+.stub::before{content:"";position:absolute;left:14px;top:12px;bottom:12px;border-left:2px dashed var(--line)}
+.stub .notch{position:absolute;left:-1px;width:14px;height:22px;background:var(--surface);border:1.5px solid var(--line);border-left:0;border-radius:0 12px 12px 0}
+.stub .kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font-size:14px}
+.stub .kv dt{color:var(--muted)} .stub .kv dd{margin:0;font-weight:600;text-align:right}
+.stub .foot{font-size:12.5px;color:var(--muted)}
+
+/* Toast */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--surface);
+  border-radius:12px;padding:8px 8px 8px 16px;display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px);box-shadow:0 10px 30px rgba(0,0,0,.25);font-weight:600}
+.toast button{min-height:40px;padding:0 14px;border-radius:8px;background:color-mix(in srgb,var(--surface) 18%,transparent);color:var(--surface);font-weight:700}
+.reset-row{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:13px;color:var(--muted)}
+
+@media (max-width:1100px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.dash,.two,.set-grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.counter{grid-template-columns:minmax(0,1fr)}.summary{position:static}}
+@media (max-width:760px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{position:fixed;left:0;right:0;bottom:0;z-index:25;flex-direction:row;justify-content:space-around;border-right:0;border-top:1px solid var(--line);
+    padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .rail button{flex:1;min-height:56px;padding:6px 2px}
+  .shell main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-bottom:110px}
+  .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+  .kg-row{grid-template-columns:minmax(0,1fr)}
+  .mgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .mcols{grid-template-columns:minmax(0,1fr)}
+  .brand small{display:none}
+}
+@media (max-width:420px){.kpis{grid-template-columns:minmax(0,1fr)}.grid2{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.mtile.run .drum{animation:none}.shake{animation:none}.switch,.switch::after{transition:none}}
+</style>
+
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+"use strict";
+const KEY = "laundry-proto-v7";
+const MIN = 60000, H = 60*MIN, DAY = 24*H;
+const $ = (s, el=document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const peso = n => { const v = Math.round(Number(n||0)*100)/100; return "₱" + v.toLocaleString("en-PH", Number.isInteger(v) ? {maximumFractionDigits:0} : {minimumFractionDigits:2, maximumFractionDigits:2}); };
+const sod = () => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); };
+const isToday = t => t >= sod();
+const fmtTime = t => new Date(t).toLocaleTimeString("en-PH", {hour:"numeric", minute:"2-digit"});
+const fmtDate = t => new Date(t).toLocaleDateString("en-PH", {weekday:"short", month:"short", day:"numeric"});
+const ago = t => { const m = Math.round((Date.now()-t)/MIN); if (m < 1) return "just now"; if (m < 60) return m+" min ago"; const h = Math.round(m/60); if (h < 24) return h+" h ago"; const d = Math.round(h/24); return d+(d===1?" day":" days")+" ago"; };
+const uid = () => Math.random().toString(36).slice(2,10);
+
+/* ---------- Sample data (all values are examples) ---------- */
+function rng(seed){ return () => (seed = (seed*16807) % 2147483647, (seed-1)/2147483646); }
+function seed(){
+  const r = rng(20261028), now = Date.now();
+  const opened = Math.min(now - 30*MIN, Math.max(sod() + 8*H, now - 9*H));
+  const S = {
+    settings:{
+      pin:{on:true, actions:{order:false, claim:true, count:false, transfer:false, supply:false, override:true}}, pinDefaults2:true, staffCanAddSupply:false,
+      minKg:3, loadKg:8, checkMin:90,
+      fees:[{id:"rush", name:"Rush", amount:50, note:"Same day"}],
+      services:[
+        {id:"wdf", name:"Wash, dry & fold", short:"Wash-dry-fold", mode:"kg", price:35},
+        {id:"wd", name:"Wash & dry only", short:"Wash & dry", mode:"kg", price:28},
+        {id:"load", name:"Per load", short:"Per load", mode:"load", price:180},
+        {id:"heavy", name:"Heavy items", short:"Heavy items", mode:"kg", price:70}
+      ],
+      addons:[
+        {id:"cond2", name:"Extra conditioner", price:15, use:{cond:1}},
+        {id:"white", name:"Whitening", price:25, use:{bleach:100}},
+        {id:"hang", name:"On hangers", price:40, use:{}}
+      ],
+      pieces:[
+        {id:"comf", name:"Comforter", variants:[{id:"single", label:"Single", price:350},{id:"queen", label:"Queen", price:450},{id:"king", label:"King", price:550}]},
+        {id:"blnk", name:"Blanket", variants:[{id:"single", label:"Single", price:200},{id:"double", label:"Double", price:250}]},
+        {id:"curt", name:"Curtain panel", variants:[{id:"each", label:"Each", price:120}]},
+        {id:"pill", name:"Pillow", variants:[{id:"each", label:"Each", price:100}]}
+      ],
+      supplies:[
+        {id:"det", name:"Detergent", unit:"sachets", low:40},
+        {id:"cond", name:"Fabric conditioner", unit:"sachets", low:40},
+        {id:"bag", name:"Plastic bags", unit:"pcs", low:50},
+        {id:"bleach", name:"Color-safe bleach", unit:"ml", low:500}
+      ],
+      recipe:{washLoad:{det:1, cond:1}, orderReady:{bag:1}},
+      categories:[{id:"washer", name:"Washer", short:"W", washSupplies:true},{id:"dryer", name:"Dryer", short:"D", washSupplies:false}],
+      stages:[{id:"Received", name:"Received"},{id:"Washing", name:"Washing", ask:true, cat:"washer", autoNext:false, simple:false},{id:"Drying", name:"Drying", ask:true, cat:"dryer", autoNext:true, simple:false},{id:"Folding", name:"Folding", simple:false},{id:"Ready", name:"Ready"}]
+    },
+    branches:[{id:"b1", name:"[Branch 1]", w:6, d:6},{id:"b2", name:"[Branch 2]", w:5, d:5, simple:true},{id:"b3", name:"[Branch 3]", w:8, d:8}],
+    staff:[
+      {id:"s1", name:"[Staff 1]", pin:"1111", branch:"b1"},{id:"s2", name:"[Staff 2]", pin:"2222", branch:"b1"},
+      {id:"s3", name:"[Staff 3]", pin:"3333", branch:"b2"},{id:"s4", name:"[Staff 4]", pin:"4444", branch:"b2"},
+      {id:"s5", name:"[Staff 5]", pin:"5555", branch:"b3"},{id:"s6", name:"[Staff 6]", pin:"6666", branch:"b3"}
+    ],
+    customers:"ABCDEFGH".split("").map((L,i) => ({id:"c"+L, name:"[Customer "+L+"]", phone:"0917 000 00"+String(11+i)})),
+    orders:[], loads:[], stock:{}, stockLog:[], counts:[], events:[], requests:[],
+    lastSync:{b1:now, b2:now-6*MIN, b3:now-2*H-10*MIN},
+    nextNo:{}
+  };
+  S.machines = [];
+  S.branches.forEach(b => {
+    for (let i=1;i<=b.w;i++) S.machines.push({id:b.id+"-W"+i, branch:b.id, type:"washer", label:"W"+i});
+    for (let i=1;i<=b.d;i++) S.machines.push({id:b.id+"-D"+i, branch:b.id, type:"dryer", label:"D"+i});
+  });
+  const stockStart = {b1:{det:118, cond:66, bag:160, bleach:1900}, b2:{det:92, cond:81, bag:120, bleach:1400}, b3:{det:63, cond:88, bag:44, bleach:2300}};
+  const plan = ["Claimed","Claimed","Claimed","Claimed","Ready","Ready","Folding","Drying","Washing","Received","Received","ReadyOld"];
+  S.branches.forEach((b, bi) => {
+    const washers = S.machines.filter(m => m.branch===b.id && m.type==="washer");
+    const dryers = S.machines.filter(m => m.branch===b.id && m.type==="dryer");
+    let no = 1000*(bi+1) + 31;
+    let wi = 0, di = 0;
+    const W = () => washers[(wi++) % washers.length], D = () => dryers[(di++) % dryers.length];
+    S.stock[b.id] = {...stockStart[b.id]};
+    plan.forEach((st, k) => {
+      const kg0 = Math.round((3 + r()*6)*10)/10, kg = k === 10 ? 0 : kg0;
+      const svc = k % 5 === 3 ? "wd" : (k === 7 ? "load" : "wdf");
+      const addons = r() > .65 ? ["cond2"] : [];
+      const pieces = k === 5 ? {"comf:queen":1} : (k === 10 ? {"comf:king":1, "pill:each":2} : {});
+      const cust = r() > .3 ? S.customers[Math.floor(r()*S.customers.length)].id : null;
+      let created, status = st, paidAt = null, pay = null;
+      if (st === "Claimed"){ created = sod() - DAY + (9+k)*H; paidAt = Math.min(now - 10*MIN, opened + k*70*MIN); pay = k%2 ? "GCash" : "Cash"; }
+      else if (st === "ReadyOld"){ created = now - 3*DAY - 2*H; status = "Ready"; }
+      else { created = Math.min(now - 15*MIN, opened + (k-3)*35*MIN); }
+      if (st === "Ready" && k === 4){ paidAt = created; pay = "GCash"; }
+      const o = makeOrder(S, {branch:b.id, no:String(no++), kg, svc, addons, pieces, fees:k===8 ? ["rush"] : [], customerId:cust, createdAt:created, status, paidAt, pay, by:S.staff.find(s=>s.branch===b.id).name});
+      if (status === "Claimed") o.claimedAt = paidAt;
+      S.orders.push(o);
+      // loads for today's work
+      const done = (m, start, mins) => S.loads.push({id:uid(), machine:m.id, branch:b.id, order:o.no, start, end:start+mins*MIN, self:false});
+      if (status === "Claimed"){ done(W(), created+10*MIN, 35); done(D(), created+50*MIN, 45); }
+      if (["Ready","Folding"].includes(status) && created >= sod()){ const w=W(); done(w, created+10*MIN, 35); done(D(), created+50*MIN, 45); }
+      if (status === "Drying"){ done(W(), now-75*MIN, 35); S.loads.push({id:uid(), machine:D().id, branch:b.id, order:o.no, start:now-(18+bi*9)*MIN, end:null, self:false}); }
+      if (status === "Washing"){ S.loads.push({id:uid(), machine:W().id, branch:b.id, order:o.no, start:now-(bi===0?104:12+bi*6)*MIN, end:null, self:false}); }
+      { const reach = ["Received","Washing","Drying","Folding","Ready","Claimed"].indexOf(status);
+        const ol = S.loads.filter(l => l.branch===b.id && l.order===o.no), wl = ol.find(l=>l.machine.includes("-W")), dl = ol.find(l=>l.machine.includes("-D"));
+        const lab = l => l.machine.split("-")[1];
+        const cap = t => Math.min(t, (o.paidAt && status==="Claimed") ? o.paidAt - 5*MIN : now - 2*MIN);
+        o.log = [];
+        if (reach >= 1) o.log.push({at: wl ? wl.start : cap(created+10*MIN), to:"Washing", via: wl ? lab(wl)+" started" : null});
+        if (reach >= 2) o.log.push({at: dl ? dl.start : cap(created+50*MIN), to:"Drying", via: dl ? lab(dl)+" started" : null});
+        if (reach >= 3) o.log.push({at: dl && dl.end ? dl.end : cap(created+95*MIN), to:"Folding", via: dl && dl.end ? lab(dl)+" unloaded" : null});
+        if (reach >= 4){ const rAt = cap(created+130*MIN); o.log.push({at: rAt, to:"Ready", via:null});
+          Object.entries(S.settings.recipe.orderReady).forEach(([sid,q]) => { S.stock[b.id][sid] -= q; S.stockLog.push({branch:b.id, supply:sid, qty:-q, reason:"Packed", job:o.no, at:rAt}); }); }
+        if (o.paidAt) o.paidBy = o.by;
+        if (status === "Claimed") o.claimedBy = o.by;
+      }
+    });
+    // earlier completed loads today (previous tickets), for per-machine counts
+    [...washers, ...dryers].forEach(m => {
+      const n = Math.floor(r()*4) + (m.type==="washer" ? 1 : 0);
+      for (let j=0;j<n;j++){
+        const start = opened + j*55*MIN + Math.floor(r()*20)*MIN;
+        if (start + 50*MIN > now) break;
+        S.loads.push({id:uid(), machine:m.id, branch:b.id, order:null, start, end:start+(m.type==="washer"?35:45)*MIN, self:r()>.9});
+      }
+    });
+    // automatic deductions for today's washer loads
+    S.loads.filter(l => l.branch===b.id && S.machines.find(m=>m.id===l.machine).type==="washer").forEach(l => {
+      Object.entries(S.settings.recipe.washLoad).forEach(([sid,q]) => { S.stock[b.id][sid] -= q; S.stockLog.push({branch:b.id, supply:sid, qty:-q, reason:`${l.machine.split("-")[1]} load${l.self?" (self-service)":""}`, job:l.order||null, at:l.start}); });
+    });
+    S.stockLog.push({branch:b.id, supply:"det", qty:50, reason:"Received from main", job:null, at:sod()-DAY+8*H});
+    S.stockLog.push({branch:b.id, supply:"cond", qty:50, reason:"Received from main", job:null, at:sod()-DAY+8*H});
+    S.nextNo[b.id] = no;
+  });
+  const L = o => Object.fromEntries(Object.entries(o).map(([k,[e,c]]) => [k, {exp:e, cnt:c}]));
+  S.counts.push({branch:"b3", at:sod()-4*DAY+21*H, by:"[Staff 5]", partial:false, lines:L({det:[88,88], cond:[70,70], bag:[140,138], bleach:[2400,2400]})});
+  S.counts.push({branch:"b2", at:sod()-2*DAY+21*H, by:"[Staff 3]", partial:false, lines:L({det:[64,60], cond:[58,58], bag:[120,120], bleach:[2000,2000]})});
+  S.counts.push({branch:"b1", at:sod()-3*H, by:"[Staff 1]", partial:false, lines:L({det:[72,72], cond:[66,66], bag:[150,150], bleach:[2600,2600]})});
+  S.counts.push({branch:"b1", at:sod()+8*H, by:"[Staff 2]", partial:true, lines:L({det:[60,59]})});
+  return S;
+}
+
+function pieceVariant(key, st){
+  st = st || S.settings;
+  const [pid, vid] = String(key).split(":"), p = st.pieces.find(x=>x.id===pid);
+  const v = p && (p.variants||[]).find(x=>x.id===vid);
+  if (!v) return null;
+  return {name: p.variants.length>1 || v.label!=="Each" ? `${p.name} (${v.label})` : p.name, price:v.price};
+}
+const pieceCount = pcs => Object.values(pcs||{}).reduce((a,q)=>a+(q||0),0);
+const jobSize = o => { const n = pieceCount(o.pieces); return [o.kg>0 ? `${o.kg} kg` : "", n ? `${n} pc${n>1?"s":""}` : ""].filter(Boolean).join(" + ") || "—"; };
+function priceLines(S, d){
+  const st = S.settings, svc = st.services.find(s => s.id===d.svc);
+  const kg = Number(d.kg)||0, lines = [];
+  if (svc && kg > 0){
+    if (svc.mode === "kg"){ const billKg = Math.max(kg, st.minKg); lines.push({label:`${svc.short} · ${billKg} kg × ${peso(svc.price)}${kg>0 && kg<st.minKg?" (min "+st.minKg+" kg)":""}`, amt:billKg*svc.price}); }
+    else { const n = Math.max(1, Math.ceil(kg/st.loadKg)); lines.push({label:`${svc.short} · ${n} load${n>1?"s":""} × ${peso(svc.price)}`, amt:n*svc.price}); }
+  }
+  (d.addons||[]).forEach(id => { const a = st.addons.find(x=>x.id===id); if (a) lines.push({label:a.name, amt:a.price}); });
+  Object.entries(d.pieces||{}).forEach(([key,q]) => { const pv = pieceVariant(key, st); if (pv && q>0) lines.push({label:`${pv.name} × ${q}`, amt:q*pv.price}); });
+  (d.fees||[]).forEach(id => { const f = st.fees.find(x=>x.id===id); if (f) lines.push({label:f.name, amt:f.amount}); });
+  return lines;
+}
+function makeOrder(S, o){
+  const lines = priceLines(S, o);
+  return {id:uid(), branch:o.branch, no:o.no, kg:Number(o.kg), svc:o.svc, addons:o.addons||[], pieces:o.pieces||{}, fees:o.fees||[], customerId:o.customerId||null,
+    notes:o.notes||"", lines, total:lines.reduce((a,l)=>a+l.amt,0), status:o.status||"Received", createdAt:o.createdAt||Date.now(),
+    paidAt:o.paidAt||null, pay:o.pay||null, claimedAt:null, by:o.by||null};
+}
+
+/* ---------- State ---------- */
+let S;
+function loadState(){ try { const raw = localStorage.getItem(KEY); if (raw) return JSON.parse(raw); } catch(e){} return null; }
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} }
+S = loadState() || seed();
+(function migrate(){ S.requests = S.requests || []; if (S.settings.staffCanAddSupply === undefined) S.settings.staffCanAddSupply = false; if (S.settings.pin.actions.supply === undefined) S.settings.pin.actions.supply = true; if (S.settings.pin.actions.override === undefined) S.settings.pin.actions.override = true;
+  (S.counts||[]).forEach(c => { if (!c.lines){ c.lines = {}; Object.entries(c.variance||{}).forEach(([k,v]) => c.lines[k] = {exp:null, cnt:null, v}); c.partial = false; delete c.variance; } });
+  if (!S.settings.pinDefaults2){ Object.assign(S.settings.pin.actions, {order:false, claim:true, count:false, transfer:false, supply:false, override:true}); S.settings.pinDefaults2 = true; }
+  if (!S.settings.categories) S.settings.categories=[{id:"washer", name:"Washer", short:"W", washSupplies:true},{id:"dryer", name:"Dryer", short:"D", washSupplies:false}];
+  (S.settings.stages||[]).forEach((x,i,a) => { if (x.simple === undefined && i>0 && i<a.length-1) x.simple = false; });
+  if (!S.settings.stages) S.settings.stages=[{id:"Received", name:"Received"},{id:"Washing", name:"Washing", ask:true, cat:"washer", autoNext:false},{id:"Drying", name:"Drying", ask:true, cat:"dryer", autoNext:true},{id:"Folding", name:"Folding"},{id:"Ready", name:"Ready"}];
+  if (!S.settings.fees){ S.settings.fees = [{id:"rush", name:"Rush", amount:S.settings.rushFee||50, note:"Same day"}]; delete S.settings.rushFee; delete S.settings.selfPrice; save(); } if (!S.settings.checkMin) S.settings.checkMin = 90;
+  const ps = S.settings.pieces||[];
+  if (ps.some(x => !x.variants)){
+    const legacy = ps.length===2 && ps[0].id==="comf" && ps[0].price===150 && ps[1].id==="curt";
+    S.settings.pieces = legacy ? [
+        {id:"comf", name:"Comforter", variants:[{id:"single", label:"Single", price:350},{id:"queen", label:"Queen", price:450},{id:"king", label:"King", price:550}]},
+        {id:"blnk", name:"Blanket", variants:[{id:"single", label:"Single", price:200},{id:"double", label:"Double", price:250}]},
+        {id:"curt", name:"Curtain panel", variants:[{id:"each", label:"Each", price:120}]},
+        {id:"pill", name:"Pillow", variants:[{id:"each", label:"Each", price:100}]}
+      ] : ps.map(x => x.variants ? x : {id:x.id, name:x.name, variants:[{id:"each", label:"Each", price:x.price}]});
+    if (!S.settings.services.some(x=>x.id==="heavy")) S.settings.services.push({id:"heavy", name:"Heavy items", short:"Heavy items", mode:"kg", price:70});
+    save();
+  }
+})();
+const activeSupplies = () => S.settings.supplies.filter(x => !x.archived);
+const activeServices = () => S.settings.services.filter(x => !x.archived);
+const activeAddons = () => S.settings.addons.filter(x => !x.archived);
+const activeFees = () => (S.settings.fees||[]).filter(x => !x.archived);
+const feeNames = o => (o.fees||[]).map(id => { const f = (S.settings.fees||[]).find(x=>x.id===id); return f ? f.name : null; }).concat(o.rush && !(o.fees||[]).length ? ["Rush"] : []).filter(Boolean).join(", ");
+const activePieces = () => S.settings.pieces.filter(x => !x.archived && x.variants.length);
+
+let theme = "light"; try { theme = localStorage.getItem("laundry-theme") || "light"; } catch(e){}
+function applyTheme(){ document.documentElement.setAttribute("data-app-theme", theme); }
+applyTheme();
+const ui = {view:"staff", tab:"counter", ownerTab:"dash", branch:"b1", ownerBranch:"all", liveBranch:"b1", jobsView:"board", jobsDate:"", jobsQ:"", online:true, draft:null, count:{}};
+function freshDraft(){ const f = activeServices()[0]; return {svc:f ? f.id : "",  kg:"", addons:[], pieces:{}, fees:[], customerId:null, newName:"", query:"", notes:"", pay:"later"}; }
+ui.draft = freshDraft();
+
+const B = id => S.branches.find(b => b.id===id);
+const M = id => S.machines.find(m => m.id===id);
+const cust = id => S.customers.find(c => c.id===id);
+const orderBy = (branch, no) => S.orders.find(o => o.branch===branch && o.no===no);
+const activeLoad = mid => S.loads.find(l => l.machine===mid && l.end===null);
+const pending = () => S.events.filter(e => !e.synced).length;
+
+/* ---------- Events, sync, undo ---------- */
+let syncTimer = null;
+function emit(type, data, who){
+  S.events.push({id:uid(), type, branch:ui.branch, at:Date.now(), by:who||null, data, synced:false});
+  scheduleSync();
+}
+function scheduleSync(){
+  clearTimeout(syncTimer);
+  if (!ui.online || !pending()) return;
+  syncTimer = setTimeout(() => {
+    const n = pending();
+    if (!n || !ui.online) return;
+    S.events.forEach(e => e.synced = true);
+    S.lastSync[ui.branch] = Date.now();
+    save(); renderTop();
+    if (n > 1) toast(`Synced ${n} changes`);
+  }, 1400);
+}
+function act(label, fn, opts={}){
+  const before = JSON.stringify(S);
+  fn();
+  save(); render();
+  toast(label, opts.undo === false ? null : () => { S = JSON.parse(before); save(); render(); toast("Undone"); });
+}
+function deduct(branch, use, reason, job){
+  Object.entries(use||{}).forEach(([sid,q]) => {
+    const sup = S.settings.supplies.find(x => x.id===sid); if (!sup || sup.archived || !q) return;
+    S.stock[branch][sid] = (S.stock[branch][sid]||0) - q;
+    S.stockLog.push({branch, supply:sid, qty:-q, reason, job:job||null, at:Date.now()});
+  });
+}
+
+/* ---------- PIN ---------- */
+function withPin(action, title, cb){
+  const p = S.settings.pin;
+  if (!p.on || !p.actions[action]) return cb(null);
+  let digits = "";
+  const staffHere = S.staff.filter(s => s.branch===ui.branch && !s.inactive);
+  openModal(`
+    <div class="modal-head"><div><div class="eyebrow">Staff PIN</div><h2>${esc(title)}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <p class="muted" style="margin:0 0 6px;text-align:center">Enter your 4-digit PIN to record who did this.</p>
+    <div class="pin-dots" id="pin-dots">${"<i></i>".repeat(4)}</div>
+    <div class="pin-err" id="pin-err"></div>
+    <div class="pin-pad">${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-pin="${n}">${n}</button>`).join("")}<button data-pin="clear" aria-label="Clear">C</button><button data-pin="0">0</button><button data-pin="back" aria-label="Delete">⌫</button></div>
+    <p class="sample-note" style="text-align:center">Sample PINs at this branch: ${staffHere.map(s=>`${esc(s.name)} ${s.pin}`).join(" · ")}</p>`,
+    (root) => {
+      root.addEventListener("click", e => {
+        const b = e.target.closest("[data-pin]"); if (!b) return;
+        const v = b.dataset.pin;
+        if (v === "clear") digits = ""; else if (v === "back") digits = digits.slice(0,-1); else if (digits.length < 4) digits += v;
+        $("#pin-err").textContent = "";
+        [...$("#pin-dots").children].forEach((d,i) => d.classList.toggle("on", i < digits.length));
+        if (digits.length === 4){
+          const who = S.staff.find(s => s.pin===digits && s.branch===ui.branch && !s.inactive);
+          if (who){ closeModal(); cb(who); }
+          else { $("#pin-err").textContent = "PIN not recognized at this branch. Try again."; const dots=$("#pin-dots"); dots.classList.remove("shake"); void dots.offsetWidth; dots.classList.add("shake"); digits = ""; setTimeout(()=>[...dots.children].forEach(d=>d.classList.remove("on")), 250); }
+        }
+      });
+    });
+}
+
+/* ---------- Modal + toast ---------- */
+let lastFocus = null;
+function openModal(html, wire){
+  lastFocus = document.activeElement;
+  const root = $("#modal-root");
+  root.innerHTML = `<div class="overlay" data-overlay><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;
+  const modal = $(".modal", root);
+  root.onclick = e => { if (e.target.matches("[data-overlay]") || e.target.closest("[data-close]")) closeModal(); };
+  if (wire) wire(modal);
+  const f = modal.querySelector("button:not([data-close]), input"); if (f) f.focus();
+}
+function closeModal(){ $("#modal-root").innerHTML = ""; if (lastFocus && lastFocus.isConnected) lastFocus.focus(); }
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#modal-root").innerHTML) closeModal(); });
+let toastTimer;
+function toast(msg, undo){
+  const t = $("#toast");
+  t.innerHTML = `<span>${esc(msg)}</span>${undo?'<button type="button">Undo</button>':""}`;
+  t.hidden = false;
+  if (undo) t.querySelector("button").onclick = () => { t.hidden = true; undo(); };
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, undo ? 6000 : 2600);
+}
+
+/* ---------- Icons ---------- */
+const ICON = {
+  edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>',
+  moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>',
+  sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+  counter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v12H4z"/><path d="M8 7V4h8v3"/><path d="M12 11v5M9.5 13.5h5"/></svg>',
+  orders:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h4v16H4zM10 4h4v11h-4zM16 4h4v7h-4z"/></svg>',
+  machines:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M7 6.5h2"/></svg>',
+  supplies:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 4H9z"/><path d="M7 7h10l1 14H6z"/><path d="M9.5 13h5"/></svg>'
+};
+
+/* ---------- Render ---------- */
+const app = $("#app");
+function render(){
+  app.innerHTML = `<header class="top" id="top"></header>${ui.view==="staff" ? staffShell() : ownerView()}`;
+  renderTop();
+}
+function renderTop(){
+  const top = $("#top"); if (!top) return;
+  const n = pending();
+  top.innerHTML = `
+    <div class="brand"><svg class="brand-mark" viewBox="0 0 200 224" role="img" aria-label="Bula and Banlaw Laundry logo"><defs><clipPath id="hexIn"><polygon points="100,26 176,70 176,154 100,198 24,154 24,70"/></clipPath></defs><polygon points="100,4 196,59 196,165 100,220 4,165 4,59" fill="#FFFFFF"/><polygon points="100,13 188,63 188,161 100,211 12,161 12,63" fill="#FFFFFF" stroke="#4AA8E0" stroke-width="7" stroke-linejoin="round"/><polygon points="100,22 180,68 180,156 100,202 20,156 20,68" fill="#FFFFFF" stroke="#2537A0" stroke-width="6" stroke-linejoin="round"/><g clip-path="url(#hexIn)"><rect x="0" y="136" width="200" height="90" fill="#19B5AF"/></g><text textLength="54" lengthAdjust="spacingAndGlyphs" x="100" y="45" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="600" font-size="11" letter-spacing="2" fill="#16246A">EST 2020</text><rect x="74" y="52" width="52" height="64" rx="7" fill="#2537A0"/><rect x="81" y="57" width="20" height="3" rx="1.5" fill="#FFFFFF"/><circle cx="113" cy="59" r="2.6" fill="#FFFFFF"/><circle cx="120" cy="59" r="2.6" fill="#FFFFFF"/><circle cx="100" cy="88" r="18" fill="#FFFFFF"/><circle cx="100" cy="88" r="14" fill="#2537A0"/><path d="M87 89c4-3 7 2 11 0s6-4 10-1 5 2 6 1v1a14 14 0 0 1-27 0z" fill="#FFFFFF"/><g fill="none" stroke="#A9B4C8" stroke-width="2"><circle cx="50" cy="66" r="6"/><circle cx="58" cy="108" r="7"/><circle cx="148" cy="66" r="7"/><circle cx="152" cy="108" r="6"/><circle cx="42" cy="118" r="4"/><circle cx="160" cy="118" r="4"/></g><text textLength="40" lengthAdjust="spacingAndGlyphs" x="47" y="93" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="17" fill="#2537A0">QUICK</text><text textLength="40" lengthAdjust="spacingAndGlyphs" x="153" y="93" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="17" fill="#2537A0">CLEAN</text><text textLength="132" lengthAdjust="spacingAndGlyphs" x="100" y="166" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="27" fill="#2537A0">BULA &amp; BANLAW</text><text textLength="66" lengthAdjust="spacingAndGlyphs" x="100" y="188" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="17" letter-spacing="2" fill="#2537A0">LAUNDRY</text></svg><div><b>Bula &amp; Banlaw Laundry</b><small>${fmtDate(Date.now())} · ${fmtTime(Date.now())}</small></div></div>
+    <div class="seg" role="group" aria-label="View">
+      <button data-view="staff" aria-pressed="${ui.view==="staff"}">Staff tablet</button>
+      <button data-view="owner" aria-pressed="${ui.view==="owner"}">Owner</button>
+    </div>
+    ${ui.view==="staff" && isSimple(ui.branch) ? '<span class="pill plain simple-pill">Simple mode</span>' : ""}${ui.view==="staff" ? `<select class="select" id="branch" aria-label="Branch">${S.branches.map(b=>`<option value="${b.id}" ${b.id===ui.branch?"selected":""}>${esc(b.name)}</option>`).join("")}</select>` : ""}
+    <button class="iconbtn" data-theme-toggle aria-label="${theme==="dark"?"Switch to light theme":"Switch to dark theme"}" title="${theme==="dark"?"Light theme":"Dark theme"}">${theme==="dark"?ICON.sun:ICON.moon}</button>
+    <button class="sync ${ui.online?"":"off"}" data-sync title="Tap to simulate the internet dropping">
+      <span class="dot"></span>${ui.online ? (n ? `Syncing ${n}…` : "Online · synced") : `Offline · ${n} saved on tablet`}
+    </button>`;
+}
+
+function staffShell(){
+  const ready = S.orders.filter(o => o.branch===ui.branch && o.status==="Ready").length;
+  const doneM = S.machines.filter(m => m.branch===ui.branch && isLong(m)).length;
+  if (isSimple(ui.branch) && ui.tab==="machines") ui.tab = "orders";
+  const tabs = [["counter","New job"],["orders","Jobs",ready],["machines","Machines",doneM],["supplies","Supplies"]].filter(t => !(t[0]==="machines" && isSimple(ui.branch)));
+  return `<div class="shell">
+    <nav class="rail" aria-label="Staff screens">${tabs.map(([id,l,b]) => `<button data-tab="${id}" ${ui.tab===id?'aria-current="page"':""}>${ICON[id]}<span>${l}</span>${b?`<span class="badge" aria-label="${b} need attention">${b}</span>`:""}</button>`).join("")}</nav>
+    <main id="main">${({counter:counterView, orders:ordersView, machines:machinesView, supplies:suppliesView})[ui.tab]()}</main>
+  </div>`;
+}
+
+/* ----- Counter ----- */
+function counterView(){
+  const st = S.settings, d = ui.draft;
+  const no = S.nextNo[ui.branch];
+  if (!activeServices().some(x => x.id===d.svc)){ const f = activeServices()[0]; d.svc = f ? f.id : ""; }
+  return `<div class="screen-head"><div><h2>New drop-off job</h2><p>Weigh the clothes and tap the service, or add pieces only. Customer is optional.</p></div><span class="tag" aria-label="Next job number">#${no}</span></div>
+  <div class="counter">
+    <div class="stack">
+      <section class="card">
+        <div class="field-label"><span class="eyebrow">Service</span></div>
+        <div class="chips">${activeServices().map(s => `<button class="chip" data-svc="${s.id}" aria-pressed="${d.svc===s.id}">${esc(s.name)} <small>${peso(s.price)}/${s.mode==="kg"?"kg":"load"}</small></button>`).join("")}</div>
+      </section>
+      <section class="card">
+        <div class="field-label"><span class="eyebrow">Weight (clothes only)</span><span class="muted" style="font-size:13px">Minimum ${st.minKg} kg${svcMode()==="load"?` · ${st.loadKg} kg per load`:""} · leave at 0 for pieces only</span></div>
+        <div class="kg-row">
+          <div class="kg-display" aria-live="polite"><span class="v ${d.kg?"":"empty"}" id="kgv">${d.kg||"0"}</span><span class="u">kilograms</span></div>
+          <div class="keypad">${["1","2","3","4","5","6","7","8","9",".","0","back"].map(k=>`<button data-key="${k}" aria-label="${k==="back"?"Delete":k}">${k==="back"?"⌫":k}</button>`).join("")}</div>
+        </div>
+      </section>
+      <section class="card">
+        <div class="field-label"><span class="eyebrow">Pieces · fixed price, not weighed</span></div>
+        <div class="grid2" style="margin-bottom:14px">
+          ${activePieces().flatMap(p => p.variants.map(v => { const key = `${p.id}:${v.id}`, label = p.variants.length>1 || v.label!=="Each" ? `${p.name} · ${v.label}` : p.name;
+            return `<div class="stepper"><span><b>${esc(label)}</b><br><small class="muted">${peso(v.price)} each</small></span><span class="ctl"><button data-piece="${key}" data-d="-1" aria-label="Fewer ${esc(label)}">−</button><output>${d.pieces[key]||0}</output><button data-piece="${key}" data-d="1" aria-label="More ${esc(label)}">+</button></span></div>`; })).join("")}
+        </div>
+        <div class="field-label"><span class="eyebrow">Add-ons</span></div>
+        <div class="chips" style="margin-bottom:10px">${activeAddons().map(a => `<button class="chip" data-addon="${a.id}" aria-pressed="${d.addons.includes(a.id)}">${esc(a.name)} <small>+${peso(a.price)}</small></button>`).join("")}</div>
+        ${activeFees().length ? `<div class="field-label" style="margin-top:14px"><span class="eyebrow">Fees</span></div><div class="chips">${activeFees().map(f => `<button class="chip" aria-pressed="${d.fees.includes(f.id)}" data-fee="${f.id}">${esc(f.name)} <small>+${peso(f.amount)}${f.note?" · "+esc(f.note):""}</small></button>`).join("")}</div>` : ""}
+      </section>
+      <section class="card">
+        <div class="field-label"><span class="eyebrow">Customer (optional)</span>${d.customerId||d.newName?`<button class="btn small" data-clearcust>Walk-in</button>`:""}</div>
+        <input class="input" id="custq" placeholder="Search name or phone, or type a new name" value="${esc(d.query)}" autocomplete="off">
+        <div class="sugg" id="sugg">${suggHTML()}</div>
+        <input class="input" id="notes" style="margin-top:10px" placeholder="Notes (stains, separate whites…)" value="${esc(d.notes)}">
+      </section>
+    </div>
+    <aside class="card summary" id="summary">${summaryHTML()}</aside>
+  </div>`;
+}
+function svcMode(){ const s = S.settings.services.find(x => x.id===ui.draft.svc); return s ? s.mode : "kg"; }
+function suggHTML(){
+  const d = ui.draft, q = d.query.trim().toLowerCase();
+  if (d.customerId){ const c = cust(d.customerId); return `<button aria-pressed="true" data-cust="${c.id}">✓ ${esc(c.name)} · ${esc(c.phone)}</button>`; }
+  if (d.newName) return `<button aria-pressed="true">✓ New customer: ${esc(d.newName)}</button>`;
+  if (!q) return `<span class="muted" style="font-size:13px">Leave empty for a walk-in. Regulars: ${S.customers.slice(0,3).map(c=>`<button data-cust="${c.id}">${esc(c.name)}</button>`).join(" ")}</span>`;
+  const m = S.customers.filter(c => c.name.toLowerCase().includes(q) || c.phone.replace(/\s/g,"").includes(q.replace(/\s/g,""))).slice(0,4);
+  return m.map(c => `<button data-cust="${c.id}">${esc(c.name)} · ${esc(c.phone)}</button>`).join("") + `<button data-newcust>+ Add “${esc(d.query.trim())}” as new</button>`;
+}
+function summaryHTML(){
+  const d = ui.draft, lines = priceLines(S, d), total = lines.reduce((a,l)=>a+l.amt,0);
+  const ok = Number(d.kg) > 0 || pieceCount(d.pieces) > 0;
+  const who = d.customerId ? cust(d.customerId).name : (d.newName || "Walk-in");
+  return `<div class="eyebrow">Job #${S.nextNo[ui.branch]}</div>
+    <h3 style="margin-top:4px">${esc(who)}</h3>
+    <div class="lines">${ok ? lines.map(l=>`<div class="line"><span>${esc(l.label)}</span><span class="num">${peso(l.amt)}</span></div>`).join("") : '<span class="muted">Enter the weight or add a piece to see the price.</span>'}</div>
+    <div class="total"><span class="eyebrow">Total</span><b>${peso(ok?total:0)}</b></div>
+    <div class="field-label"><span class="eyebrow">Payment</span></div>
+    <div class="seg" role="group" aria-label="Payment" style="width:100%;margin-bottom:14px">${["later","Cash","GCash"].map(p=>`<button style="flex:1" data-pay="${p}" aria-pressed="${d.pay===p}">${p==="later"?"Pay at claim":p}</button>`).join("")}</div>
+    <button class="btn primary block" data-create ${ok?"":"disabled"}>Create job #${S.nextNo[ui.branch]}</button>
+    <p class="sample-note">Prices are sample values. The owner sets real prices in Settings.</p>`;
+}
+function refreshCounter(){ const s = $("#summary"); if (s) s.innerHTML = summaryHTML(); const g = $("#sugg"); if (g) g.innerHTML = suggHTML(); const v = $("#kgv"); if (v){ v.textContent = ui.draft.kg || "0"; v.classList.toggle("empty", !ui.draft.kg); } }
+function createOrder(){
+  const d = ui.draft;
+  withPin("order", `Create job #${S.nextNo[ui.branch]}`, who => {
+    let o;
+    act(`Job #${S.nextNo[ui.branch]} created`, () => {
+      let cid = d.customerId;
+      if (!cid && d.newName){ cid = "c"+uid(); S.customers.push({id:cid, name:d.newName, phone:""}); }
+      const no = String(S.nextNo[ui.branch]++);
+      o = makeOrder(S, {branch:ui.branch, no, kg:d.kg, svc:d.svc, addons:d.addons, pieces:d.pieces, fees:d.fees, customerId:cid, notes:d.notes, by:who&&who.name,
+        paidAt:d.pay!=="later"?Date.now():null, pay:d.pay!=="later"?d.pay:null});
+      if (o.paidAt) o.paidBy = who&&who.name;
+      S.orders.push(o);
+      o.addons.forEach(id => { const a = S.settings.addons.find(x=>x.id===id); if (a) deduct(ui.branch, a.use, `Add-on: ${a.name}`, no); });
+      emit("order_created", {no, kg:o.kg, total:o.total, pay:o.pay}, who&&who.name);
+      ui.draft = freshDraft();
+    });
+    showStub(o);
+  });
+}
+
+/* ----- Claim stub ----- */
+function showStub(o){
+  const svc = S.settings.services.find(s=>s.id===o.svc);
+  const c = o.customerId && cust(o.customerId);
+  openModal(`
+    <div class="modal-head"><div><div class="eyebrow">Claim stub</div><h2>${esc(B(o.branch).name)}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stub">
+      <span class="notch" style="top:28px"></span><span class="notch" style="bottom:28px"></span>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="tag big">#${esc(o.no)}</span>${statusPill(o)}</div>
+      <dl class="kv">
+        <dt>Customer</dt><dd>${c?esc(c.name):"Walk-in"}</dd>
+        <dt>Dropped off</dt><dd>${fmtDate(o.createdAt)}, ${fmtTime(o.createdAt)}</dd>
+        <dt>Service</dt><dd>${o.kg>0 ? esc(svc?svc.name:o.svc) : "Pieces only"}${feeNames(o)?" · "+esc(feeNames(o)):""}</dd>
+        <dt>Weight</dt><dd class="mono">${o.kg>0 ? o.kg+" kg" : "—"}</dd>
+        ${o.lines.map(l=>`<dt>${esc(l.label)}</dt><dd class="num">${peso(l.amt)}</dd>`).join("")}
+        <dt><b>Total</b></dt><dd class="mono" style="font-size:18px">${peso(o.total)}</dd>
+        <dt>Payment</dt><dd>${o.paidAt?`Paid · ${esc(o.pay)}`:"Pay at claim"}</dd>
+        ${o.notes?`<dt>Notes</dt><dd>${esc(o.notes)}</dd>`:""}
+      </dl>
+      <div class="foot">Show this stub or say job #${esc(o.no)} to claim. ${o.by?`Received by ${esc(o.by)}.`:""}</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn ink" data-print style="flex:1">Print stub</button>
+      <button class="btn" data-close style="flex:1">Done</button>
+    </div>`, root => {
+      root.querySelector("[data-print]").onclick = () => toast("In the real app this opens Android's print dialog");
+    });
+}
+function statusPill(o){
+  if (o.status==="Claimed") return '<span class="pill plain">Claimed</span>';
+  if (o.status==="Ready") return `<span class="pill good">${esc(stageName("Ready"))}${o.paidAt?" · paid":""}</span>`;
+  return `<span class="pill plain">${esc(stageName(o.status))}</span>`;
+}
+
+/* ----- Orders board ----- */
+function ordersView(){
+  const list = S.orders.filter(o => o.branch===ui.branch && o.status!=="Claimed");
+  const claimedToday = S.orders.filter(o => o.branch===ui.branch && o.status==="Claimed" && isToday(o.claimedAt||0)).length;
+  if (!ui.jobsDate) ui.jobsDate = isoDay(Date.now());
+  const seg = `<div class="seg" role="group" aria-label="Jobs view">${[["board","Board"],["list","List"],["history","History"]].map(([k,l])=>`<button data-jview="${k}" aria-pressed="${ui.jobsView===k}">${l}</button>`).join("")}</div>`;
+  if (ui.jobsView === "list") return `<div class="screen-head"><div><h2>Jobs</h2><p>Every job received, paid or released on the day, including released jobs. Tap a job for its history.</p></div>${seg}</div>${jobsToolbar()}<div id="jobs-results" class="jlist">${jobListRows()}</div>`;
+  if (ui.jobsView === "history") return `<div class="screen-head"><div><h2>Jobs</h2><p>Everything that happened on the day, newest first. Tap a job number to open it.</p></div>${seg}</div>${jobsToolbar()}<div id="jobs-results">${historyRows()}</div>`;
+  return `<div class="screen-head"><div><h2>Jobs</h2><p>Tap a card's button to move it to the next stage, or the pencil to set its stage by hand. Tap the card for its stub.</p></div><div class="head-actions"><span class="pill plain">${claimedToday} claimed today</span>${seg}</div></div>
+  <div class="board">${visibleStageIds(ui.branch).map(st => {
+    const items = list.filter(o => shownIn(o, ui.branch)===st).sort((a,b)=>a.createdAt-b.createdAt);
+    return `<section class="col" aria-label="${esc(stageName(st))}"><div class="col-head"><h3>${esc(stageName(st))}</h3><span class="pill plain">${items.length}</span></div>
+      ${items.length ? items.map(o => orderCard(o)).join("") : `<div class="empty-col">Nothing here.</div>`}</section>`;
+  }).join("")}</div>`;
+}
+function orderCard(o, ro){
+  const c = o.customerId && cust(o.customerId);
+  const old = o.status==="Ready" && Date.now()-o.createdAt > 2*DAY;
+  const svc = S.settings.services.find(s=>s.id===o.svc);
+  const main = o.status==="Ready" ? `<button class="btn primary small" data-claim="${o.no}">Claim${o.paidAt?"":" & pay"}</button>`
+    : `<button class="btn small" data-advance="${o.no}" aria-label="Move job ${o.no} to ${esc(stageName(nextFor(o)))}">${esc(stageName(nextFor(o)))} →</button>`;
+  const action = `<div class="card-acts">${main}<button class="btn small icon-btn" data-editstage="${o.no}" aria-label="Change stage of job ${o.no}" title="Change stage">${ICON.edit}</button></div>`;
+  const head = ro ? '<div class="open">' : `<button class="open" data-stub="${o.no}" aria-label="Open claim stub for job ${o.no}">`;
+  return `<article class="ocard ${old?"old":""}">
+    ${head}
+      <div class="row"><span class="tag">#${esc(o.no)}</span><span class="mono" style="font-weight:700">${peso(o.total)}</span></div>
+      <div class="row"><b>${c?esc(c.name):"Walk-in"}</b>${o.paidAt?'<span class="pill good">Paid</span>':'<span class="pill warn">Unpaid</span>'}</div>
+      <div class="meta">${jobSize(o)}${o.kg>0 ? " · "+esc(svc?svc.short:"") : ""}${feeNames(o)?` · <b>${esc(feeNames(o))}</b>`:""} · ${ago(o.createdAt)}</div>
+      ${old?'<div class="meta" style="color:var(--warn);font-weight:700">Waiting over 2 days</div>':""}
+      ${!visibleStageIds(o.branch).includes(o.status) && o.status!=="Claimed" ? `<div class="meta"><span class="pill plain">in ${esc(stageName(o.status))}</span></div>` : ""}
+    ${ro?"</div>":"</button>"}${ro?"":action}</article>`;
+}
+function editStage(no){
+  const o = orderBy(ui.branch, no), open = S.loads.find(l => l.branch===o.branch && l.order===o.no && l.end===null);
+  let to = null;
+  openModal(`<div class="modal-head"><div><div class="eyebrow">Manual override · job #${esc(no)}</div><h2>Change stage</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <p class="muted" style="margin:0">Use this when the board doesn't match where the laundry really is. Currently <b>${esc(stageName(o.status))}</b>. The change is recorded in the job's history.</p>
+      <div class="pick">${visibleStageIds(o.branch).map(st => `<button data-pickstage="${st}" ${st===o.status?'aria-current="true" disabled':""}><span><b>${esc(stageName(st))}</b>${st===o.status?' <small class="muted">· current</small>':""}</span><span class="muted">${stageIdx(st) < stageIdx(o.status) ? "back" : "forward"}</span></button>`).join("")}</div>
+      <label><span class="eyebrow">Reason (optional)</span><input class="input" id="ov-reason" style="margin-top:6px" placeholder="e.g. Forgot to tap the dryer"></label>
+      ${open ? `<p class="sample-note">Still loaded in ${esc(M(open.machine).label)}. Unload it on the Machines screen when it's out.</p>` : ""}
+      <p class="sample-note">To release a job to the customer, use Claim so the payment is recorded.</p>
+      <button class="btn primary block" data-saveoverride disabled>Choose a stage</button>
+    </div>`, root => root.addEventListener("click", e => {
+      const pb = e.target.closest("[data-pickstage]");
+      if (pb && !pb.disabled){ to = pb.dataset.pickstage; root.querySelectorAll("[data-pickstage]").forEach(b => b.setAttribute("aria-pressed", b===pb)); const sv = root.querySelector("[data-saveoverride]"); sv.disabled = false; sv.textContent = `Move #${no} to ${stageName(to)}`; }
+      if (!e.target.closest("[data-saveoverride]") || !to) return;
+      const reason = $("#ov-reason").value.trim(), from = o.status;
+      closeModal();
+      withPin("override", `Move #${no} to ${stageName(to)}`, who => act(`#${no} changed from ${stageName(from)} to ${stageName(to)}`, () => {
+        o.status = to;
+        (o.log = o.log || []).push({at:Date.now(), to, from, override:true, reason, by:who&&who.name});
+        if (to === "Ready" && !(o.log||[]).some(x => x.to==="Ready" && x.at < Date.now()-1)) deduct(ui.branch, S.settings.recipe.orderReady, "Packed", no);
+        emit("stage_overridden", {no, from, to, reason}, who&&who.name);
+      }));
+    }));
+}
+function advance(no){
+  const o = orderBy(ui.branch, no), to = nextFor(o);
+  if (!to) return;
+  if (stageOf(to).ask && !isSimple(o.branch)) return machinePicker(o, to);
+  act(`#${no} moved to ${stageName(to)}`, () => { moveJob(o, to, {}); emit("status_changed", {no, to}); });
+}
+function claim(no){
+  const o = orderBy(ui.branch, no);
+  if (o.paidAt){ return withPin("claim", `Release #${no}`, who => act(`#${no} claimed`, () => { o.status="Claimed"; o.claimedAt=Date.now(); o.claimedBy=who&&who.name; emit("claimed", {no}, who&&who.name); })); }
+  let method = "Cash";
+  openModal(`
+    <div class="modal-head"><div><div class="eyebrow">Claim and pay</div><h2>Job #${esc(no)}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="total"><span class="eyebrow">Amount due</span><b>${peso(o.total)}</b></div>
+    <div class="seg" role="group" aria-label="Payment method" style="width:100%;margin-bottom:12px"><button style="flex:1" data-m="Cash" aria-pressed="true">Cash</button><button style="flex:1" data-m="GCash" aria-pressed="false">GCash</button></div>
+    <input class="input" id="gref" placeholder="GCash reference no. (optional)" hidden>
+    <button class="btn primary block" style="margin-top:14px" data-confirm>Received ${peso(o.total)} · Release</button>`, root => {
+      root.addEventListener("click", e => {
+        const m = e.target.closest("[data-m]");
+        if (m){ method = m.dataset.m; root.querySelectorAll("[data-m]").forEach(b=>b.setAttribute("aria-pressed", b===m)); $("#gref").hidden = method!=="GCash"; }
+        if (e.target.closest("[data-confirm]")){
+          const ref = $("#gref").value.trim();
+          closeModal();
+          withPin("claim", `Release #${no}`, who => act(`#${no} paid by ${method} and claimed`, () => { o.status="Claimed"; o.paidAt=Date.now(); o.pay=method; o.payRef=ref; o.paidBy=who&&who.name; o.claimedAt=Date.now(); o.claimedBy=who&&who.name; emit("claimed", {no, pay:method, amount:o.total}, who&&who.name); }));
+        }
+      });
+    });
+}
+
+/* ----- Job list, history and timeline ----- */
+function logStage(o, to, via){ (o.log = o.log || []).push({at:Date.now(), to, via}); }
+const isoDay = t => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`; };
+const dayRange = iso => { const [y,m,d] = iso.split("-").map(Number), a = new Date(y, m-1, d).getTime(); return [a, a+DAY]; };
+const fmtDT = t => `${fmtDate(t)}, ${fmtTime(t)}`;
+const dayLabel = iso => iso===isoDay(Date.now()) ? "today" : iso===isoDay(Date.now()-DAY) ? "yesterday" : fmtDate(dayRange(iso)[0]);
+function jobTimeline(o){
+  const svc = S.settings.services.find(s=>s.id===o.svc), ev = [];
+  ev.push({at:o.createdAt, kind:"in", label:"Received", detail:`${jobSize(o)}${o.kg>0 && svc ? " · "+svc.short : o.kg>0 ? "" : " · pieces only"} · ${peso(o.total)}`, by:o.by});
+  S.loads.filter(l => l.branch===o.branch && l.order===o.no).forEach(l => {
+    const m = M(l.machine), kind = (catOf(m.type) || {name:"Machine"}).name;
+    ev.push({at:l.start, kind:"load", label:`${kind} ${m.label} loaded`, detail:"", by:null});
+    if (l.end) ev.push({at:l.end, kind:"load", label:`${kind} ${m.label} unloaded`, detail:`after ${dur(Math.round((l.end-l.start)/MIN))}`, by:null});
+  });
+  (o.log||[]).forEach(x => ev.push({at:x.at, kind:"stage", label: x.override ? `Stage changed to ${stageName(x.to)}` : `Moved to ${stageName(x.to)}`, detail: x.override ? `manual override from ${stageName(x.from)}${x.reason?" · "+x.reason:""}` : x.skipped ? `no machine recorded · ${x.reason}` : x.via ? (/started$/.test(x.via) ? `in ${x.via.replace(/ started$/,"")}` : `automatic when ${x.via}`) : "", by:x.by||null}));
+  if (o.paidAt) ev.push({at:o.paidAt, kind:"pay", label:`Paid ${peso(o.total)}`, detail:`${o.pay}${o.payRef?" · ref "+o.payRef:""}${o.paidAt-o.createdAt < 2*MIN ? " · at drop-off" : ""}`, by:o.paidBy||null});
+  if (o.claimedAt) ev.push({at:o.claimedAt, kind:"out", label:"Released to customer", detail:"", by:o.claimedBy||null});
+  const rank = {in:0, load:1, stage:2, pay:3, out:4};
+  const now = Date.now();
+  return ev.filter(e => e.at <= now).sort((a,b) => a.at-b.at || rank[a.kind]-rank[b.kind]);
+}
+function jobMatches(o, q){
+  if (!q) return true;
+  const c = o.customerId && cust(o.customerId);
+  const hay = [o.no, c && c.name, c && c.phone && c.phone.replace(/\s/g,""), o.notes, o.status==="Claimed" ? "released" : stageName(o.status), o.pay].filter(Boolean).join(" ").toLowerCase();
+  const n = q.toLowerCase().replace(/^#/,"").trim();
+  return hay.includes(n) || hay.includes(n.replace(/\s/g,""));
+}
+function statusChip(o){ return o.status==="Claimed" ? '<span class="pill plain">Released</span>' : `<span class="pill ${o.status==="Ready"?"good":"plain"}">${esc(stageName(o.status))}</span>`; }
+function payText(o){ return o.paidAt ? `<span class="pill good">Paid · ${esc(o.pay)}</span><small class="muted">${peso(o.total)} · ${fmtDT(o.paidAt)}</small>` : `<span class="pill warn">Unpaid</span><small class="muted">${peso(o.total)} due</small>`; }
+function jobsNote(){ return ui.jobsQ.trim() ? "Searching all dates." : `Showing ${dayLabel(ui.jobsDate)}.`; }
+function jobsToolbar(){
+  const today = isoDay(Date.now()), yest = isoDay(Date.now()-DAY);
+  return `<div class="jobs-tools">
+    <label class="search"><span class="sr">Search jobs</span><input class="input" id="jobs-q" type="search" placeholder="Search job #, customer, phone or notes" value="${esc(ui.jobsQ)}" autocomplete="off"></label>
+    <div class="datebar">
+      <button class="chip" data-jday="${today}" aria-pressed="${ui.jobsDate===today}">Today</button>
+      <button class="chip" data-jday="${yest}" aria-pressed="${ui.jobsDate===yest}">Yesterday</button>
+      <label class="datepick"><span class="sr">Pick a date</span><input class="input" type="date" id="jobs-date" value="${ui.jobsDate}" max="${today}"></label>
+    </div>
+  </div>
+  <p class="muted tools-note" id="jobs-note">${jobsNote()}</p>`;
+}
+function jobListRows(){
+  const [a,z] = dayRange(ui.jobsDate), q = ui.jobsQ.trim(), inDay = t => t && t>=a && t<z;
+  const list = S.orders.filter(o => o.branch===ui.branch && (q ? jobMatches(o, q) : (inDay(o.createdAt) || inDay(o.claimedAt) || inDay(o.paidAt))))
+    .sort((x,y) => Math.max(y.createdAt, y.claimedAt||0) - Math.max(x.createdAt, x.claimedAt||0));
+  if (!list.length) return `<div class="empty-col">${q ? `No jobs match “${esc(q)}”.` : "No jobs received, paid or released on this day."}</div>`;
+  return list.map(o => { const c = o.customerId && cust(o.customerId), svc = S.settings.services.find(s=>s.id===o.svc);
+    return `<button class="jrow" data-jobdetail="${o.no}" aria-label="Open history for job ${o.no}">
+      <span class="jr-id"><span class="tag">#${esc(o.no)}</span></span>
+      <span class="jr-who"><b>${c?esc(c.name):"Walk-in"}</b><small class="muted">${jobSize(o)}${o.kg>0 && svc ? " · "+esc(svc.short) : ""}${feeNames(o)?" · "+esc(feeNames(o)):""}</small></span>
+      <span class="jr-st">${statusChip(o)}<small class="muted">In ${fmtDT(o.createdAt)}${o.claimedAt?` · Out ${fmtDT(o.claimedAt)}`:""}</small></span>
+      <span class="jr-pay">${payText(o)}</span>
+    </button>`; }).join("");
+}
+function historyRows(){
+  const [a,z] = dayRange(ui.jobsDate), q = ui.jobsQ.trim();
+  let rows = [];
+  S.orders.filter(o => o.branch===ui.branch && (!q || jobMatches(o, q))).forEach(o => jobTimeline(o).forEach(e => rows.push({...e, o})));
+  if (!q){
+    S.loads.filter(l => l.branch===ui.branch && l.self && l.amount).forEach(l => rows.push({at:l.start, kind:"pay", label:`Self-service ${M(l.machine).label}`, detail:`${peso(l.amount)} · ${l.pay}`, amount:l.amount, pay:l.pay, o:null}));
+    rows = rows.filter(r => r.at>=a && r.at<z);
+  }
+  rows.sort((x,y) => y.at-x.at);
+  let summary = "";
+  if (!q){
+    const pays = rows.filter(r => r.kind==="pay").map(r => r.o ? {amt:r.o.total, pay:r.o.pay} : {amt:r.amount, pay:r.pay});
+    const sum = m => pays.filter(x => !m || x.pay===m).reduce((s,x) => s+x.amt, 0);
+    summary = `<div class="hist-sum"><span><b>${rows.filter(r=>r.kind==="in").length}</b> received</span><span><b>${rows.filter(r=>r.kind==="out").length}</b> released</span><span><b>${peso(sum())}</b> collected · Cash ${peso(sum("Cash"))} · GCash ${peso(sum("GCash"))}</span></div>`;
+  }
+  if (!rows.length) return summary + `<div class="empty-col">${q ? `No events match “${esc(q)}”.` : "No events on this day."}</div>`;
+  return summary + `<ol class="hist">${rows.map(r => `<li class="hist-row k-${r.kind}">
+      <span class="h-time mono">${q ? fmtDT(r.at) : fmtTime(r.at)}</span>
+      <span class="h-dot" aria-hidden="true"></span>
+      <span class="h-main"><b>${esc(r.label)}</b>${r.detail?` <span class="muted">· ${esc(r.detail)}</span>`:""}${r.by?`<small class="muted"> · by ${esc(r.by)}</small>`:""}</span>
+      ${r.o ? `<button class="tag h-job" data-jobdetail="${r.o.no}" aria-label="Open job ${r.o.no}">#${esc(r.o.no)}</button>` : "<span></span>"}
+    </li>`).join("")}</ol>`;
+}
+function refreshJobs(){
+  const r = $("#jobs-results"); if (r) r.innerHTML = ui.jobsView==="list" ? jobListRows() : historyRows();
+  const n = $("#jobs-note"); if (n) n.textContent = jobsNote();
+}
+function showJobDetail(no){
+  const o = orderBy(ui.branch, no), c = o.customerId && cust(o.customerId), ev = jobTimeline(o);
+  openModal(`<div class="modal-head"><div><div class="eyebrow">Job history</div><h2 class="jd-title"><span class="tag">#${esc(o.no)}</span> ${c?esc(c.name):"Walk-in"}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="jd-sum">${statusChip(o)} ${payText(o)}</div>
+    <div class="lines" style="margin:12px 0">${o.lines.map(l=>`<div class="line"><span>${esc(l.label)}</span><span class="num">${peso(l.amt)}</span></div>`).join("")}<div class="line"><b>Total</b><b class="num">${peso(o.total)}</b></div></div>
+    <ol class="tl">${ev.map(e => `<li class="tl-row k-${e.kind}"><span class="h-dot" aria-hidden="true"></span><span><small class="mono muted">${fmtDT(e.at)}</small><br><b>${esc(e.label)}</b>${e.detail?`<br><span class="muted">${esc(e.detail)}</span>`:""}${e.by?`<br><small class="muted">by ${esc(e.by)}</small>`:""}</span></li>`).join("")}</ol>
+    ${o.notes?`<p class="sample-note">Notes: ${esc(o.notes)}</p>`:""}
+    <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap"><button class="btn" data-openstub style="flex:1">Claim stub</button><button class="btn ink" data-close style="flex:1">Done</button></div>`,
+    root => { root.querySelector("[data-openstub]").onclick = () => { closeModal(); showStub(o); }; });
+}
+
+/* ----- Stages and machine categories ----- */
+const CAT_COLORS = ["var(--accent)","var(--sky)","var(--teal)","var(--warn)","var(--good)","var(--muted)"];
+const cats = () => S.settings.categories.filter(c => !c.archived);
+const catOf = id => S.settings.categories.find(c => c.id===id);
+const catColor = id => CAT_COLORS[Math.max(0, S.settings.categories.findIndex(c => c.id===id)) % CAT_COLORS.length];
+const stageList = () => S.settings.stages.filter(s => !s.archived);
+const stageIds = () => stageList().map(s => s.id);
+const stageOf = id => S.settings.stages.find(s => s.id===id);
+const stageName = id => id==="Claimed" ? "Released" : (stageOf(id) || {name:id}).name;
+const isSimple = bid => !!(B(bid) || {}).simple;
+const visibleStageIds = bid => { const l = stageList(); return isSimple(bid) ? l.filter((x,i) => i===0 || i===l.length-1 || x.simple).map(x => x.id) : l.map(x => x.id); };
+const shownIn = (o, bid) => { const vis = visibleStageIds(bid); if (vis.includes(o.status)) return o.status; const i = stageIdx(o.status); return vis.filter(v => stageIdx(v) <= i).at(-1) || vis[0]; };
+const nextFor = o => { const vis = visibleStageIds(o.branch), i = stageIdx(o.status); return vis.find(v => stageIdx(v) > i) || null; };
+const nextStage = id => { const ids = stageIds(), i = ids.indexOf(id); return i>=0 && i<ids.length-1 ? ids[i+1] : null; };
+const stageIdx = id => stageIds().indexOf(id);
+const branchMachines = (branch, catId) => S.machines.filter(m => m.branch===branch && !m.removed && (!catId || m.type===catId));
+const openLoads = o => S.loads.filter(l => l.branch===o.branch && l.order===o.no && l.end===null);
+function endOpenLoads(o){ openLoads(o).forEach(l => { l.end = Date.now(); }); }
+function startLoad(m, o){
+  S.loads.push({id:uid(), machine:m.id, branch:m.branch, order:o ? o.no : null, start:Date.now(), end:null, self:!o});
+  const c = catOf(m.type);
+  if (c && c.washSupplies) deduct(m.branch, S.settings.recipe.washLoad, `${m.label} load${o?"":" (self-service)"}`, o ? o.no : null);
+}
+function moveJob(o, to, extra){
+  extra = extra || {};
+  const reachedReady = (o.log||[]).some(x => x.to==="Ready");
+  if (to !== o.status) endOpenLoads(o);
+  o.status = to;
+  (o.log = o.log || []).push({at:Date.now(), to, via:extra.via||null, skipped:!!extra.skipped, reason:extra.reason||"", by:extra.by||null});
+  if (to==="Ready" && !reachedReady) deduct(o.branch, S.settings.recipe.orderReady, "Packed", o.no);
+}
+// the stage a load on this machine belongs to
+function stageForMachine(m){ return stageList().find(s => s.ask && s.cat===m.type) || stageList().find(s => s.ask && !s.cat) || null; }
+
+function machinePicker(o, to){
+  const st = stageOf(to), c = st.cat && catOf(st.cat);
+  const list = branchMachines(o.branch, st.cat && c && !c.archived ? st.cat : null);
+  const what = c ? c.name.toLowerCase() : "machine";
+  openModal(`<div class="modal-head"><div><div class="eyebrow">Job #${esc(o.no)} → ${esc(stageName(to))}</div><h2>Which ${esc(what)}?</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <div class="mpick">${list.length ? list.map(m => { const ms = machineState(m), busy = ms.s!=="idle", off = m.outOfService;
+        return `<button data-pickm="${m.id}" ${busy||off?"disabled":""} class="mp ${busy?"busy":""}"><b>${esc(m.label)}</b><small>${off ? "Out of service" : busy ? (ms.l.order ? "#"+esc(ms.l.order) : "In use") : "Idle"}</small></button>`; }).join("") : `<p class="muted" style="margin:0">No ${esc(what)}s set up at this branch.</p>`}</div>
+      <p class="sample-note" style="margin:0">Picking one starts timing it, like tapping it on the Machines screen.${openLoads(o).length ? ` ${openLoads(o).map(l=>esc(M(l.machine).label)).join(", ")} will be unloaded.` : ""}</p>
+      <details class="skip"><summary>Skip, no machine</summary>
+        <label><span class="eyebrow">Reason (required)</span><input class="input" id="skip-reason" style="margin-top:6px" placeholder="e.g. Customer's own detergent, hand wash"></label>
+        <p class="pin-err" id="skip-err" style="text-align:left"></p>
+        <button class="btn block" data-skipm>Move to ${esc(stageName(to))} without a machine</button>
+      </details>
+    </div>`, root => root.addEventListener("click", e => {
+      const pb = e.target.closest("[data-pickm]");
+      if (pb && !pb.disabled){
+        const m = M(pb.dataset.pickm);
+        closeModal();
+        return act(`#${o.no} moved to ${stageName(to)} · ${m.label} started`, () => { moveJob(o, to, {via:`${m.label} started`}); startLoad(m, o); emit("status_changed", {no:o.no, to, machine:m.label}); });
+      }
+      if (e.target.closest("[data-skipm]")){
+        const reason = $("#skip-reason").value.trim();
+        if (!reason){ $("#skip-err").textContent = "Give a reason for skipping the machine."; return $("#skip-reason").focus(); }
+        closeModal();
+        act(`#${o.no} moved to ${stageName(to)} · no machine`, () => { moveJob(o, to, {skipped:true, reason}); emit("status_changed", {no:o.no, to, skipped:true, reason}); });
+      }
+    }));
+}
+
+/* ----- Owner: machines and categories ----- */
+function machinesAdmin(){
+  const filt = ui.machBranch || "all";
+  const catOpts = sel => cats().map(c => `<option value="${c.id}" ${c.id===sel?"selected":""}>${esc(c.name)}</option>`).join("");
+  const catCard = `<section class="card" style="margin-bottom:16px"><div class="screen-head" style="margin-bottom:6px"><div><h3>Machine categories</h3><p>Shared by all branches. Washer and Dryer come set up; add others such as a steam press.</p></div><button class="btn primary small" data-addcat>+ Add category</button></div>
+    <div class="table-wrap"><table class="edit-table"><thead><tr><th>Name</th><th>Label prefix</th><th>Uses wash supplies per load</th><th class="r"><span class="sr">Remove</span></th></tr></thead><tbody>
+    ${cats().map(c => `<tr>
+      <td><input class="cell-in" data-catf="name" data-cid="${c.id}" value="${esc(c.name)}" aria-label="Category name"></td>
+      <td><input class="cell-in" style="max-width:90px" data-catf="short" data-cid="${c.id}" value="${esc(c.short)}" aria-label="Label prefix for ${esc(c.name)}"></td>
+      <td><label class="check"><input type="checkbox" data-catwash="${c.id}" ${c.washSupplies?"checked":""}> <span class="muted">Detergent and conditioner per load</span></label></td>
+      <td class="r"><button class="x" style="width:44px;height:44px" data-delcat="${c.id}" aria-label="Remove ${esc(c.name)}" title="Remove">×</button></td></tr>`).join("")}
+    </tbody></table></div></section>`;
+  const branches = S.branches.filter(b => filt==="all" || b.id===filt).map(b => {
+    const ms = branchMachines(b.id);
+    return `<section class="card"><div class="log-head"><h3>${esc(b.name)}</h3><button class="btn small" data-addmach="${b.id}">+ Add machine</button></div>
+      ${cats().map(c => { const list = ms.filter(m => m.type===c.id); return `<div class="eyebrow" style="margin:10px 0 6px">${esc(c.name)} · ${list.length}</div>
+        ${list.length ? `<div class="mach-list">${list.map(m => { const busy = machineState(m).s!=="idle"; return `<div class="mach-row ${m.outOfService?"is-off":""}">
+          <input class="cell-in" data-mf="label" data-mid="${m.id}" value="${esc(m.label)}" aria-label="Machine label">
+          <select class="cell-in" data-mf="type" data-mid="${m.id}" aria-label="Category of ${esc(m.label)}">${catOpts(m.type)}</select>
+          <button class="btn small" data-mservice="${m.id}">${m.outOfService ? "Back in service" : "Out of service"}</button>
+          <button class="x" style="width:44px;height:44px" data-delmach="${m.id}" aria-label="Remove ${esc(m.label)}" title="${busy?"In use":"Remove"}" ${busy?"disabled":""}>×</button>
+        </div>`; }).join("")}</div>` : `<p class="muted" style="margin:0 0 6px">None.</p>`}`; }).join("")}
+    </section>`; }).join("");
+  return `<div class="screen-head"><div><h2>Machines</h2><p>Set up the machines at each branch. Out-of-service machines are hidden from staff until you put them back.</p></div></div>
+    ${catCard}
+    <div class="chips" style="margin-bottom:14px"><button class="chip" data-mb="all" aria-pressed="${filt==="all"}">All branches</button>${S.branches.map(b=>`<button class="chip" data-mb="${b.id}" aria-pressed="${filt===b.id}">${esc(b.name)}</button>`).join("")}</div>
+    <div class="staff-grid">${branches}</div>`;
+}
+function machineForm(bid){
+  let cat = cats()[0] && cats()[0].id;
+  const suggest = c => { const cc = catOf(c), used = branchMachines(bid, c).map(m => m.label); let n = 1; while (used.includes(`${cc.short}${n}`)) n++; return `${cc.short}${n}`; };
+  openModal(`<div class="modal-head"><div><div class="eyebrow">${esc(B(bid).name)}</div><h2>Add machine</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <div><span class="eyebrow">Category</span><div class="chips" style="margin-top:6px">${cats().map((c,i)=>`<button class="chip" data-mcat="${c.id}" aria-pressed="${i===0}">${esc(c.name)}</button>`).join("")}</div></div>
+      <label><span class="eyebrow">Label</span><input class="input" id="mc-label" style="margin-top:6px" value="${cat?suggest(cat):""}"></label>
+      <p class="pin-err" id="mc-err" style="text-align:left"></p>
+      <button class="btn primary block" data-savemach>Add machine</button>
+    </div>`, root => root.addEventListener("click", e => {
+      const cb = e.target.closest("[data-mcat]");
+      if (cb){ cat = cb.dataset.mcat; root.querySelectorAll("[data-mcat]").forEach(b=>b.setAttribute("aria-pressed", b===cb)); $("#mc-label").value = suggest(cat); }
+      if (!e.target.closest("[data-savemach]")) return;
+      const label = $("#mc-label").value.trim();
+      if (!label) return $("#mc-err").textContent = "Give the machine a label.";
+      if (branchMachines(bid).some(m => m.label.toLowerCase()===label.toLowerCase())) return $("#mc-err").textContent = `${label} already exists at ${B(bid).name}.`;
+      closeModal();
+      act(`${label} added to ${B(bid).name}`, () => { S.machines.push({id:bid+"-"+uid(), branch:bid, type:cat, label}); emit("machine_added", {branch:bid, label}); });
+    }));
+}
+
+/* ----- Owner: job stages ----- */
+function stagesCard(){
+  const st = stageList(), catSel = (s) => `<select class="cell-in" data-stf="cat" data-sid="${s.id}" ${s.ask?"":"disabled"} aria-label="Machine type for ${esc(s.name)}"><option value="">Any machine</option>${cats().map(c=>`<option value="${c.id}" ${c.id===s.cat?"selected":""}>${esc(c.name)} only</option>`).join("")}</select>`;
+  return `<section class="card" style="grid-column:1/-1"><div class="screen-head" style="margin-bottom:6px"><div><h3>Job stages</h3><p>The columns on the staff job board, in order. The first and last stage can be renamed but not removed. "Ask for machine" makes staff pick the machine when they move a job into that stage.</p></div><button class="btn primary small" data-addstage>+ Add stage</button></div>
+    <div class="table-wrap"><table class="edit-table stage-table"><thead><tr><th>Order</th><th>Stage</th><th>Ask for machine</th><th>Machine type</th><th>Next stage when unloaded</th><th>Show in simple mode</th><th class="r"><span class="sr">Remove</span></th></tr></thead><tbody>
+    ${st.map((s,i) => { const fixed = i===0 || i===st.length-1, n = S.orders.filter(o => o.status===s.id).length; return `<tr>
+      <td class="nowrap">${fixed ? `<span class="muted">${i===0?"First":"Last"}</span>` : `<button class="btn small icon-btn" data-stup="${s.id}" ${i<=1?"disabled":""} aria-label="Move ${esc(s.name)} up">↑</button> <button class="btn small icon-btn" data-stdown="${s.id}" ${i>=st.length-2?"disabled":""} aria-label="Move ${esc(s.name)} down">↓</button>`}</td>
+      <td><input class="cell-in" data-stf="name" data-sid="${s.id}" value="${esc(s.name)}" aria-label="Stage name"><small class="muted">${n} job${n===1?"":"s"} here now, all branches</small></td>
+      <td>${fixed ? '<span class="muted">—</span>' : `<label class="check"><input type="checkbox" data-stask="${s.id}" ${s.ask?"checked":""}> Ask</label>`}</td>
+      <td>${fixed ? '<span class="muted">—</span>' : catSel(s)}</td>
+      <td>${fixed ? '<span class="muted">—</span>' : `<label class="check"><input type="checkbox" data-stauto="${s.id}" ${s.autoNext?"checked":""} ${s.ask?"":"disabled"}> Move on</label>`}</td>
+      <td>${fixed ? '<label class="check"><input type="checkbox" checked disabled> Always</label>' : `<label class="check"><input type="checkbox" data-stsimple="${s.id}" ${s.simple?"checked":""}> Show</label>`}</td>
+      <td class="r">${fixed ? "" : `<button class="x" style="width:44px;height:44px" data-delstage="${s.id}" aria-label="Remove ${esc(s.name)}" title="Remove">×</button>`}</td></tr>`; }).join("")}
+    </tbody></table></div>
+    <p class="sample-note">Moving into a stage that asks for a machine ends the job's previous load. "Move on" sends the job to the next stage when its last machine is unloaded on the Machines screen, unless that stage also asks for a machine. Branches in simple mode show only the stages ticked for simple mode, never ask for a machine, and hide the Machines screen.</p>
+  </section>`;
+}
+function stageForm(){
+  openModal(`<div class="modal-head"><div><div class="eyebrow">Job stages</div><h2>Add stage</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <label><span class="eyebrow">Name</span><input class="input" id="sg-name" style="margin-top:6px" placeholder="e.g. Ironing"></label>
+      <label class="check"><input type="checkbox" id="sg-ask"> Ask staff which machine</label>
+      <label><span class="eyebrow">Machine type</span><select class="input" id="sg-cat" style="margin-top:6px"><option value="">Any machine</option>${cats().map(c=>`<option value="${c.id}">${esc(c.name)} only</option>`).join("")}</select></label>
+      <p class="sample-note" style="margin:0">It is added just before the last stage. Use the arrows to reorder.</p>
+      <p class="pin-err" id="sg-err" style="text-align:left"></p>
+      <button class="btn primary block" data-savestage>Add stage</button>
+    </div>`, root => root.addEventListener("click", e => {
+      if (!e.target.closest("[data-savestage]")) return;
+      const name = $("#sg-name").value.trim(), ask = $("#sg-ask").checked, cat = $("#sg-cat").value;
+      if (!name) return $("#sg-err").textContent = "Give the stage a name.";
+      if (stageList().some(s => s.name.toLowerCase()===name.toLowerCase())) return $("#sg-err").textContent = `${name} is already a stage.`;
+      closeModal();
+      act(`${name} stage added`, () => { const arr = S.settings.stages, last = arr.indexOf(stageList().at(-1)); arr.splice(last, 0, {id:"st"+uid(), name, ask, cat:ask?cat:"", autoNext:false}); emit("settings_changed", {stage:name}); });
+    }));
+}
+function moveStage(id, dir){
+  const arr = S.settings.stages, live = stageList(), i = live.findIndex(s => s.id===id), j = i + dir;
+  if (j <= 0 || j >= live.length-1) return;
+  const a = arr.indexOf(live[i]), b = arr.indexOf(live[j]); [arr[a], arr[b]] = [arr[b], arr[a]];
+}
+
+/* ----- Machines ----- */
+function machineState(m, at){
+  at = at || Date.now();
+  const l = S.loads.find(x => x.machine===m.id && x.start<=at && (x.end===null || x.end>at)); if (!l) return {s:"idle"};
+  const mins = Math.floor((at-l.start)/MIN);
+  return {s:"run", long: mins >= S.settings.checkMin, mins, l};
+}
+const isLong = m => machineState(m).long;
+const dur = m => m < 60 ? `${m} min` : `${Math.floor(m/60)} h ${m%60} min`;
+function machinesView(){
+  const ms = branchMachines(ui.branch);
+  const loadsToday = S.loads.filter(l => l.branch===ui.branch && isToday(l.start)).length;
+  const section = c => { const list = ms.filter(m=>m.type===c.id); return list.length ? `<h3 style="margin-bottom:10px">${esc(c.name)}s</h3><div class="mgrid">${list.map(m=>tile(m)).join("")}</div>` : ""; };
+  return `<div class="screen-head"><div><h2>Machines</h2><p>Tap an idle machine when you load it, and tap it again when you take the laundry out. The time shown is how long it has been in use.</p></div><span class="pill plain">${loadsToday} loads today</span></div>
+    <div class="legend"><span>● Idle</span><span style="color:var(--accent)">● Running</span><span style="color:var(--warn)">● In use over ${dur(S.settings.checkMin)}, check it</span></div>
+    ${cats().map(section).join("")}`;
+}
+function tile(m, ro, at){
+  const st = machineState(m, at), C = 2*Math.PI*44;
+  const ring = st.s==="idle" ? 0 : 1;
+  const color = st.long ? "var(--warn)" : "var(--accent)";
+  const o = st.l && st.l.order ? `#${st.l.order}` : (st.l && st.l.self ? "Self-service" : "");
+  const count = S.loads.filter(l => l.machine===m.id && isToday(l.start)).length;
+  const oos = m.outOfService && st.s==="idle";
+  const tagName = ro || oos ? "div" : "button";
+  return `<${tagName} class="mtile ${st.s}${st.long?" long":""}${oos?" oos":""}" ${ro?"":`data-machine="${m.id}"`} aria-label="${m.label}, ${st.s==="idle"?"idle":"in use for "+dur(st.mins)}">
+    <div class="port"><svg viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="var(--line)" stroke-width="7"/>
+      ${ring?`<circle cx="50" cy="50" r="44" fill="none" stroke="${color}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C*ring} ${C}" transform="rotate(-90 50 50)"/>`:""}
+      <circle cx="50" cy="50" r="33" fill="var(--surface-2)" stroke="var(--line)"/>
+      <g class="drum"><circle cx="50" cy="50" r="26" fill="none" stroke="${st.s==="idle"?"var(--line)":color}" stroke-width="2" stroke-dasharray="4 6" opacity=".8"/></g>
+    </svg><span class="lbl">${m.label}</span></div>
+    <span class="st">${st.s==="idle"?(oos?"Out of service":"Idle"):`In use · ${dur(st.mins)}`}</span>
+    <span class="sub">${st.s==="idle" ? `${count} load${count===1?"":"s"} today` : `${o?o+" · ":""}since ${fmtTime(st.l.start)}`}</span>
+  </${tagName}>`;
+}
+function machineTap(mid){
+  const m = M(mid), st = machineState(m);
+  if (st.s !== "idle"){
+    const l = st.l;
+    return act(`${m.label} unloaded after ${dur(st.mins)}${l.order?` · #${l.order}`:""}`, () => {
+      l.end = Date.now();
+      const o = l.order && orderBy(m.branch, l.order);
+      const cur = o && stageOf(o.status), nx = o && nextStage(o.status);
+      if (o && cur && cur.ask && cur.autoNext && (!cur.cat || cur.cat===m.type) && !openLoads(o).length && nx && !stageOf(nx).ask) moveJob(o, nx, {via:`${m.label} unloaded`});
+      emit("load_finished", {machine:m.label, no:l.order});
+    });
+  }
+  const mst = stageForMachine(m), mc = catOf(m.type) || {name:"Machine"};
+  const eligible = S.orders.filter(o => o.branch===ui.branch && o.status!=="Claimed" && o.status!=="Ready" && (!mst || stageIdx(o.status) <= stageIdx(mst.id)));
+  openModal(`
+    <div class="modal-head"><div><div class="eyebrow">${esc(mc.name)} · starts timing now</div><h2>Start ${m.label}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="pick">
+      ${eligible.length ? eligible.map(o => { const c = o.customerId && cust(o.customerId); return `<button data-startorder="${o.no}"><span><span class="tag">#${o.no}</span> &nbsp;${c?esc(c.name):"Walk-in"}</span><span class="muted">${jobSize(o)} · ${esc(stageName(o.status))}</span></button>`; }).join("") : `<p class="muted" style="margin:0">No jobs waiting for this machine.</p>`}
+      ${activeServices().some(x=>x.mode==="load") ? `<button data-startself><span><b>Self-service load</b><br><small class="muted">Customer pays a per-load price</small></span><span>→</span></button>` : `<p class="sample-note" style="margin:0">To sell self-service loads, the owner adds a per-load service in Settings.</p>`}
+    </div>
+    ${mc.washSupplies?`<p class="sample-note">Each ${esc(mc.name.toLowerCase())} load deducts ${Object.entries(S.settings.recipe.washLoad).filter(([k])=>activeSupplies().some(s=>s.id===k)).map(([k,q])=>`${q} ${S.settings.supplies.find(s=>s.id===k).name.toLowerCase()}`).join(" and ")} from stock.</p>`:""}`,
+    root => root.addEventListener("click", e => {
+      const ob = e.target.closest("[data-startorder]"), sb = e.target.closest("[data-startself]");
+      if (!ob && !sb) return;
+      closeModal();
+      if (ob){
+        const no = ob.dataset.startorder;
+        act(`${m.label} started · #${no}`, () => {
+          const o = orderBy(m.branch, no);
+          if (mst && stageIdx(o.status) < stageIdx(mst.id)) moveJob(o, mst.id, {via:`${m.label} started`});
+          startLoad(m, o);
+          emit("load_started", {machine:m.label, no});
+        });
+      } else selfService(m);
+    }));
+}
+function selfService(m){
+  let method = "Cash";
+  const opts = activeServices().filter(x=>x.mode==="load");
+  let svc = opts[0];
+  openModal(`
+    <div class="modal-head"><div><div class="eyebrow">Self-service</div><h2>Start ${m.label}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="field-label"><span class="eyebrow">Charge as</span></div>
+    <div class="chips" style="margin-bottom:12px">${opts.map((x,i)=>`<button class="chip" data-ssvc="${x.id}" aria-pressed="${i===0}">${esc(x.name)} <small>${peso(x.price)}</small></button>`).join("")}</div>
+    <div class="seg" role="group" aria-label="Payment method" style="width:100%"><button style="flex:1" data-m="Cash" aria-pressed="true">Cash</button><button style="flex:1" data-m="GCash" aria-pressed="false">GCash</button></div>
+    <button class="btn primary block" style="margin-top:14px" data-go>Paid ${peso(svc.price)} · start ${m.label}</button>`, root => root.addEventListener("click", e => {
+      const b = e.target.closest("[data-m]"); if (b){ method=b.dataset.m; root.querySelectorAll("[data-m]").forEach(x=>x.setAttribute("aria-pressed", x===b)); }
+      const sb = e.target.closest("[data-ssvc]"); if (sb){ svc = opts.find(x=>x.id===sb.dataset.ssvc); root.querySelectorAll("[data-ssvc]").forEach(x=>x.setAttribute("aria-pressed", x===sb)); root.querySelector("[data-go]").textContent = `Paid ${peso(svc.price)} · start ${m.label}`; }
+      if (e.target.closest("[data-go]")){ closeModal(); act(`${m.label} started · self-service`, () => {
+        S.loads.push({id:uid(), machine:m.id, branch:m.branch, order:null, start:Date.now(), end:null, self:true, pay:method, amount:svc.price, svc:svc.id});
+        if ((catOf(m.type)||{}).washSupplies) deduct(m.branch, S.settings.recipe.washLoad, `${m.label} load (self-service)`, null);
+        emit("self_service", {machine:m.label, pay:method, amount:svc.price, service:svc.name});
+      }); }
+    }));
+}
+
+/* ----- Supplies ----- */
+function usedToday(branch, sid){ return -S.stockLog.filter(x => x.branch===branch && x.supply===sid && x.qty<0 && isToday(x.at)).reduce((a,x)=>a+x.qty,0); }
+function suppliesView(){
+  const st = S.settings, stock = S.stock[ui.branch];
+  const all = S.stockLog.filter(x => x.branch===ui.branch).slice().sort((a,b) => b.at-a.at), per = 10, pages = Math.max(1, Math.ceil(all.length/per));
+  ui.logPage = Math.min(Math.max(1, ui.logPage||1), pages);
+  const log = all.slice((ui.logPage-1)*per, ui.logPage*per);
+  const jobOf = x => x.job || ((x.reason.match(/#(\d+)/)||[])[1]) || null;
+  const reqs = S.requests.filter(r => r.branch===ui.branch && !r.done);
+  return `<div class="screen-head"><div><h2>Supplies</h2><p>Stock goes down by itself with every washer load. Do a full stock count at closing.</p></div>
+    ${st.staffCanAddSupply ? `<button class="btn" data-addsupply>+ Add supply type</button>` : `<button class="btn" data-reqsupply>Request a new supply</button>`}</div>
+  ${reqs.length ? `<div class="live-note" style="background:var(--accent-soft);color:var(--ink)"><span class="dot" style="background:var(--accent)"></span>Requested from the owner: ${reqs.map(r=>`<b>${esc(r.name)}</b>`).join(", ")}</div>` : ""}
+  <div class="two">
+    <section class="card"><div class="table-wrap"><table>
+      <thead><tr><th>Supply</th><th class="r">On hand</th><th class="r">Used today</th><th>Status</th><th class="r"><span class="sr">Actions</span></th></tr></thead>
+      <tbody>${activeSupplies().map(s => { const v = stock[s.id]||0, low = v <= s.low; return `<tr>
+        <td><b>${esc(s.name)}</b></td><td class="r mono">${v} <small class="muted">${s.unit}</small></td><td class="r mono">${usedToday(ui.branch, s.id)}</td>
+        <td>${low?'<span class="pill crit">Low</span>':'<span class="pill good">OK</span>'}</td>
+        <td class="r"><button class="btn small" data-transfer="${s.id}">Receive</button></td></tr>`; }).join("")}</tbody>
+    </table></div></section>
+    <section class="card"><div class="log-head"><h3>Recent stock changes</h3><span class="muted">${all.length} change${all.length===1?"":"s"}</span></div>
+      <div class="log">${log.map(x => { const j = jobOf(x), sup = st.supplies.find(s=>s.id===x.supply); return `<div class="log-row">
+        <span class="log-job">${j ? `<button class="tag h-job" data-jobdetail="${esc(j)}" aria-label="Open job ${esc(j)}">#${esc(j)}</button>` : '<span class="muted">—</span>'}</span>
+        <span class="log-what"><span><b>${esc(x.reason.replace(/\s*·?\s*#\d+/,"").replace(/^Add-on on$/,"Add-on"))}</b> · ${esc(sup?sup.name:x.supply)}</span><small class="muted">${isToday(x.at) ? fmtTime(x.at) : fmtDT(x.at)}</small></span>
+        <span class="mono log-qty" style="color:${x.qty<0?"var(--muted)":"var(--good)"}">${x.qty>0?"+":""}${x.qty}</span></div>`; }).join("") || '<span class="muted">No changes yet.</span>'}</div>
+      ${pages>1 ? `<div class="pager"><button class="btn small" data-logpage="${ui.logPage-1}" ${ui.logPage<=1?"disabled":""}>← Newer</button><span class="muted">Page ${ui.logPage} of ${pages}</span><button class="btn small" data-logpage="${ui.logPage+1}" ${ui.logPage>=pages?"disabled":""}>Older →</button></div>` : ""}</section>
+  </div>
+  <section class="card" style="margin-top:18px">
+    <div class="screen-head" style="margin-bottom:8px"><div><h3>Stock count</h3><p>Type what is on the shelf. Do a full count at closing, or count a few items any time as a spot check (leave the rest blank). Differences are flagged to the owner.</p></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Supply</th><th class="r">Expected</th><th class="r">Counted</th><th class="r">Difference</th></tr></thead>
+    <tbody>${activeSupplies().map(s => `<tr><td>${esc(s.name)} <small class="muted">${s.unit}</small></td><td class="r mono">${stock[s.id]||0}</td>
+      <td class="r"><input class="count-in" inputmode="numeric" id="cnt-${s.id}" data-count="${s.id}" value="${ui.count[s.id]??""}" aria-label="Counted ${esc(s.name)}"></td>
+      <td class="r mono" id="var-${s.id}">${varHTML(s.id)}</td></tr>`).join("")}</tbody></table></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="btn primary" data-savecount>Save count</button></div>
+  </section>`;
+}
+const lineVar = l => l.v ?? (l.cnt - l.exp);
+const countMismatches = c => Object.entries(c.lines).filter(([,l]) => lineVar(l));
+const supName = sid => (S.settings.supplies.find(s=>s.id===sid)||{name:sid}).name;
+const dayOf = t => { const d = new Date(t); d.setHours(0,0,0,0); return d.getTime(); };
+function countStatus(bid){
+  const full = S.counts.filter(c => c.branch===bid && !c.partial).slice(-1)[0];
+  const today = S.counts.filter(c => c.branch===bid && c.at >= sod());
+  if (!full) return {k:"crit", label:"No full count yet", full, today};
+  const days = Math.round((sod() - dayOf(full.at))/DAY);
+  const when = days===0 ? "Today "+fmtTime(full.at) : days===1 ? "Yesterday "+fmtTime(full.at) : days+" days ago";
+  return {k: days<=1 ? "good" : days===2 ? "warn" : "crit", label:"Full count "+when, full, today};
+}
+function countHistory(bid){
+  const list = S.counts.filter(c => c.branch===bid).slice().reverse().slice(0,15);
+  openModal(`<div class="modal-head"><div><div class="eyebrow">${esc(B(bid).name)}</div><h2>Stock counts</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <p class="muted" style="margin:0 0 10px;font-size:14px">Newest first. Each difference was written to the stock ledger as a count adjustment, so stock now matches what was counted.</p>
+    <div class="count-hist">${list.map(c => { const n = Object.keys(c.lines).length, mm = countMismatches(c).length; return `<div class="ch-item">
+      <div class="ch-top"><b>${fmtDT(c.at)}</b><span class="pill ${c.partial?"plain":"good"}">${c.partial?`Partial · ${n} item${n===1?"":"s"}`:"Full"}</span>${mm?`<span class="pill warn">${mm} mismatch${mm>1?"es":""}</span>`:""}<small class="muted">${esc(c.by||"no PIN")}</small></div>
+      <div class="ch-lines">${Object.entries(c.lines).map(([sid,l]) => { const v = lineVar(l); return `<div><span>${esc(supName(sid))}</span><span class="mono">${l.exp==null?"":`${l.exp} → ${l.cnt}`}</span><span class="mono" style="color:${v?(Math.abs(v)>3?"var(--crit)":"var(--warn)"):"var(--good)"}">${v?(v>0?"+":"")+v:"✓"}</span></div>`; }).join("")}</div></div>`; }).join("") || '<span class="muted">No counts yet.</span>'}</div>`);
+}
+function varHTML(sid){ const c = ui.count[sid]; if (c===undefined || c==="") return "—"; const d = Number(c) - (S.stock[ui.branch][sid]||0); return d===0 ? '<span class="pill good">Matches</span>' : `<span class="pill ${Math.abs(d)>3?"crit":"warn"}">${d>0?"+":""}${d}</span>`; }
+function transfer(sid){
+  const s = S.settings.supplies.find(x=>x.id===sid);
+  openModal(`<div class="modal-head"><div><div class="eyebrow">Transfer from main stock</div><h2>Receive ${esc(s.name)}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <label class="eyebrow" for="tq">Quantity (${s.unit})</label><input class="input" id="tq" inputmode="numeric" style="margin:8px 0 14px">
+    <button class="btn primary block" data-ok>Add to ${esc(B(ui.branch).name)} stock</button>`, root => root.addEventListener("click", e => {
+      if (!e.target.closest("[data-ok]")) return;
+      const q = parseInt($("#tq").value, 10);
+      if (!(q > 0)) { $("#tq").focus(); $("#tq").style.borderColor = "var(--crit)"; return; }
+      closeModal();
+      withPin("transfer", `Receive ${q} ${s.unit}`, who => act(`Received ${q} ${s.unit} of ${s.name}`, () => {
+        S.stock[ui.branch][sid] += q; S.stockLog.push({branch:ui.branch, supply:sid, qty:q, reason:"Received from main", at:Date.now()});
+        emit("stock_received", {supply:sid, qty:q}, who&&who.name);
+      }));
+    }));
+}
+function saveCount(){
+  const all = activeSupplies(), filled = all.filter(s => ui.count[s.id]!==undefined && String(ui.count[s.id]).trim()!=="");
+  if (!filled.length){ toast("Type at least one counted amount"); const el = $("#cnt-"+all[0].id); if (el) el.focus(); return; }
+  const bad = filled.find(s => !/^\d+$/.test(String(ui.count[s.id]).trim()));
+  if (bad){ toast(`Check the amount for ${bad.name.toLowerCase()}`); $("#cnt-"+bad.id).focus(); return; }
+  const partial = filled.length < all.length;
+  withPin("count", partial ? `Save partial count (${filled.length} of ${all.length})` : "Save full stock count", who => act(partial ? `Partial count saved (${filled.length} of ${all.length})` : "Full count saved", () => {
+    const lines = {}, at = Date.now();
+    filled.forEach(s => { const c = Number(ui.count[s.id]), e = S.stock[ui.branch][s.id]||0; lines[s.id] = {exp:e, cnt:c}; if (c!==e) S.stockLog.push({branch:ui.branch, supply:s.id, qty:c-e, reason:partial?"Count adjustment (partial)":"Count adjustment", at}); S.stock[ui.branch][s.id] = c; });
+    S.counts.push({branch:ui.branch, at, by:who&&who.name, partial, lines});
+    emit("stock_counted", {partial, lines}, who&&who.name);
+    ui.count = {};
+  }));
+}
+
+/* ----- Supply types ----- */
+function supplyForm(prefill, fromRequest){
+  const units = ["sachets","ml","pcs","kg","bottles","rolls"];
+  openModal(`<div class="modal-head"><div><div class="eyebrow">New supply type · all branches</div><h2>Add supply</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <label><span class="eyebrow">Name</span><input class="input" id="sp-name" style="margin-top:6px" value="${esc(prefill||"")}" placeholder="e.g. Dryer sheets"></label>
+      <div><span class="eyebrow">Unit</span><div class="chips" id="sp-unit" style="margin-top:6px">${units.map((u,i)=>`<button class="chip" data-unit="${u}" aria-pressed="${i===0}">${u}</button>`).join("")}</div></div>
+      <div class="grid2">
+        <label><span class="eyebrow">Low-stock level</span><input class="input" id="sp-low" inputmode="numeric" value="20" style="margin-top:6px"></label>
+        <label><span class="eyebrow">Per washer load (optional)</span><input class="input" id="sp-wash" inputmode="numeric" placeholder="—" style="margin-top:6px"></label>
+        <label><span class="eyebrow">Per packed job (optional)</span><input class="input" id="sp-order" inputmode="numeric" placeholder="—" style="margin-top:6px"></label>
+      </div>
+      <p class="pin-err" id="sp-err" style="text-align:left"></p>
+      <button class="btn primary block" data-savesupply>Add to every branch</button>
+    </div>`, root => {
+      let unit = units[0];
+      root.addEventListener("click", e => {
+        const u = e.target.closest("[data-unit]");
+        if (u){ unit = u.dataset.unit; root.querySelectorAll("[data-unit]").forEach(b=>b.setAttribute("aria-pressed", b===u)); }
+        if (!e.target.closest("[data-savesupply]")) return;
+        const name = $("#sp-name").value.trim(), low = parseInt($("#sp-low").value,10);
+        const wash = parseFloat($("#sp-wash").value)||0, ord = parseFloat($("#sp-order").value)||0;
+        const dup = S.settings.supplies.find(x => x.name.toLowerCase()===name.toLowerCase());
+        if (!name) { $("#sp-err").textContent = "Give the supply a name."; return $("#sp-name").focus(); }
+        if (dup && !dup.archived) { $("#sp-err").textContent = `${dup.name} is already on the list.`; return; }
+        if (dup && dup.archived) { $("#sp-err").textContent = `${dup.name} is archived. Restore it from Settings instead.`; return; }
+        if (!(low >= 0)) { $("#sp-err").textContent = "Low-stock level must be a number."; return; }
+        closeModal();
+        const doAdd = who => act(`${name} added to every branch`, () => {
+          const id = "s"+uid();
+          S.settings.supplies.push({id, name, unit, low});
+          if (wash) S.settings.recipe.washLoad[id] = wash;
+          if (ord) S.settings.recipe.orderReady[id] = ord;
+          S.branches.forEach(b => S.stock[b.id][id] = 0);
+          if (fromRequest){ const r = S.requests.find(x=>x.id===fromRequest); if (r) r.done = true; }
+          emit("supply_added", {id, name, unit, low, wash, ord}, who&&who.name);
+        });
+        if (ui.view==="staff") withPin("supply", `Add ${name}`, doAdd); else doAdd(null);
+      });
+    });
+}
+function requestSupply(){
+  openModal(`<div class="modal-head"><div><div class="eyebrow">Sent to the owner</div><h2>Request a new supply</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack"><label><span class="eyebrow">What do you need?</span><input class="input" id="rq-name" style="margin-top:6px" placeholder="e.g. Dryer sheets"></label>
+    <label><span class="eyebrow">Note (optional)</span><input class="input" id="rq-note" style="margin-top:6px" placeholder="Why or how much"></label>
+    <button class="btn primary block" data-sendreq>Send request</button></div>`, root => root.addEventListener("click", e => {
+      if (!e.target.closest("[data-sendreq]")) return;
+      const name = $("#rq-name").value.trim(); if (!name) return $("#rq-name").focus();
+      const note = $("#rq-note").value.trim(); closeModal();
+      act("Request sent to the owner", () => { S.requests.push({id:uid(), branch:ui.branch, name, note, at:Date.now(), done:false}); emit("supply_requested", {name, note}); });
+    }));
+}
+
+/* ----- Piece items ----- */
+function pieceForm(pid){
+  const item = pid && S.settings.pieces.find(x=>x.id===pid);
+  openModal(`<div class="modal-head"><div><div class="eyebrow">${item ? esc(item.name) : "New piece item · all branches"}</div><h2>${item ? "Add a size" : "Add piece item"}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      ${item ? "" : `<label><span class="eyebrow">Name</span><input class="input" id="pc-name" style="margin-top:6px" placeholder="e.g. Bedsheet"></label>`}
+      <div class="grid2">
+        <label><span class="eyebrow">Size ${item ? "" : "(optional)"}</span><input class="input" id="pc-size" style="margin-top:6px" placeholder="${item ? "e.g. King" : "e.g. Queen, or leave empty"}"></label>
+        <label><span class="eyebrow">Price (₱)</span><input class="input" id="pc-price" inputmode="decimal" style="margin-top:6px" placeholder="e.g. 450"></label>
+      </div>
+      <p class="pin-err" id="pc-err" style="text-align:left"></p>
+      <button class="btn primary block" data-savepiece>${item ? "Add size" : "Add piece item"}</button>
+    </div>`, root => root.addEventListener("click", e => {
+      if (!e.target.closest("[data-savepiece]")) return;
+      const name = item ? item.name : $("#pc-name").value.trim(), size = $("#pc-size").value.trim(), price = parseFloat($("#pc-price").value);
+      const err = m => { $("#pc-err").textContent = m; };
+      if (!name) return err("Give the item a name.");
+      if (item && !size) return err("Give the size a name, for example King.");
+      if (!(price > 0)) return err("Enter a price above zero.");
+      if (!item && S.settings.pieces.some(x => x.name.toLowerCase()===name.toLowerCase())) return err(`${name} is already on the list.`);
+      if (item && item.variants.some(v => v.label.toLowerCase()===size.toLowerCase())) return err(`${size} is already a size of ${item.name}.`);
+      closeModal();
+      act(item ? `${size} added to ${item.name}` : `${name} added`, () => {
+        const v = {id:"v"+uid(), label:size || "Each", price};
+        if (item){ if (item.variants.length===1 && item.variants[0].label==="Each") item.variants[0].label = "Regular"; item.variants.push(v); }
+        else S.settings.pieces.push({id:"p"+uid(), name, variants:[v]});
+        emit("settings_changed", {piece:name});
+      });
+    }));
+}
+
+/* ----- Services and add-ons ----- */
+const unitFor = (q, u) => Number(q)===1 && /s$/.test(u) && u!=="pcs" ? u.slice(0,-1) : (Number(q)===1 && u==="pcs" ? "pc" : u);
+function addonUseForm(aid){
+  const a = S.settings.addons.find(x=>x.id===aid), sups = activeSupplies();
+  openModal(`<div class="modal-head"><div><div class="eyebrow">${esc(a.name)}</div><h2>Supply used</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <p class="muted" style="margin:0">Each time a job has this add-on, this amount is taken from the branch's stock.</p>
+      <label><span class="eyebrow">Supply</span><select class="input" id="au-sup" style="margin-top:6px">${sups.map(x=>`<option value="${x.id}">${esc(x.name)} (${esc(x.unit)})</option>`).join("")}</select></label>
+      <label><span class="eyebrow">Amount per job</span><input class="input" id="au-qty" inputmode="decimal" style="margin-top:6px" value="${a.use[sups[0]&&sups[0].id]||1}"></label>
+      <p class="pin-err" id="au-err" style="text-align:left"></p>
+      <button class="btn primary block" data-saveuse>Save</button>
+    </div>`, root => {
+      root.querySelector("#au-sup").onchange = e => { $("#au-qty").value = a.use[e.target.value] || 1; };
+      root.addEventListener("click", e => {
+        if (!e.target.closest("[data-saveuse]")) return;
+        const sid = $("#au-sup").value, q = parseFloat($("#au-qty").value), x = S.settings.supplies.find(y=>y.id===sid);
+        if (!(q > 0)) return $("#au-err").textContent = "Enter an amount above zero.";
+        closeModal();
+        act(`${a.name} uses ${q} ${unitFor(q, x.unit)} of ${x.name}`, () => { a.use[sid] = q; emit("settings_changed", {addon:a.id}); });
+      });
+    });
+}
+function priceItemForm(kind){
+  const svc = kind==="svc", fee = kind==="fee";
+  openModal(`<div class="modal-head"><div><div class="eyebrow">All branches</div><h2>${svc?"Add service":fee?"Add fee":"Add add-on"}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <label><span class="eyebrow">Name</span><input class="input" id="pi-name" style="margin-top:6px" placeholder="${svc?"e.g. Self-service":fee?"e.g. Pick-up and delivery":"e.g. Stain treatment"}"></label>
+      ${svc ? `<div><span class="eyebrow">Unit</span><div class="chips" style="margin-top:6px"><button class="chip" data-pimode="kg" aria-pressed="true">per kg</button><button class="chip" data-pimode="load" aria-pressed="false">per load</button></div></div>` : ""}
+      ${fee ? `<label><span class="eyebrow">Note for staff (optional)</span><input class="input" id="pi-note" style="margin-top:6px" placeholder="e.g. Within 5 km"></label>` : ""}
+      <label><span class="eyebrow">${fee?"Amount":"Price"} (₱)</span><input class="input" id="pi-price" inputmode="decimal" style="margin-top:6px"></label>
+      <p class="pin-err" id="pi-err" style="text-align:left"></p>
+      <button class="btn primary block" data-savepi>${svc?"Add service":fee?"Add fee":"Add add-on"}</button>
+    </div>`, root => { let mode = "kg"; root.addEventListener("click", e => {
+      const mb = e.target.closest("[data-pimode]");
+      if (mb){ mode = mb.dataset.pimode; root.querySelectorAll("[data-pimode]").forEach(b=>b.setAttribute("aria-pressed", b===mb)); }
+      if (!e.target.closest("[data-savepi]")) return;
+      const name = $("#pi-name").value.trim(), price = parseFloat($("#pi-price").value), list = svc ? S.settings.services : fee ? S.settings.fees : S.settings.addons;
+      const note = fee ? $("#pi-note").value.trim() : "";
+      if (!name) return $("#pi-err").textContent = "Give it a name.";
+      if (!(price > 0)) return $("#pi-err").textContent = "Enter a price above zero.";
+      if (list.some(x => !x.archived && x.name.toLowerCase()===name.toLowerCase())) return $("#pi-err").textContent = `${name} is already on the list.`;
+      closeModal();
+      act(`${name} added`, () => {
+        if (svc) list.push({id:"s"+uid(), name, short:name, mode, price});
+        else if (fee) list.push({id:"f"+uid(), name, amount:price, note});
+        else list.push({id:"a"+uid(), name, price, use:{}});
+        emit("settings_changed", {[svc?"service":fee?"fee":"addon"]:name});
+      });
+    }); });
+}
+
+/* ----- Staff (owner) ----- */
+function staffView(){
+  const filt = ui.staffBranch || "all";
+  const list = S.staff.filter(x => filt==="all" || x.branch===filt);
+  const today = s => S.orders.filter(o => o.by===s.name && isToday(o.createdAt)).length;
+  const groups = S.branches.filter(b => filt==="all" || b.id===filt).map(b => {
+    const rows = list.filter(x => x.branch===b.id).sort((a,c) => (a.inactive?1:0)-(c.inactive?1:0) || a.name.localeCompare(c.name));
+    return `<section class="card staff-card"><div class="log-head"><h3>${esc(b.name)}</h3><span class="muted">${rows.filter(x=>!x.inactive).length} active</span></div>
+      ${rows.length ? `<div class="staff-list">${rows.map(x => `<div class="staff-row ${x.inactive?"is-off":""}">
+        <span class="avatar" aria-hidden="true">${esc(x.name.replace(/[^A-Za-z0-9]/g,"").slice(0,2).toUpperCase() || "?")}</span>
+        <span class="staff-main"><b>${esc(x.name)}</b><small class="muted">${x.inactive ? "Deactivated · can't use a PIN" : `PIN set · ${today(x)} job${today(x)===1?"":"s"} taken today`}</small></span>
+        <span class="staff-acts"><button class="btn small" data-editstaff="${x.id}">Edit</button>${x.inactive ? `<button class="btn small" data-reactivate="${x.id}">Reactivate</button>` : `<button class="btn small" data-deactivate="${x.id}">Deactivate</button>`}</span>
+      </div>`).join("")}</div>` : `<p class="muted" style="margin:0">No staff at this branch yet.</p>`}
+    </section>`; }).join("");
+  return `<div class="screen-head"><div><h2>Staff</h2><p>Add staff, set their branch and PIN, or deactivate someone who has left. Their past actions stay in the history.</p></div><button class="btn primary" data-addstaff>+ Add staff</button></div>
+    <div class="chips" style="margin-bottom:14px"><button class="chip" data-sb="all" aria-pressed="${filt==="all"}">All branches</button>${S.branches.map(b=>`<button class="chip" data-sb="${b.id}" aria-pressed="${filt===b.id}">${esc(b.name)}</button>`).join("")}</div>
+    <div class="staff-grid">${groups}</div>
+    <p class="sample-note">Sample staff and PINs are examples. In the real app PINs are stored hashed and never shown again after saving.</p>`;
+}
+function staffForm(id){
+  const x = id && S.staff.find(y=>y.id===id);
+  let branch = x ? x.branch : (ui.staffBranch && ui.staffBranch!=="all" ? ui.staffBranch : S.branches[0].id);
+  const gen = () => { let p; do { p = String(Math.floor(1000 + Math.random()*9000)); } while (S.staff.some(y => y.pin===p && y.branch===branch)); return p; };
+  openModal(`<div class="modal-head"><div><div class="eyebrow">${x ? "Edit staff" : "New staff"}</div><h2>${x ? esc(x.name) : "Add staff"}</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <label><span class="eyebrow">Name</span><input class="input" id="st-name" style="margin-top:6px" value="${x?esc(x.name):""}" placeholder="e.g. Maria"></label>
+      <div><span class="eyebrow">Branch</span><div class="chips" style="margin-top:6px">${S.branches.map(b=>`<button class="chip" data-stb="${b.id}" aria-pressed="${b.id===branch}">${esc(b.name)}</button>`).join("")}</div></div>
+      <div><span class="eyebrow">${x ? "New PIN (leave empty to keep the current one)" : "4-digit PIN"}</span>
+        <div style="display:flex;gap:8px;margin-top:6px"><input class="input mono" id="st-pin" inputmode="numeric" maxlength="4" placeholder="${x?"••••":"e.g. 4821"}" style="flex:1"><button class="btn" data-genpin>Generate</button></div></div>
+      <p class="pin-err" id="st-err" style="text-align:left"></p>
+      <button class="btn primary block" data-savestaff>${x ? "Save changes" : "Add staff"}</button>
+    </div>`, root => {
+      root.addEventListener("click", e => {
+        const bb = e.target.closest("[data-stb]");
+        if (bb){ branch = bb.dataset.stb; root.querySelectorAll("[data-stb]").forEach(b=>b.setAttribute("aria-pressed", b===bb)); }
+        if (e.target.closest("[data-genpin]")) $("#st-pin").value = gen();
+        if (!e.target.closest("[data-savestaff]")) return;
+        const name = $("#st-name").value.trim(), pin = $("#st-pin").value.trim(), err = m => { $("#st-err").textContent = m; };
+        if (!name) return err("Enter the staff member's name.");
+        if (!x && !pin) return err("Set a 4-digit PIN, or tap Generate.");
+        if (pin && !/^\d{4}$/.test(pin)) return err("The PIN must be exactly 4 digits.");
+        const usePin = pin || x.pin;
+        if (S.staff.some(y => y!==x && !y.inactive && y.branch===branch && y.pin===usePin)) return err(`Someone at ${B(branch).name} already uses that PIN. Pick another.`);
+        if (S.staff.some(y => y!==x && y.branch===branch && y.name.toLowerCase()===name.toLowerCase())) return err(`${name} is already listed at ${B(branch).name}.`);
+        closeModal();
+        act(x ? `${name} updated${pin?" · new PIN set":""}` : `${name} added to ${B(branch).name}`, () => {
+          if (x){ x.name = name; x.branch = branch; if (pin) x.pin = pin; }
+          else S.staff.push({id:"s"+uid(), name, branch, pin});
+          emit("staff_changed", {name, branch});
+        });
+        if (pin) setTimeout(() => toast(`PIN for ${name}: ${pin}. Share it with them privately.`), 2500);
+      });
+      root.querySelector("#st-pin").addEventListener("input", e => { e.target.value = e.target.value.replace(/\D/g,"").slice(0,4); });
+    });
+}
+
+function categoryForm(){
+  openModal(`<div class="modal-head"><div><div class="eyebrow">All branches</div><h2>Add machine category</h2></div><button class="x" data-close aria-label="Close">×</button></div>
+    <div class="stack">
+      <label><span class="eyebrow">Name</span><input class="input" id="ct-name" style="margin-top:6px" placeholder="e.g. Steam press"></label>
+      <label><span class="eyebrow">Label prefix</span><input class="input" id="ct-short" style="margin-top:6px" placeholder="e.g. P, so machines are P1, P2"></label>
+      <label class="check"><input type="checkbox" id="ct-wash"> Uses wash supplies (detergent, conditioner) per load</label>
+      <p class="pin-err" id="ct-err" style="text-align:left"></p>
+      <button class="btn primary block" data-savecat>Add category</button>
+    </div>`, root => root.addEventListener("click", e => {
+      if (!e.target.closest("[data-savecat]")) return;
+      const name = $("#ct-name").value.trim(), short = $("#ct-short").value.trim() || name.slice(0,1).toUpperCase(), wash = $("#ct-wash").checked;
+      if (!name) return $("#ct-err").textContent = "Give the category a name.";
+      if (cats().some(c => c.name.toLowerCase()===name.toLowerCase())) return $("#ct-err").textContent = `${name} already exists.`;
+      closeModal();
+      act(`${name} category added`, () => { S.settings.categories.push({id:"c"+uid(), name, short, washSupplies:wash}); emit("settings_changed", {category:name}); });
+    }));
+}
+
+/* ----- Owner ----- */
+function ownerView(){
+  return `<main><div class="owner-tabs"><div class="seg" role="group" aria-label="Owner screens">
+    <button data-otab="dash" aria-pressed="${ui.ownerTab==="dash"}">Dashboard</button><button data-otab="live" aria-pressed="${ui.ownerTab==="live"}">Live branches</button><button data-otab="staff" aria-pressed="${ui.ownerTab==="staff"}">Staff</button><button data-otab="machines" aria-pressed="${ui.ownerTab==="machines"}">Machines</button><button data-otab="settings" aria-pressed="${ui.ownerTab==="settings"}">Settings</button></div></div>
+    ${ui.ownerTab==="dash" ? dashView() : ui.ownerTab==="live" ? liveView() : ui.ownerTab==="staff" ? staffView() : ui.ownerTab==="machines" ? machinesAdmin() : settingsView()}</main>`;
+}
+function dashView(){
+  const ids = ui.ownerBranch==="all" ? S.branches.map(b=>b.id) : [ui.ownerBranch];
+  const inB = x => ids.includes(x.branch);
+  const loads = S.loads.filter(l => inB(l) && isToday(l.start));
+  const kg = S.orders.filter(o => inB(o) && isToday(o.createdAt)).reduce((a,o)=>a+o.kg,0);
+  const paid = S.orders.filter(o => inB(o) && o.paidAt && isToday(o.paidAt));
+  const selfSales = loads.filter(l => l.self && l.amount);
+  const cash = paid.filter(o=>o.pay==="Cash").reduce((a,o)=>a+o.total,0) + selfSales.filter(l=>l.pay==="Cash").reduce((a,l)=>a+l.amount,0);
+  const gcash = paid.filter(o=>o.pay==="GCash").reduce((a,o)=>a+o.total,0) + selfSales.filter(l=>l.pay==="GCash").reduce((a,l)=>a+l.amount,0);
+  const ready = S.orders.filter(o => inB(o) && o.status==="Ready");
+  const running = S.machines.filter(m => inB(m) && activeLoad(m.id)).length, total = S.machines.filter(inB).length;
+  const max = Math.max(1, ...S.machines.filter(inB).map(m => loads.filter(l=>l.machine===m.id).length));
+  const alerts = [];
+  ids.forEach(bid => {
+    const bn = B(bid).name;
+    activeSupplies().forEach(s => { if ((S.stock[bid][s.id]||0) <= s.low) alerts.push(["crit", `<b>${esc(s.name)}</b> is low at ${esc(bn)}: ${S.stock[bid][s.id]} ${s.unit} left.`]); });
+    const bc = S.counts.filter(c => c.branch===bid), recent = bc.filter(c => c.at >= sod()-DAY);
+    (recent.length ? recent : bc.slice(-1)).forEach(c => countMismatches(c).forEach(([sid,l]) => { const v = lineVar(l); alerts.push(["warn", `Count mismatch at ${esc(bn)}: <b>${esc(supName(sid))}</b> ${v>0?"+":""}${v} vs expected (${c.partial?"partial count, ":""}${fmtDT(c.at)}, ${esc(c.by||"no PIN")}).`]); }));
+    S.orders.filter(o => o.branch===bid && o.status==="Ready" && Date.now()-o.createdAt>2*DAY).forEach(o => alerts.push(["warn", `Job <b>#${o.no}</b> at ${esc(bn)} has been ready ${ago(o.createdAt).replace(" ago","")}${o.paidAt?"":" and is unpaid"}.`]));
+    S.requests.filter(r => r.branch===bid && !r.done).forEach(r => alerts.push(["info", `Supply request from ${esc(bn)}: <b>${esc(r.name)}</b>${r.note?` (${esc(r.note)})`:""}. <button class=\"btn small\" data-fulfill=\"${r.id}\" style=\"margin-top:6px\">Add as supply type</button>`]));
+    const since = Date.now() - S.lastSync[bid];
+    if (since > 30*MIN) alerts.push(["info", `${esc(bn)} last synced ${ago(S.lastSync[bid])}. Its tablet keeps working offline; numbers here update when it reconnects.`]);
+  });
+  return `<div class="screen-head"><div><h2>Today across ${ui.ownerBranch==="all"?"all branches":esc(B(ui.ownerBranch).name)}</h2><p>${fmtDate(Date.now())} · sample data</p></div>
+    <div class="chips"><button class="chip" data-ob="all" aria-pressed="${ui.ownerBranch==="all"}">All</button>${S.branches.map(b=>`<button class="chip" data-ob="${b.id}" aria-pressed="${ui.ownerBranch===b.id}">${esc(b.name)}</button>`).join("")}</div></div>
+  <div class="kpis">
+    <div class="card kpi"><div class="eyebrow">Sales today</div><div class="v">${peso(cash+gcash)}</div><div class="s">Cash ${peso(cash)} · GCash ${peso(gcash)}</div></div>
+    <div class="card kpi"><div class="eyebrow">Loads today</div><div class="v">${loads.length}</div><div class="s">${running} of ${total} machines running now</div></div>
+    <div class="card kpi"><div class="eyebrow">Received today</div><div class="v">${Math.round(kg*10)/10} kg</div><div class="s">${S.orders.filter(o=>inB(o)&&isToday(o.createdAt)).length} drop-off jobs</div></div>
+    <div class="card kpi"><div class="eyebrow">Ready, not claimed</div><div class="v">${ready.length}</div><div class="s">${peso(ready.filter(o=>!o.paidAt).reduce((a,o)=>a+o.total,0))} still to collect</div></div>
+  </div>
+  <div class="dash">
+    <section class="card"><div class="screen-head" style="margin-bottom:4px"><h3>Loads per machine today</h3><div class="legend" style="margin:0">${cats().map(c=>`<span><span style="color:${catColor(c.id)}">■</span> ${esc(c.name)}</span>`).join("")}</div></div>
+      ${ids.filter(bid => !isSimple(bid)).length ? "" : '<p class="muted" style="margin:0">All selected branches are in simple mode, so machines aren\'t tracked.</p>'}
+      ${ids.filter(bid => !isSimple(bid)).map(bid => { const ms = branchMachines(bid); const bar = m => { const n = loads.filter(l=>l.machine===m.id).length; return `<div class="bar" style="--barc:${catColor(m.type)}"><span class="mono">${m.label}</span><span class="track"><span class="fill" style="display:block;width:${n/max*100}%"></span></span><span class="n">${n}</span></div>`; };
+        return `<div class="branch-block">${ids.length>1?`<div class="eyebrow">${esc(B(bid).name)} · ${loads.filter(l=>l.branch===bid).length} loads</div>`:""}
+          <div class="mcols">${cats().map(c => `<div class="bars">${ms.filter(m=>m.type===c.id).map(bar).join("")}</div>`).join("")}</div></div>`; }).join("")}
+    </section>
+    <div class="stack" style="gap:18px">
+      <section class="card"><h3 style="margin-bottom:10px">Needs attention</h3><div class="alerts">${alerts.length ? alerts.map(([k,t])=>`<div class="alert ${k}"><span class="ic"></span><span>${t}</span></div>`).join("") : '<span class="muted">All clear.</span>'}</div></section>
+      <section class="card"><h3 style="margin-bottom:4px">Stock counts</h3><p class="muted" style="margin:0 0 10px;font-size:13px">Green: full count today or yesterday. Orange: one closing missed. Red: two or more. Tap a branch for every count.</p>
+        <div class="sync-list">${ids.map(bid => { const cs = countStatus(bid), extra = [cs.full && countMismatches(cs.full).length ? `${countMismatches(cs.full).length} mismatch` : "", cs.today.some(c=>c.partial) ? `${cs.today.filter(c=>c.partial).length} spot check today` : ""].filter(Boolean).join(" · "); return `<button class="count-row" data-counthist="${bid}" aria-label="Stock counts at ${esc(B(bid).name)}"><span>${esc(B(bid).name)}${extra?`<br><small class="muted">${extra}</small>`:""}</span><span class="pill ${cs.k}">${cs.label}</span></button>`; }).join("")}</div></section>
+      <section class="card"><h3 style="margin-bottom:10px">Branch tablets</h3><div class="sync-list">${S.branches.map(b => { const old = Date.now()-S.lastSync[b.id] > 30*MIN; return `<div><span>${esc(b.name)}${b.simple?' <span class="pill plain simple-pill">Simple</span>':""}</span><span class="pill ${old?"warn":"good"}">${old?"Offline · "+ago(S.lastSync[b.id]):"Synced "+ago(S.lastSync[b.id])}</span></div>`; }).join("")}</div></section>
+      <section class="card"><h3>BIR sales report</h3><p class="muted" style="margin:4px 0 12px">Daily sales by branch and payment method, in the Excel layout she uses now.</p><button class="btn ink block" data-export>Export to Excel</button></section>
+    </div>
+  </div>`;
+}
+function liveView(){
+  const bid = ui.liveBranch, b = B(bid);
+  const ms = S.machines.filter(m => m.branch===bid);
+  const at = Date.now() - S.lastSync[bid] > 30*MIN ? S.lastSync[bid] : null;
+  const states = ms.map(m => machineState(m, at));
+  const run = states.filter(x=>x.s==="run").length, done = states.filter(x=>x.long).length;
+  const list = S.orders.filter(o => o.branch===bid && o.status!=="Claimed");
+  const stale = Date.now() - S.lastSync[bid] > 30*MIN;
+  return `<div class="screen-head"><div><h2>${esc(b.name)} right now${isSimple(bid)?' <span class="pill plain simple-pill">Simple mode</span>':""}</h2><p>Watch only. Staff make every change at the counter.</p></div>
+    <div class="chips">${S.branches.map(x=>`<button class="chip" data-lb="${x.id}" aria-pressed="${x.id===bid}">${esc(x.name)}${isSimple(x.id)?' <small>simple</small>':""}${Date.now()-S.lastSync[x.id]>30*MIN?' <small>offline</small>':""}</button>`).join("")}</div></div>
+  <div class="live-note ${stale?"stale":""}"><span class="dot"></span>${stale ? `This tablet is offline. Showing what it sent ${ago(S.lastSync[bid])}; it will catch up when it reconnects.` : `Live · last update from the tablet ${ago(S.lastSync[bid])}`}</div>
+  <div class="kpis live-kpis">
+    ${isSimple(bid) ? "" : `<div class="card kpi"><div class="eyebrow">Running</div><div class="v">${run}</div><div class="s">of ${ms.length} machines</div></div>
+    <div class="card kpi"><div class="eyebrow">In use over ${dur(S.settings.checkMin)}</div><div class="v">${done}</div><div class="s">${done?"May be finished but not unloaded":"None to check"}</div></div>`}
+    <div class="card kpi"><div class="eyebrow">Jobs in progress</div><div class="v">${list.filter(o=>o.status!=="Ready").length}</div><div class="s">${list.filter(o=>o.status==="Received").length} not started yet</div></div>
+    <div class="card kpi"><div class="eyebrow">Ready for pickup</div><div class="v">${list.filter(o=>o.status==="Ready").length}</div><div class="s">${list.filter(o=>o.status==="Ready"&&!o.paidAt).length} unpaid</div></div>
+  </div>
+  ${isSimple(bid) ? "" : `<section class="card" style="margin-bottom:18px"><h3 style="margin-bottom:10px">Machines${at?` <small class="muted" style="font-weight:500">as of ${fmtTime(at)}</small>`:""}</h3>
+    ${cats().map(c => { const list = ms.filter(m=>m.type===c.id && !m.removed); return list.length ? `<div class="eyebrow" style="margin-bottom:8px">${esc(c.name)}s</div><div class="mgrid compact">${list.map(m=>tile(m,true,at)).join("")}</div>` : ""; }).join("")}
+  </section>`}
+  <section class="card"><h3 style="margin-bottom:10px">Job board</h3>
+  <div class="board">${visibleStageIds(bid).map(st => { const items = list.filter(o=>shownIn(o, bid)===st).sort((a,b)=>a.createdAt-b.createdAt);
+    return `<section class="col" aria-label="${esc(stageName(st))}"><div class="col-head"><h3>${esc(stageName(st))}</h3><span class="pill plain">${items.length}</span></div>${items.length?items.map(o=>orderCard(o,true)).join(""):'<div class="empty-col">Nothing here.</div>'}</section>`; }).join("")}</div></section>`;
+}
+function settingsView(){
+  const st = S.settings, p = st.pin;
+  const actions = {order:"Creating a job", claim:"Claim and payment", count:"Stock count", transfer:"Receiving stock", supply:"Adding a supply type", override:"Changing a job's stage by hand"};
+  return `<div class="screen-head"><div><h2>Settings</h2><p>Changes go to every branch tablet on its next sync.</p></div></div>
+  <div class="set-grid">
+    <section class="card">
+      <div class="form-row" style="padding-top:0;margin-bottom:12px"><label for="set-minKg"><b>Minimum kilos</b><br><small class="muted">Clothes under this weight are charged as this weight.</small></label><input id="set-minKg" data-set="minKg" inputmode="decimal" value="${st.minKg}"></div>
+      <button class="toggle" role="switch" aria-checked="${p.on}" data-pinmaster><span><b>Ask for a staff PIN</b><br><small class="muted">Records who did each key action. Turn off if it slows the counter down.</small></span><span class="switch"></span></button>
+      <div style="margin-top:10px;${p.on?"":"opacity:.45"}">${Object.entries(actions).map(([k,l]) => `<label class="check"><input type="checkbox" data-pinact="${k}" ${p.actions[k]?"checked":""} ${p.on?"":"disabled"}> ${l}</label>`).join("")}</div>
+    </section>
+    <section class="card"><h3 style="margin-bottom:4px">Branches</h3><p class="muted" style="margin:0 0 8px;font-size:14px">Simple mode is for branches new to the system: a shorter job board (the stages ticked for simple mode below), no machine picker and no Machines screen. PINs still apply.</p>
+      ${S.branches.map(b => `<div class="form-row"><span><b>${esc(b.name)}</b><br><small class="muted">${b.simple ? "Simple mode" : "Full mode"}</small></span><label class="check nowrap" style="justify-content:flex-end"><input type="checkbox" data-branchsimple="${b.id}" ${b.simple?"checked":""}> Simple mode</label></div>`).join("")}
+    </section>
+    <section class="card"><h3 style="margin-bottom:6px">Machines and display</h3>
+      <div class="form-row"><label for="set-checkMin">Flag a machine to check after (min)</label><input id="set-checkMin" data-set="checkMin" inputmode="numeric" value="${st.checkMin}"></div>
+      <div class="form-row"><label for="set-loadKg">Kilos per load (per-load pricing)</label><input id="set-loadKg" data-set="loadKg" inputmode="numeric" value="${st.loadKg}"></div>
+      <button class="toggle" role="switch" aria-checked="${theme==="dark"}" data-darkset style="margin-top:10px"><span><b>Dark theme</b><br><small class="muted">Saved on this device only.</small></span><span class="switch"></span></button>
+    </section>
+    ${stagesCard()}
+    <section class="card" style="grid-column:1/-1"><div class="screen-head" style="margin-bottom:6px"><div><h3>Services</h3><p>What staff pick for weighed clothes. Rename, change the unit or price, add or remove. Existing jobs keep the price they were created with.</p></div><button class="btn primary small" data-addsvc>+ Add service</button></div>
+      <div class="table-wrap"><table class="edit-table"><thead><tr><th>Name</th><th>Unit</th><th class="r">Price (₱)</th><th class="r"><span class="sr">Remove</span></th></tr></thead><tbody>
+      ${activeServices().map(x => `<tr>
+        <td><input class="cell-in" data-svcf="name" data-sid="${x.id}" value="${esc(x.name)}" aria-label="Service name"></td>
+        <td><select class="cell-in" data-svcf="mode" data-sid="${x.id}" aria-label="Unit for ${esc(x.name)}"><option value="kg" ${x.mode==="kg"?"selected":""}>per kg</option><option value="load" ${x.mode==="load"?"selected":""}>per load</option></select></td>
+        <td class="r"><input class="count-in" style="width:96px" inputmode="decimal" data-svcf="price" data-sid="${x.id}" value="${x.price}" aria-label="Price for ${esc(x.name)}"></td>
+        <td class="r"><button class="x" style="width:44px;height:44px" data-delsvc="${x.id}" aria-label="Remove ${esc(x.name)}" title="Remove">×</button></td></tr>`).join("")}
+      </tbody></table></div>
+      ${st.services.some(x=>x.archived) ? `<p class="sample-note" style="margin-top:10px">Removed: ${st.services.filter(x=>x.archived).map(x=>`${esc(x.name)} <button class="btn small" data-restoresvc="${x.id}">Restore</button>`).join(" ")}</p>` : ""}
+      <p class="sample-note">Per load uses "Kilos per load" (${st.loadKg} kg) to count loads. All prices are sample values.</p>
+    </section>
+    <section class="card" style="grid-column:1/-1"><div class="screen-head" style="margin-bottom:6px"><div><h3>Fees</h3><p>Extra charges staff can switch on for a job, such as Rush.</p></div><button class="btn primary small" data-addfee>+ Add fee</button></div>
+      <div class="table-wrap"><table class="edit-table"><thead><tr><th>Name</th><th>Note for staff</th><th class="r">Amount (₱)</th><th class="r"><span class="sr">Remove</span></th></tr></thead><tbody>
+      ${activeFees().map(f => `<tr>
+        <td><input class="cell-in" data-feef="name" data-fid="${f.id}" value="${esc(f.name)}" aria-label="Fee name"></td>
+        <td><input class="cell-in" data-feef="note" data-fid="${f.id}" value="${esc(f.note||"")}" placeholder="Optional" aria-label="Note for ${esc(f.name)}"></td>
+        <td class="r"><input class="count-in" style="width:96px" inputmode="decimal" data-feef="amount" data-fid="${f.id}" value="${f.amount}" aria-label="Amount for ${esc(f.name)}"></td>
+        <td class="r"><button class="x" style="width:44px;height:44px" data-delfee="${f.id}" aria-label="Remove ${esc(f.name)}" title="Remove">×</button></td></tr>`).join("") || `<tr><td colspan="4" class="muted">No fees. Add one if staff need to charge extra, for example Rush.</td></tr>`}
+      </tbody></table></div>
+      ${(st.fees||[]).some(x=>x.archived) ? `<p class="sample-note" style="margin-top:10px">Removed: ${st.fees.filter(x=>x.archived).map(x=>`${esc(x.name)} <button class="btn small" data-restorefee="${x.id}">Restore</button>`).join(" ")}</p>` : ""}
+    </section>
+    <section class="card" style="grid-column:1/-1"><div class="screen-head" style="margin-bottom:6px"><div><h3>Add-ons</h3><p>Optional extras charged once per job. Set which supplies each one uses so stock stays right.</p></div><button class="btn primary small" data-addaddon>+ Add add-on</button></div>
+      <div class="table-wrap"><table class="edit-table"><thead><tr><th>Name</th><th>Uses supplies</th><th class="r">Price (₱)</th><th class="r"><span class="sr">Remove</span></th></tr></thead><tbody>
+      ${activeAddons().map(a => { const parts = Object.entries(a.use).map(([k,q])=>{ const x = st.supplies.find(s=>s.id===k); return x && !x.archived ? `<span class="use-chip">${esc(x.name)} · ${q} ${esc(unitFor(q, x.unit))}<button data-deluse="${a.id}:${k}" aria-label="Stop using ${esc(x.name)} for ${esc(a.name)}">×</button></span>` : null; }).filter(Boolean); return `<tr>
+        <td><input class="cell-in" data-addf="name" data-aid="${a.id}" value="${esc(a.name)}" aria-label="Add-on name"></td>
+        <td><div class="uses">${parts.join("")}<button class="btn small" data-adduse="${a.id}">+ Supply</button></div></td>
+        <td class="r"><input class="count-in" style="width:96px" inputmode="decimal" data-addf="price" data-aid="${a.id}" value="${a.price}" aria-label="Price for ${esc(a.name)}"></td>
+        <td class="r"><button class="x" style="width:44px;height:44px" data-deladdon="${a.id}" aria-label="Remove ${esc(a.name)}" title="Remove">×</button></td></tr>`; }).join("")}
+      </tbody></table></div>
+      ${st.addons.some(x=>x.archived) ? `<p class="sample-note" style="margin-top:10px">Removed: ${st.addons.filter(x=>x.archived).map(x=>`${esc(x.name)} <button class="btn small" data-restoreaddon="${x.id}">Restore</button>`).join(" ")}</p>` : ""}
+    </section>
+    <section class="card" style="grid-column:1/-1"><div class="screen-head" style="margin-bottom:6px"><div><h3>Supply types</h3><p>One list for all branches. New supplies start at 0 on every tablet until a branch receives stock.</p></div><button class="btn primary small" data-addsupply>+ Add supply type</button></div>
+      <button class="toggle" role="switch" aria-checked="${st.staffCanAddSupply}" data-staffsupply style="margin-bottom:12px"><span><b>Let staff add supply types</b><br><small class="muted">Off: staff can only send you a request. On: staff can add from the Supplies screen.</small></span><span class="switch"></span></button>
+      <div class="table-wrap"><table><thead><tr><th>Supply</th><th>Unit</th><th class="r">Low at</th><th class="r">Per washer load</th><th class="r">Per packed job</th><th class="r"><span class="sr">Actions</span></th></tr></thead><tbody>
+      ${activeSupplies().map(x => `<tr><td><b>${esc(x.name)}</b></td><td>${esc(x.unit)}</td>
+        <td class="r"><input class="count-in" style="width:84px" inputmode="numeric" data-sfield="low" data-sid="${x.id}" value="${x.low}" aria-label="Low level for ${esc(x.name)}"></td>
+        <td class="r"><input class="count-in" style="width:84px" inputmode="numeric" data-sfield="wash" data-sid="${x.id}" value="${st.recipe.washLoad[x.id]||""}" placeholder="—" aria-label="${esc(x.name)} used per washer load"></td>
+        <td class="r"><input class="count-in" style="width:84px" inputmode="numeric" data-sfield="order" data-sid="${x.id}" value="${st.recipe.orderReady[x.id]||""}" placeholder="—" aria-label="${esc(x.name)} used per packed job"></td>
+        <td class="r"><button class="btn small" data-archive="${x.id}">Archive</button></td></tr>`).join("")}
+      </tbody></table></div>
+      ${st.supplies.some(x=>x.archived) ? `<p class="sample-note" style="margin-top:10px">Archived (kept for old counts and reports): ${st.supplies.filter(x=>x.archived).map(x=>`${esc(x.name)} <button class="btn small" data-restore="${x.id}">Restore</button>`).join(" ")}</p>` : ""}
+    </section>
+    <section class="card" style="grid-column:1/-1"><div class="screen-head" style="margin-bottom:6px"><div><h3>Piece items</h3><p>Fixed price per piece, not weighed. Add sizes when the price depends on size, for example a king comforter.</p></div><button class="btn primary small" data-addpiece>+ Add piece item</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Item</th><th>Size</th><th class="r">Price (₱)</th><th class="r"><span class="sr">Remove</span></th></tr></thead><tbody>
+      ${activePieces().map(x => x.variants.map((v,i) => `<tr>
+        ${i===0 ? `<td rowspan="${x.variants.length}" style="vertical-align:top"><b>${esc(x.name)}</b><div class="piece-acts"><button class="btn small" data-addvar="${x.id}">+ Size</button><button class="btn small" data-archpiece="${x.id}">Archive</button></div></td>` : ""}<td>${esc(v.label)}</td>
+        <td class="r"><input class="count-in" style="width:84px" inputmode="decimal" data-pprice="${x.id}:${v.id}" value="${v.price}" aria-label="Price for ${esc(x.name)} ${esc(v.label)}"></td>
+        <td class="r">${x.variants.length>1 ? `<button class="x" style="width:44px;height:44px" data-delvar="${x.id}:${v.id}" aria-label="Remove size ${esc(v.label)}" title="Remove size">×</button>` : ""}</td></tr>`).join("")).join("")}
+      </tbody></table></div>
+      ${st.pieces.some(x=>x.archived) ? `<p class="sample-note" style="margin-top:10px">Archived: ${st.pieces.filter(x=>x.archived).map(x=>`${esc(x.name)} <button class="btn small" data-restorepiece="${x.id}">Restore</button>`).join(" ")}</p>` : ""}
+      <p class="sample-note">Pieces don't count toward the minimum kilos. Existing jobs keep the price they were created with.</p>
+    </section>
+  </div>
+  <div class="reset-row"><button class="btn small" data-reset>Reset sample data</button><span>Puts the prototype back to its starting example data.</span></div>`;
+}
+
+/* ---------- Event wiring ---------- */
+app.addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return;
+  const d = t.dataset, dr = ui.draft;
+  if (d.view){ ui.view = d.view; return render(); }
+  if (t.hasAttribute("data-theme-toggle") || t.hasAttribute("data-darkset")){ theme = theme==="dark" ? "light" : "dark"; try { localStorage.setItem("laundry-theme", theme); } catch(e){} applyTheme(); return render(); }
+  if (t.hasAttribute("data-sync")){ ui.online = !ui.online; if (ui.online){ toast("Back online"); scheduleSync(); } else toast("Internet dropped. Keep working; changes are saved on the tablet."); return renderTop(); }
+  if (d.tab){ ui.tab = d.tab; render(); return $("#main").focus?.(); }
+  if (d.otab){ ui.ownerTab = d.otab; return render(); }
+  if (d.ob){ ui.ownerBranch = d.ob; return render(); }
+  if (d.lb){ ui.liveBranch = d.lb; return render(); }
+  if (d.sb){ ui.staffBranch = d.sb; return render(); }
+  if (d.mb){ ui.machBranch = d.mb; return render(); }
+  if (t.hasAttribute("data-addcat")) return categoryForm();
+  if (d.delcat){ const c = catOf(d.delcat), nm = S.machines.filter(m => !m.removed && m.type===c.id).length, ns = stageList().filter(x => x.cat===c.id).length;
+    if (nm || ns) return toast(`${c.name} is used by ${nm} machine${nm===1?"":"s"}${ns?` and ${ns} stage${ns===1?"":"s"}`:""}. Change those first.`);
+    return act(`${c.name} category removed`, () => { c.archived = true; emit("settings_changed", {category:c.id}); }); }
+  if (d.addmach) return machineForm(d.addmach);
+  if (d.mservice){ const m = M(d.mservice); return act(m.outOfService ? `${m.label} back in service` : `${m.label} marked out of service`, () => { m.outOfService = !m.outOfService; emit("machine_changed", {id:m.id, outOfService:m.outOfService}); }); }
+  if (d.delmach){ const m = M(d.delmach); if (machineState(m).s!=="idle") return toast(`Unload ${m.label} before removing it`); return act(`${m.label} removed`, () => { m.removed = true; emit("machine_removed", {id:m.id}); }); }
+  if (t.hasAttribute("data-addstage")) return stageForm();
+  if (d.stup || d.stdown){ const id = d.stup || d.stdown; return act("Stage order changed", () => { moveStage(id, d.stup ? -1 : 1); emit("settings_changed", {stages:true}); }); }
+  if (d.delstage){ const x = stageOf(d.delstage), n = S.orders.filter(o => o.status===x.id).length;
+    if (n) return toast(`${n} job${n===1?" is":"s are"} in ${x.name}. Move ${n===1?"it":"them"} first.`);
+    return act(`${x.name} stage removed`, () => { x.archived = true; emit("settings_changed", {stage:x.id}); }); }
+  if (t.hasAttribute("data-addstaff")) return staffForm(null);
+  if (d.editstaff) return staffForm(d.editstaff);
+  if (d.deactivate){ const x = S.staff.find(y=>y.id===d.deactivate); return act(`${x.name} deactivated`, () => { x.inactive = true; emit("staff_changed", {id:x.id, inactive:true}); }); }
+  if (d.reactivate){ const x = S.staff.find(y=>y.id===d.reactivate); if (S.staff.some(y => y!==x && !y.inactive && y.branch===x.branch && y.pin===x.pin)) return toast(`Someone at ${B(x.branch).name} now uses ${x.name}'s PIN. Edit and set a new PIN first.`); return act(`${x.name} reactivated`, () => { x.inactive = false; emit("staff_changed", {id:x.id, inactive:false}); }); }
+  // counter
+  if (d.svc){ dr.svc = d.svc; return render(); }
+  if (d.key){ let v = dr.kg; if (d.key==="back") v = v.slice(0,-1); else if (d.key===".") { if (!v.includes(".")) v = (v||"0")+"."; } else if (v.replace(".","").length < 4 && !(v.includes(".") && v.split(".")[1].length>=1)) v = (v==="0"?"":v)+d.key; dr.kg = v; return refreshCounter(); }
+  if (d.addon){ dr.addons = dr.addons.includes(d.addon) ? dr.addons.filter(x=>x!==d.addon) : [...dr.addons, d.addon]; t.setAttribute("aria-pressed", dr.addons.includes(d.addon)); return refreshCounter(); }
+  if (d.piece){ const v = Math.max(0, (dr.pieces[d.piece]||0) + Number(d.d)); dr.pieces[d.piece] = v; t.parentElement.querySelector("output").textContent = v; return refreshCounter(); }
+  if (d.fee){ dr.fees = dr.fees.includes(d.fee) ? dr.fees.filter(x=>x!==d.fee) : [...dr.fees, d.fee]; t.setAttribute("aria-pressed", dr.fees.includes(d.fee)); return refreshCounter(); }
+  if (d.cust){ dr.customerId = d.cust; dr.newName = ""; dr.query = ""; const q=$("#custq"); if (q) q.value=""; return render(); }
+  if (t.hasAttribute("data-newcust")){ dr.newName = dr.query.trim(); dr.query = ""; return render(); }
+  if (t.hasAttribute("data-clearcust")){ dr.customerId = null; dr.newName = ""; dr.query = ""; return render(); }
+  if (d.pay){ dr.pay = d.pay; return refreshCounter(); }
+  if (t.hasAttribute("data-create")) return createOrder();
+  // orders
+  if (d.stub) return showStub(orderBy(ui.branch, d.stub));
+  if (d.jview){ ui.jobsView = d.jview; return render(); }
+  if (d.jday){ ui.jobsDate = d.jday; ui.jobsQ = ""; return render(); }
+  if (d.jobdetail) return showJobDetail(d.jobdetail);
+  if (d.logpage){ ui.logPage = Number(d.logpage); return render(); }
+  if (d.advance) return advance(d.advance);
+  if (d.editstage) return editStage(d.editstage);
+  if (d.claim) return claim(d.claim);
+  // machines
+  if (d.machine) return machineTap(d.machine);
+  // supplies
+  if (d.transfer) return transfer(d.transfer);
+  if (t.hasAttribute("data-savecount")) return saveCount();
+  if (t.hasAttribute("data-addsupply")) return supplyForm("");
+  if (t.hasAttribute("data-addpiece")) return pieceForm(null);
+  if (t.hasAttribute("data-addsvc")) return priceItemForm("svc");
+  if (d.adduse) return addonUseForm(d.adduse);
+  if (d.deluse){ const [aid, sid] = d.deluse.split(":"), a = S.settings.addons.find(y=>y.id===aid), x = S.settings.supplies.find(y=>y.id===sid); return act(`${a.name} no longer uses ${x.name}`, () => { delete a.use[sid]; emit("settings_changed", {addon:aid}); }); }
+  if (t.hasAttribute("data-addaddon")) return priceItemForm("addon");
+  if (t.hasAttribute("data-addfee")) return priceItemForm("fee");
+  if (d.delfee){ const x = S.settings.fees.find(y=>y.id===d.delfee); return act(`${x.name} removed`, () => { x.archived = true; ui.draft.fees = ui.draft.fees.filter(i=>i!==x.id); emit("settings_changed", {fee:x.id}); }); }
+  if (d.restorefee){ const x = S.settings.fees.find(y=>y.id===d.restorefee); return act(`${x.name} restored`, () => { x.archived = false; emit("settings_changed", {fee:x.id}); }); }
+  if (d.delsvc){ if (activeServices().length < 2) return toast("Keep at least one service"); const x = S.settings.services.find(y=>y.id===d.delsvc); return act(`${x.name} removed`, () => { x.archived = true; emit("settings_changed", {service:x.id}); }); }
+  if (d.restoresvc){ const x = S.settings.services.find(y=>y.id===d.restoresvc); return act(`${x.name} restored`, () => { x.archived = false; emit("settings_changed", {service:x.id}); }); }
+  if (d.deladdon){ const x = S.settings.addons.find(y=>y.id===d.deladdon); return act(`${x.name} removed`, () => { x.archived = true; ui.draft.addons = ui.draft.addons.filter(i=>i!==x.id); emit("settings_changed", {addon:x.id}); }); }
+  if (d.restoreaddon){ const x = S.settings.addons.find(y=>y.id===d.restoreaddon); return act(`${x.name} restored`, () => { x.archived = false; emit("settings_changed", {addon:x.id}); }); }
+  if (d.addvar) return pieceForm(d.addvar);
+  if (d.delvar){ const [pid, vid] = d.delvar.split(":"), x = S.settings.pieces.find(y=>y.id===pid), v = x.variants.find(y=>y.id===vid); return act(`${x.name} ${v.label} removed`, () => { x.variants = x.variants.filter(y=>y.id!==vid); emit("settings_changed", {piece:x.id}); }); }
+  if (d.archpiece){ const x = S.settings.pieces.find(y=>y.id===d.archpiece); return act(`${x.name} archived`, () => { x.archived = true; emit("settings_changed", {piece:x.id}); }); }
+  if (d.restorepiece){ const x = S.settings.pieces.find(y=>y.id===d.restorepiece); return act(`${x.name} restored`, () => { x.archived = false; emit("settings_changed", {piece:x.id}); }); }
+  if (t.hasAttribute("data-reqsupply")) return requestSupply();
+  if (d.counthist) return countHistory(d.counthist);
+  if (d.fulfill){ const r = S.requests.find(x=>x.id===d.fulfill); return supplyForm(r?r.name:"", d.fulfill); }
+  if (t.hasAttribute("data-staffsupply")){ S.settings.staffCanAddSupply = !S.settings.staffCanAddSupply; save(); emit("settings_changed", {staffCanAddSupply:S.settings.staffCanAddSupply}); render(); return toast(S.settings.staffCanAddSupply ? "Staff can now add supply types" : "Adding supply types is owner-only"); }
+  if (d.archive){ const x = S.settings.supplies.find(y=>y.id===d.archive); return act(`${x.name} archived`, () => { x.archived = true; emit("supply_archived", {id:x.id}); }); }
+  if (d.restore){ const x = S.settings.supplies.find(y=>y.id===d.restore); return act(`${x.name} restored`, () => { x.archived = false; emit("supply_restored", {id:x.id}); }); }
+  // owner
+  if (t.hasAttribute("data-export")) return toast("In the real app this downloads the BIR sales report (.xlsx)");
+  if (t.hasAttribute("data-pinmaster")){ S.settings.pin.on = !S.settings.pin.on; save(); emit("settings_changed", {pin:S.settings.pin.on}); render(); return toast(S.settings.pin.on ? "Staff PIN turned on" : "Staff PIN turned off"); }
+  if (t.hasAttribute("data-reset")){
+    if (t.dataset.armed){ try { localStorage.removeItem(KEY); } catch(e){} S = seed(); ui.draft = freshDraft(); ui.count = {}; render(); return toast("Sample data reset"); }
+    t.dataset.armed = "1"; t.textContent = "Tap again to reset"; setTimeout(() => { if (t.isConnected){ delete t.dataset.armed; t.textContent = "Reset sample data"; } }, 3000);
+  }
+});
+app.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "custq"){ ui.draft.query = t.value; ui.draft.customerId = null; ui.draft.newName = ""; $("#sugg").innerHTML = suggHTML(); const s=$("#summary"); if (s) s.innerHTML = summaryHTML(); }
+  if (t.id === "notes") ui.draft.notes = t.value;
+  if (t.id === "jobs-q"){ ui.jobsQ = t.value; refreshJobs(); }
+  if (t.dataset.count){ ui.count[t.dataset.count] = t.value.replace(/[^\d]/g,""); t.value = ui.count[t.dataset.count]; $("#var-"+t.dataset.count).innerHTML = varHTML(t.dataset.count); }
+});
+app.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "jobs-date"){ if (t.value){ ui.jobsDate = t.value; ui.jobsQ = ""; } return render(); }
+  if (t.id === "branch"){ ui.logPage = 1; ui.branch = t.value; ui.count = {}; return render(); }
+  if (t.dataset.sfield){
+    const x = S.settings.supplies.find(y=>y.id===t.dataset.sid), v = t.value.trim()==="" ? 0 : parseFloat(t.value);
+    if (!(v >= 0)) { toast("Enter a number"); return render(); }
+    if (t.dataset.sfield==="low") x.low = v;
+    else { const map = t.dataset.sfield==="wash" ? S.settings.recipe.washLoad : S.settings.recipe.orderReady; if (v) map[x.id] = v; else delete map[x.id]; }
+    save(); emit("settings_changed", {supply:x.id}); return toast("Saved");
+  }
+  if (t.dataset.svcf){
+    const x = S.settings.services.find(y=>y.id===t.dataset.sid), f = t.dataset.svcf;
+    if (f==="name"){ const v = t.value.trim(); if (!v){ t.value = x.name; return toast("A service needs a name"); } x.name = v; x.short = v; }
+    if (f==="mode") x.mode = t.value;
+    if (f==="price"){ const v = parseFloat(t.value); if (!(v > 0)){ t.value = x.price; return toast("Enter a price above zero"); } x.price = v; }
+    save(); emit("settings_changed", {service:x.id}); return toast("Saved");
+  }
+  if (t.dataset.stf){
+    const x = stageOf(t.dataset.sid);
+    if (t.dataset.stf==="name"){ const v = t.value.trim(); if (!v){ t.value = x.name; return toast("A stage needs a name"); } x.name = v; }
+    if (t.dataset.stf==="cat") x.cat = t.value;
+    save(); emit("settings_changed", {stage:x.id}); return toast("Saved");
+  }
+  if (t.dataset.stask){ const x = stageOf(t.dataset.stask); x.ask = t.checked; if (!x.ask) x.autoNext = false; save(); render(); return toast("Saved"); }
+  if (t.dataset.stsimple){ const x = stageOf(t.dataset.stsimple); x.simple = t.checked; save(); emit("settings_changed", {stage:x.id}); return toast("Saved"); }
+  if (t.dataset.branchsimple){ const b = B(t.dataset.branchsimple); return act(t.checked ? `${b.name} switched to simple mode` : `${b.name} switched to full mode`, () => { b.simple = t.checked; emit("branch_mode_changed", {branch:b.id, simple:b.simple}); }); }
+  if (t.dataset.stauto){ const x = stageOf(t.dataset.stauto); x.autoNext = t.checked; save(); return toast("Saved"); }
+  if (t.dataset.catf){
+    const c = catOf(t.dataset.cid), v = t.value.trim();
+    if (!v){ t.value = c[t.dataset.catf]; return toast("This can't be empty"); }
+    c[t.dataset.catf] = v; save(); emit("settings_changed", {category:c.id}); return toast("Saved");
+  }
+  if (t.dataset.catwash){ const c = catOf(t.dataset.catwash); c.washSupplies = t.checked; save(); return toast("Saved"); }
+  if (t.dataset.mf){
+    const m = M(t.dataset.mid);
+    if (t.dataset.mf==="label"){ const v = t.value.trim(); if (!v){ t.value = m.label; return toast("A machine needs a label"); } if (branchMachines(m.branch).some(x => x!==m && x.label.toLowerCase()===v.toLowerCase())){ t.value = m.label; return toast(`${v} already exists at this branch`); } m.label = v; }
+    if (t.dataset.mf==="type") m.type = t.value;
+    save(); emit("machine_changed", {id:m.id}); render(); return toast("Saved");
+  }
+  if (t.dataset.feef){
+    const x = S.settings.fees.find(y=>y.id===t.dataset.fid), f = t.dataset.feef;
+    if (f==="name"){ const v = t.value.trim(); if (!v){ t.value = x.name; return toast("A fee needs a name"); } x.name = v; }
+    if (f==="note") x.note = t.value.trim();
+    if (f==="amount"){ const v = parseFloat(t.value); if (!(v > 0)){ t.value = x.amount; return toast("Enter an amount above zero"); } x.amount = v; }
+    save(); emit("settings_changed", {fee:x.id}); return toast("Saved");
+  }
+  if (t.dataset.addf){
+    const x = S.settings.addons.find(y=>y.id===t.dataset.aid), f = t.dataset.addf;
+    if (f==="name"){ const v = t.value.trim(); if (!v){ t.value = x.name; return toast("An add-on needs a name"); } x.name = v; }
+    if (f==="price"){ const v = parseFloat(t.value); if (!(v > 0)){ t.value = x.price; return toast("Enter a price above zero"); } x.price = v; }
+    save(); emit("settings_changed", {addon:x.id}); return toast("Saved");
+  }
+  if (t.dataset.pprice){
+    const [pid, vid] = t.dataset.pprice.split(":"), v = S.settings.pieces.find(y=>y.id===pid).variants.find(y=>y.id===vid), num = parseFloat(t.value);
+    if (!(num > 0)){ t.value = v.price; return toast("Enter a price above zero"); }
+    v.price = num; save(); emit("settings_changed", {piece:pid}); return toast("Saved");
+  }
+  if (t.dataset.pinact){ S.settings.pin.actions[t.dataset.pinact] = t.checked; save(); return toast("Saved"); }
+  const num = parseFloat(t.value);
+  if (t.dataset.set){ if (!(num > 0)){ t.value = S.settings[t.dataset.set]; return toast("Enter a number above zero"); } S.settings[t.dataset.set] = num; save(); emit("settings_changed", {[t.dataset.set]:num}); return toast("Saved"); }
+  if (t.dataset.svcprice){ if (!(num > 0)){ t.value = S.settings.services[t.dataset.svcprice].price; return toast("Enter a price above zero"); } S.settings.services[t.dataset.svcprice].price = num; save(); emit("settings_changed", {price:num}); return toast("Saved"); }
+});
+
+render();
+setInterval(() => {
+  if ($("#modal-root").innerHTML) return;
+  if (document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName)) return renderTop();
+  if ((ui.view==="staff" && (ui.tab==="machines" || ui.tab==="orders")) || (ui.view==="owner" && ui.ownerTab==="live")) render(); else renderTop();
+}, 20000);
+})();
+</script>

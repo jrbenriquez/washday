@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "implement": {
+      "source": "jrbenriquez/agent-workflow",
+      "sourceType": "github",
+      "skillPath": "skills/implement/SKILL.md",
+      "computedHash": "91de5d2795ae3839ceebf0515ed67999683747f72e40202f50d748b22d21a37b"
+    },
+    "orchestrate-work": {
+      "source": "jrbenriquez/agent-workflow",
+      "sourceType": "github",
+      "skillPath": "skills/orchestrate-work/SKILL.md",
+      "computedHash": "92b4f15d0f9b426b5905d3f6742fa923c6ab6eccb8530e7eef74361aea2439d5"
+    },
+    "plan-work": {
+      "source": "jrbenriquez/agent-workflow",
+      "sourceType": "github",
+      "skillPath": "skills/plan-work/SKILL.md",
+      "computedHash": "e59b0d5800dd55f5820a2fb3df1e13f1900648b89809c4d0b31d7467a9a044ef"
+    },
+    "recalibrate": {
+      "source": "jrbenriquez/agent-workflow",
+      "sourceType": "github",
+      "skillPath": "skills/recalibrate/SKILL.md",
+      "computedHash": "c38490998f306fa1e47c52045a84fe1848fa5135938e6576eb500a7f33344748"
+    },
+    "to-outcomes": {
+      "source": "jrbenriquez/agent-workflow",
+      "sourceType": "github",
+      "skillPath": "skills/to-outcomes/SKILL.md",
+      "computedHash": "e79fcc260e81448b04ef50656ee624269081c6aa9c779ba82f8671e6a575279a"
+    },
+    "verify": {
+      "source": "jrbenriquez/agent-workflow",
+      "sourceType": "github",
+      "skillPath": "skills/verify/SKILL.md",
+      "computedHash": "10324283ad7ff2929140ed74c38310f008f6cbb9c58cf2512744253d413cedd3"
+    }
+  }
+}
