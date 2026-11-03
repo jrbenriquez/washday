@@ -1,0 +1,30 @@
+{
+  "type": "implementation",
+  "outcome_id": "washday-mvp-progression",
+  "criteria": [
+    "AC-09"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "templates/base.html",
+      "summary": "Choose active navigation marker from resolved route; New job remains active only during intake and Jobs during board/correction/claim/stub."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I2",
+      "action": "Inspect route-conditional template diff",
+      "context": "Scoped implementation attempt2; no business/model/assets changed",
+      "observation": "Removed unconditional marker and added conditional attributes to both navigation links.",
+      "reference": "templates/base.html"
+    }
+  ],
+  "assumptions": [
+    "Local labelled fixtures only; production authentication/device evidence is deferred to its owning outcomes."
+  ],
+  "gaps": [],
+  "blockers": [],
+  "next": "Independently assess all assigned criteria on the integrated workspace.",
+  "workspace": "sha256:be2e5349092c5a2c76210d308bd55b25e3effb68cad2f0db7fbb061639468560; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-implement-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

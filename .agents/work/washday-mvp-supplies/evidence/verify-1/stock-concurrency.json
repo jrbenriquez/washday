@@ -1,0 +1,1 @@
+{"status": "PASS", "workers": 4, "initial": "52", "receipts_before_count": 0, "count_expected": "52.000", "counted": "50", "receipts_after_count": 3, "final_balance": "53"}

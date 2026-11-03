@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "outcome_id": "washday-mvp-history",
+  "outcome": {
+    "reference": "/workspace/washday/outcomes/washday-mvp/washday-mvp-history.md",
+    "fingerprint": "sha256:9a3ef218376cb4abbf66ad0548fcf31115ebff0da9fb3234062468766d34527c"
+  },
+  "phase": "complete",
+  "step": "ready",
+  "scope": [],
+  "implementation_attempts": {
+    "started": 1,
+    "maximum": 3
+  },
+  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Board/List/History navigation, Manila default/date/Today/Yesterday, all-date number/P/customer/phone/notes/status/payment search and no-results feedback checked."
+    },
+    {
+      "id": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: List membership derives from receipt/payment/release Events on selected day; released jobs and all required row fields/paid state displayed newest receipt first."
+    },
+    {
+      "id": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Timeline displays ordered receipt, overrides/reasons, payment/reference/dropoff/actor and release; immutable lines and stub link retained. Load events integrate with machines next."
+    },
+    {
+      "id": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: History contains nonjob Events and once-only day receipt/release/collection summaries; synthetic fixture self-service collection included without fake Job."
+    },
+    {
+      "id": "AC-05",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Paper events appear on actual receipt/payment/release days. P reference searchable; entry actor/time distinct from original occurrence in timeline/stub."
+    },
+    {
+      "id": "AC-06",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Projection membership/state and financial summary read append-only branch Events; foreign branch timeline404 and no history leakage. Future compensation integration remains with people."
+    },
+    {
+      "id": "AC-07",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Required sizes/themes, local assets, navigation, text statuses, labels/focus and viewport layout inspected with no page overflow."
+    }
+  ],
+  "latest_handoff": {
+    "type": "verification",
+    "reference": "handoffs/verify-3.yaml"
+  },
+  "latest_verification": "handoffs/verify-3.yaml",
+  "recalibrations": [],
+  "blockers": [],
+  "next": "Complete outcome."
+}

@@ -1,0 +1,130 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-progression",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Current regression: Independent cards, defaults, received age, overdue and paid state; HTMX every20s observed.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Current regression: Simple mode uses first/last and configured visible middles; full next requires explicit skip; machine picker follows in its owning outcome.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Current regression: Hidden Drying is projected under nearest shown column with actual label; switching mode preserves state; override limits verified. Machines has no exposed screen in simple mode.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Current regression: Manual from/to/reason/actor event and backward/first-ready invariants pass; actual Load fixture remains open after override.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Current regression: Stale advance/override/claim all refuse with actual stage and no payment/event mutation; board refresh feedback observed.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Current regression: Unpaid cash/GCash claims collect once; repeated claim refused; prepaid amount/reference/time retained; injected failure rolls back.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Current regression: Paper Ready shortcut needs no load/picker; sheet-paid/release times kept and future/old dates refused. Packing integrates with supplies later.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-08",
+      "status": "PASS",
+      "reason": "Current regression: Claimed stub/board removal and Manila today count pass; transactions/tenant404 and messages verified.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-09",
+      "status": "PASS",
+      "reason": "Current regression: Conditional active tab observed on fresh server for intake, board, correction and claim. Responsive/theme browser matrix passes again; only board container scrolls.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "uv run pytest -q and real-file concurrency probe",
+      "context": "Combined history workspace",
+      "observation": "41 passed, 1 memory concurrency skip plus real-file12job probe PASS; all earlier behavior suites rerun.",
+      "reference": "../../washday-mvp-history/evidence/verify-1/pytest.txt"
+    },
+    {
+      "id": "R2",
+      "action": "EVIDENCE_RUN=history-regression uv run python scripts/check_progression_browser.py",
+      "context": "Current integrated UI,360/390/1280 and themes",
+      "observation": "All prior implemented browser flows pass again after history payload/toolbar/stub-link changes.",
+      "reference": "../evidence/history-regression/browser.json"
+    }
+  ],
+  "regression_risks": [
+    "Actual device and future integrations remain explicitly owned by later outcomes."
+  ],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:2ca535924c135136fe0cadd708fb62a6006029f3c42a1de6d3681770e99f4456; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

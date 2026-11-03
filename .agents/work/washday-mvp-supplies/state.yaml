@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "outcome_id": "washday-mvp-supplies",
+  "outcome": {
+    "reference": "/workspace/washday/outcomes/washday-mvp/washday-mvp-supplies.md",
+    "fingerprint": "sha256:71a61027f009e93e9c2e9eaab01fb64e8f23cdd37f1ea93c719724bfab39f314"
+  },
+  "phase": "blocked",
+  "step": "ready",
+  "scope": [
+    "AC-09"
+  ],
+  "implementation_attempts": {
+    "started": 1,
+    "maximum": 3
+  },
+  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Balance comes only from summed ledger entries; active units, used-today and <=low boundary checked."
+    },
+    {
+      "id": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Actual addon-use, wash-category job/selfservice start and firstReady deductions run within state/Event transactions; repeats/backward/stale paths do not double deduct."
+    },
+    {
+      "id": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Archived types omitted from choices/recipes; simple/paper jobs have no washer loads while addon/packing continue and old ledger remains readable."
+    },
+    {
+      "id": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Positive receipt only, recent10 entries per page with Newer/Older and reason/time/signed qty/job timeline."
+    },
+    {
+      "id": "AC-05",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Full requires all active supplies; partial only entered supplies, expected/count/variance snapshot, only nonzero adjustment, immutable records verified."
+    },
+    {
+      "id": "AC-06",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Signed0/\u00b11/\u00b13/\u00b14 thresholds and low status shown with text and color; actor/time/full-vs-partial retained for later monitoring."
+    },
+    {
+      "id": "AC-07",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Staff locked by default with request path; unlock creates types, same-shop case-insensitive names collide and archived original requires owner restore."
+    },
+    {
+      "id": "AC-08",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Scope coverage/foreign404, atomic rollback, immutable request/count Events discoverable in History; real concurrent receive/count expected/final balance verified. Later PIN/Undo behavior remains with people."
+    },
+    {
+      "id": "AC-09",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S1"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S2"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "S3"
+        },
+        {
+          "handoff": "handoffs/verify-1.yaml",
+          "id": "C1"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Required ledger pytest and responsive Playwright count/receipt/request flows pass. Actual named Cypress count suite remains unavailable before test execution."
+    }
+  ],
+  "latest_handoff": {
+    "type": "recalibration",
+    "reference": "handoffs/recalibrate-1.yaml"
+  },
+  "latest_verification": "handoffs/verify-1.yaml",
+  "recalibrations": [
+    {
+      "reference": "handoffs/recalibrate-1.yaml",
+      "decision": "ESCALATE"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "verification_capability",
+      "reason": "Cypress executable absent; download.cypress.io denied by enforced proxy403.",
+      "next": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
+    }
+  ],
+  "next": "Resolve recorded blockers before resuming."
+}

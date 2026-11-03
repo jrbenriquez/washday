@@ -1,0 +1,36 @@
+{
+  "type": "implementation",
+  "outcome_id": "washday-mvp-history",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "jobs/history.py, jobs/services.py, templates/jobs, tests/test_history.py",
+      "summary": "Event-derived job projections/day summaries, all-date search, List/History switch, timeline with immutable price lines and paper provenance; intake Events now snapshot customer/notes/service labels."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "uv run pytest -q",
+      "context": "Combined intake/progression/history candidate",
+      "observation": "Behavioral suites executed before handoff; see verification rerun for current totals.",
+      "reference": "tests/test_history.py"
+    }
+  ],
+  "assumptions": [
+    "Local labelled fixtures only; production authentication/device evidence is deferred to its owning outcomes."
+  ],
+  "gaps": [],
+  "blockers": [],
+  "next": "Independently assess all assigned criteria on the integrated workspace.",
+  "workspace": "sha256:2ca535924c135136fe0cadd708fb62a6006029f3c42a1de6d3681770e99f4456; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-implement-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

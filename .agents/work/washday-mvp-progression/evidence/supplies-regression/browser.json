@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "job": 1021,
+  "flows": [
+    "board independent next",
+    "manual correction/backward",
+    "first Ready return",
+    "GCash claim",
+    "claimed removed",
+    "poll every20s"
+  ],
+  "widths": [
+    360,
+    390,
+    1280
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "overflow": false,
+  "errors": []
+}

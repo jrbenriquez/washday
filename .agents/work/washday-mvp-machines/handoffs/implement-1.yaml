@@ -1,0 +1,44 @@
+{
+  "type": "implementation",
+  "outcome_id": "washday-mvp-machines",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "machines/services.py, machines/views.py, core/machines migrations, board/templates",
+      "summary": "Board-only linked starts per accepted D-06; explicit target category, availability and stale guards; monitor/unload grid; jobless paid selfservice, atomic departure/load start and last-unload next; actual stage-linked Load history and configured check threshold."
+    },
+    {
+      "target": "tests/test_machines.py, scripts/check_machine_concurrency.py, scripts/check_machines_browser.py, cypress/e2e/lifecycle.cy.js",
+      "summary": "Added behavioral/transaction/stage/category/mode tests, file-backed concurrent-start probe, browser scenario and named Cypress lifecycle; formatted Python and removed unused bindings."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "uv run pytest -q; uv run python scripts/check_machine_concurrency.py",
+      "context": "Machine implementation1 and existing suites",
+      "observation": "51 passed, 1 memory-DB skip; separate file DB competing four starts yields exactly one open load and3refusals.",
+      "reference": "tests/test_machines.py"
+    }
+  ],
+  "assumptions": [
+    "Local labelled fixtures only; production authentication/device evidence is deferred to its owning outcomes."
+  ],
+  "gaps": [
+    "Cypress binary missing; download.cypress.io CONNECT403 observed. Required actual Cypress run cannot yet be certified.",
+    "Supply ledger deductions integrate under supplies; milestone2 not certified yet."
+  ],
+  "blockers": [],
+  "next": "Independently assess all assigned criteria on the integrated workspace.",
+  "workspace": "sha256:8d8e67280c97b9c6964f5dd404e87553291c60aa76ce055fce682117bd167b7f; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-implement-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

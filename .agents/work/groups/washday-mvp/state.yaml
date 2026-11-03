@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "group_id": "washday-mvp",
+  "phase": "blocked",
+  "selection": {
+    "references": [
+      "outcomes/washday-mvp/washday-mvp-intake.md",
+      "outcomes/washday-mvp/washday-mvp-progression.md",
+      "outcomes/washday-mvp/washday-mvp-history.md",
+      "outcomes/washday-mvp/washday-mvp-machines.md",
+      "outcomes/washday-mvp/washday-mvp-supplies.md",
+      "outcomes/washday-mvp/washday-mvp-people.md",
+      "outcomes/washday-mvp/washday-mvp-settings.md",
+      "outcomes/washday-mvp/washday-mvp-monitoring.md",
+      "outcomes/washday-mvp/washday-mvp-reports.md",
+      "outcomes/washday-mvp/washday-mvp-cloud-release.md",
+      "outcomes/washday-mvp/washday-mvp-direct-pilot.md",
+      "outcomes/washday-mvp/washday-mvp-sync.md",
+      "outcomes/washday-mvp/washday-mvp-hub-operations.md",
+      "outcomes/washday-mvp/washday-mvp-hardware.md",
+      "outcomes/washday-mvp/washday-mvp-hub-rollout.md"
+    ],
+    "index": "outcomes/washday-mvp/README.md",
+    "fingerprint": "sha256:481f7b59be4619ed521ccdf869917d83214ffb40035d929f66cdeaa49273b3bd",
+    "decisions": [
+      "outcomes/washday-mvp/README.md",
+      "outcomes/washday-mvp/decisions/2026-11-03-machine-start.md"
+    ],
+    "user_order": [],
+    "suggested_order": [
+      "washday-mvp-intake",
+      "washday-mvp-progression",
+      "washday-mvp-history",
+      "washday-mvp-machines",
+      "washday-mvp-supplies",
+      "washday-mvp-people",
+      "washday-mvp-settings",
+      "washday-mvp-monitoring",
+      "washday-mvp-reports",
+      "washday-mvp-cloud-release",
+      "washday-mvp-direct-pilot",
+      "washday-mvp-sync",
+      "washday-mvp-hub-operations",
+      "washday-mvp-hardware",
+      "washday-mvp-hub-rollout"
+    ]
+  },
+  "outcomes": [
+    {
+      "id": "washday-mvp-intake",
+      "reference": "outcomes/washday-mvp/washday-mvp-intake.md",
+      "state": ".agents/work/washday-mvp-intake/state.yaml"
+    },
+    {
+      "id": "washday-mvp-progression",
+      "reference": "outcomes/washday-mvp/washday-mvp-progression.md",
+      "state": ".agents/work/washday-mvp-progression/state.yaml"
+    },
+    {
+      "id": "washday-mvp-history",
+      "reference": "outcomes/washday-mvp/washday-mvp-history.md",
+      "state": ".agents/work/washday-mvp-history/state.yaml"
+    },
+    {
+      "id": "washday-mvp-machines",
+      "reference": "outcomes/washday-mvp/washday-mvp-machines.md",
+      "state": ".agents/work/washday-mvp-machines/state.yaml"
+    },
+    {
+      "id": "washday-mvp-supplies",
+      "reference": "outcomes/washday-mvp/washday-mvp-supplies.md",
+      "state": ".agents/work/washday-mvp-supplies/state.yaml"
+    },
+    {
+      "id": "washday-mvp-people",
+      "reference": "outcomes/washday-mvp/washday-mvp-people.md",
+      "state": ".agents/work/washday-mvp-people/state.yaml"
+    },
+    {
+      "id": "washday-mvp-settings",
+      "reference": "outcomes/washday-mvp/washday-mvp-settings.md",
+      "state": ".agents/work/washday-mvp-settings/state.yaml"
+    },
+    {
+      "id": "washday-mvp-monitoring",
+      "reference": "outcomes/washday-mvp/washday-mvp-monitoring.md",
+      "state": ".agents/work/washday-mvp-monitoring/state.yaml"
+    },
+    {
+      "id": "washday-mvp-reports",
+      "reference": "outcomes/washday-mvp/washday-mvp-reports.md",
+      "state": ".agents/work/washday-mvp-reports/state.yaml"
+    },
+    {
+      "id": "washday-mvp-cloud-release",
+      "reference": "outcomes/washday-mvp/washday-mvp-cloud-release.md",
+      "state": ".agents/work/washday-mvp-cloud-release/state.yaml"
+    },
+    {
+      "id": "washday-mvp-direct-pilot",
+      "reference": "outcomes/washday-mvp/washday-mvp-direct-pilot.md",
+      "state": ".agents/work/washday-mvp-direct-pilot/state.yaml"
+    },
+    {
+      "id": "washday-mvp-sync",
+      "reference": "outcomes/washday-mvp/washday-mvp-sync.md",
+      "state": ".agents/work/washday-mvp-sync/state.yaml"
+    },
+    {
+      "id": "washday-mvp-hub-operations",
+      "reference": "outcomes/washday-mvp/washday-mvp-hub-operations.md",
+      "state": ".agents/work/washday-mvp-hub-operations/state.yaml"
+    },
+    {
+      "id": "washday-mvp-hardware",
+      "reference": "outcomes/washday-mvp/washday-mvp-hardware.md",
+      "state": ".agents/work/washday-mvp-hardware/state.yaml"
+    },
+    {
+      "id": "washday-mvp-hub-rollout",
+      "reference": "outcomes/washday-mvp/washday-mvp-hub-rollout.md",
+      "state": ".agents/work/washday-mvp-hub-rollout/state.yaml"
+    }
+  ],
+  "external_prerequisites": [
+    {
+      "id": "cypress-runtime",
+      "reference": "outcomes/washday-mvp/washday-mvp-machines.md AC-08; washday-mvp-supplies.md AC-09",
+      "required": "Actual Cypress lifecycle and full/partial count runs",
+      "evidence": [
+        ".agents/work/washday-mvp-machines/evidence/verify-1/cypress.txt",
+        ".agents/work/washday-mvp-machines/evidence/verify-1/cypress-download.txt"
+      ],
+      "resolving_action": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
+    }
+  ],
+  "workspace": {
+    "repository": "https://github.com/jrbenriquez/washday.git",
+    "worktree": "/workspace/washday",
+    "branch": "codex/outcomes/washday-mvp",
+    "base": {
+      "reference": "origin/main",
+      "commit": "38d1ec12886ee668572df2fb8bd8cf65b808da1f",
+      "freshness": "git fetch origin main and git ls-remote --symref origin HEAD on 2026-11-03; identical SHA"
+    },
+    "integrated": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/final-local-milestone2.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+  },
+  "coordinator": "current Codex chat /root; sequential",
+  "active": [],
+  "blockers": [
+    {
+      "outcome_id": "washday-mvp-machines",
+      "code": "verification_capability",
+      "reason": "Cypress executable absent; download.cypress.io denied by enforced proxy403.",
+      "resolving_action": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
+    },
+    {
+      "outcome_id": "washday-mvp-supplies",
+      "code": "verification_capability",
+      "reason": "Cypress executable absent; download.cypress.io denied by enforced proxy403.",
+      "resolving_action": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
+    }
+  ],
+  "waiting_on": [
+    {
+      "outcome_id": "washday-mvp-people",
+      "prerequisite_id": "washday-mvp-supplies",
+      "required": "Complete staff milestone2 acceptance including required named suites.",
+      "resolving_action": "Resolve upstream Cypress gate, reverify and resume dependency scheduling."
+    },
+    {
+      "outcome_id": "washday-mvp-settings",
+      "prerequisite_id": "washday-mvp-people",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    },
+    {
+      "outcome_id": "washday-mvp-monitoring",
+      "prerequisite_id": "washday-mvp-settings",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    },
+    {
+      "outcome_id": "washday-mvp-reports",
+      "prerequisite_id": "washday-mvp-monitoring",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    },
+    {
+      "outcome_id": "washday-mvp-cloud-release",
+      "prerequisite_id": "washday-mvp-reports",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    },
+    {
+      "outcome_id": "washday-mvp-direct-pilot",
+      "prerequisite_id": "washday-mvp-cloud-release",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    },
+    {
+      "outcome_id": "washday-mvp-sync",
+      "prerequisite_id": "washday-mvp-direct-pilot",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    },
+    {
+      "outcome_id": "washday-mvp-hub-operations",
+      "prerequisite_id": "washday-mvp-sync",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    },
+    {
+      "outcome_id": "washday-mvp-hardware",
+      "prerequisite_id": "washday-mvp-hub-operations",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    },
+    {
+      "outcome_id": "washday-mvp-hub-rollout",
+      "prerequisite_id": "washday-mvp-hardware",
+      "required": "Current prerequisite outcome acceptance evidence as specified in the authoritative document.",
+      "resolving_action": "Complete/verify the prerequisite; then assess this outcome\u2019s documented external requirements."
+    }
+  ],
+  "pending_regressions": [],
+  "schedule_log": ".agents/work/groups/washday-mvp/events.md",
+  "next": "Resolve Cypress runner capability, reverify machines AC-08 and supplies AC-09 (and affected earlier evidence), then continue people. Budgets remain intake1/progression2/history1/machines1/supplies1 of3 each."
+}

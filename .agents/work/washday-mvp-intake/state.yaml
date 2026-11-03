@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "outcome_id": "washday-mvp-intake",
+  "outcome": {
+    "reference": "/workspace/washday/outcomes/washday-mvp/washday-mvp-intake.md",
+    "fingerprint": "sha256:89fe486ab288f17cb24527e4260406b2df2d1bc171e3cc5a5fdf57a2e69e985f"
+  },
+  "phase": "complete",
+  "step": "ready",
+  "scope": [],
+  "implementation_attempts": {
+    "started": 1,
+    "maximum": 3
+  },
+  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Persisted kg/pieces/mixed inputs, empty-job refusal and server summary demonstrated; active choices, optional shop customer create/search, steppers, notes/payment exercised."
+    },
+    {
+      "id": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Minimum kg, ceil load, zero-kg pieces-only, deduplicated extras/fees and 108.655\u2192108.66 half-up edge checked."
+    },
+    {
+      "id": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Immutable line snapshots survive edited service label/price; Heavy items kg and Rush 50/Same day are available without mixing piece weight."
+    },
+    {
+      "id": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: UUID models, prescribed Decimal fields, branch numbering/sequence and 12 concurrent file DB creations checked; event injection failure rolls back job/lines/customer/sequences."
+    },
+    {
+      "id": "AC-05",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Unpaid, Cash and GCash, amount/time/actor/reference and at-drop-off event recorded. Stock integration remains explicitly owned by supplies."
+    },
+    {
+      "id": "AC-06",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Today/-7 accepted, -8/future refused; original occurrence differs from entry and duplicate P reference opens same job without new state."
+    },
+    {
+      "id": "AC-07",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Current app price retained against written 99/100; mismatch/provenance rendered and paper jobs never create loads."
+    },
+    {
+      "id": "AC-08",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Stub fields, historical label, payment, actual local received times and reload persistence inspected; print callback, slip PDF and hidden shell exercised."
+    },
+    {
+      "id": "AC-09",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Local fonts/icons/logo, exact prototype tokens, both themes at 360/390/1280, responsive rail, focus/touch/toast and tag/stub details assessed."
+    },
+    {
+      "id": "AC-10",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-5.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Final ledger regression: Regression: Foreign catalog/customer requests return404; unscoped request injection ineffective; fail-closed default/base managers and future-model coverage verified; atomic rollback tested."
+    }
+  ],
+  "latest_handoff": {
+    "type": "verification",
+    "reference": "handoffs/verify-5.yaml"
+  },
+  "latest_verification": "handoffs/verify-5.yaml",
+  "recalibrations": [],
+  "blockers": [],
+  "next": "Complete outcome."
+}

@@ -1,0 +1,59 @@
+{
+  "type": "implementation",
+  "outcome_id": "washday-mvp-intake",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09",
+    "AC-10"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "core, people, customers, catalog, events, jobs; migrations",
+      "summary": "Introduced prescribed local Django stack and scoped UUID models; transactional decimal-priced job intake, immutable event/line snapshots, paper provenance and digital stub."
+    },
+    {
+      "target": "templates, static, scripts, tests, README.md",
+      "summary": "Prototype token shell with local licensed fonts/HTMX/logo, light/dark themes, keyboard/touch controls, server summaries, print stylesheet and labelled fixtures."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "uv run pytest -q",
+      "context": "Intake implementation 1; Python3.13.5 / Django6.0.9 / ephemeral SQLite",
+      "observation": "21 passed, 1 skipped (memory SQLite concurrency deferred to file probe).",
+      "reference": "tests/test_intake.py"
+    },
+    {
+      "id": "I2",
+      "action": "uv run python scripts/check_concurrency.py",
+      "context": "Local DEMO file-backed SQLite; four thread workers",
+      "observation": "12 persisted jobs; consecutive unique 1001\u20131012 numbers; 12 matching events.",
+      "reference": "scripts/check_concurrency.py"
+    },
+    {
+      "id": "I3",
+      "action": "Browser implementation smoke and asset acquisition",
+      "context": "Chromium local server, vendored assets with OFL licences",
+      "observation": "Server summary 3.1kg at DEMO 35 =108.50; new stub persists on server; no JavaScript errors. Comprehensive browser probe initially had locator ambiguity in harness; corrected to exact Cash match.",
+      "reference": ".agents/work/washday-mvp-intake/evidence/intake-desktop-initial.png"
+    }
+  ],
+  "assumptions": [
+    "Local labelled fixtures only; production authentication/device evidence is deferred to its owning outcomes."
+  ],
+  "gaps": [
+    "Actual Android/iOS print and production enrolment remain later outcomes."
+  ],
+  "blockers": [],
+  "next": "Independently assess all assigned criteria on the integrated workspace.",
+  "workspace": "sha256:9edb99f7e625aaa067b944a4e1ba120765b90a8e15e12ec18cac96c032134f55; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-implement-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

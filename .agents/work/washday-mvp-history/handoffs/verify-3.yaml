@@ -1,0 +1,108 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-history",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Final ledger regression: Board/List/History navigation, Manila default/date/Today/Yesterday, all-date number/P/customer/phone/notes/status/payment search and no-results feedback checked.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Final ledger regression: List membership derives from receipt/payment/release Events on selected day; released jobs and all required row fields/paid state displayed newest receipt first.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Final ledger regression: Timeline displays ordered receipt, overrides/reasons, payment/reference/dropoff/actor and release; immutable lines and stub link retained. Load events integrate with machines next.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Final ledger regression: History contains nonjob Events and once-only day receipt/release/collection summaries; synthetic fixture self-service collection included without fake Job.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Final ledger regression: Paper events appear on actual receipt/payment/release days. P reference searchable; entry actor/time distinct from original occurrence in timeline/stub.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Final ledger regression: Projection membership/state and financial summary read append-only branch Events; foreign branch timeline404 and no history leakage. Future compensation integration remains with people.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Final ledger regression: Required sizes/themes, local assets, navigation, text statuses, labels/focus and viewport layout inspected with no page overflow.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "uv run pytest -q; three real-file concurrency probes",
+      "context": "Final integrated intake/progression/history/machines/supplies workspace; local SQLite",
+      "observation": "66 passed,1shared-memory concurrency skip. File tests separately prove12unique intake jobs/events, one winner among4machine starts and serialized count/receipt expected/final balances.",
+      "reference": "../../washday-mvp-supplies/evidence/verify-1/pytest.txt"
+    },
+    {
+      "id": "R2",
+      "action": "EVIDENCE_RUN=supplies-regression uv run python scripts/check_history_browser.py",
+      "context": "Fresh server, simple-mode fixtures with actual addon/load/packing ledger integration; required widths/themes",
+      "observation": "All original browser flows pass again. Machine full-mode flow additionally proves current load/packing/history integration; all screenshot evidence retained.",
+      "reference": "../evidence/supplies-regression/browser.json"
+    }
+  ],
+  "regression_risks": [
+    "Device/PIN/Undo/owner release and production checks remain later outcomes."
+  ],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

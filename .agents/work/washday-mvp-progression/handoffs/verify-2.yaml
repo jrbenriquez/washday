@@ -1,0 +1,32 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-progression",
+  "criteria": [
+    "AC-09"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-09",
+      "status": "PASS",
+      "reason": "Conditional active tab observed on fresh server for intake, board, correction and claim. Responsive/theme browser matrix passes again; only board container scrolls.",
+      "evidence": [
+        "V4"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "V4",
+      "action": "EVIDENCE_RUN=verify-2 uv run python scripts/check_progression_browser.py plus four-route active-navigation probe",
+      "context": "Fresh template cache after scoped nav-only change; other business/model code unchanged from verify1",
+      "observation": "Browser PASS at360/390/1280 with both themes. Active marker correctly New job at intake and Jobs on board/correction/claim; previous AC01\u201308 evidence retained because only nav attributes changed and browser behavioral regressions still pass.",
+      "reference": "../evidence/verify-2/browser.json"
+    }
+  ],
+  "regression_risks": [],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:30649ff4915b8ab9cd63b8358b956a5719358619153a83ce472629acec275f4d; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

@@ -1,0 +1,125 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-intake",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09",
+    "AC-10"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Persisted kg/pieces/mixed inputs, empty-job refusal and server summary demonstrated; active choices, optional shop customer create/search, steppers, notes/payment exercised.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Minimum kg, ceil load, zero-kg pieces-only, deduplicated extras/fees and 108.655\u2192108.66 half-up edge checked.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Immutable line snapshots survive edited service label/price; Heavy items kg and Rush 50/Same day are available without mixing piece weight.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "UUID models, prescribed Decimal fields, branch numbering/sequence and 12 concurrent file DB creations checked; event injection failure rolls back job/lines/customer/sequences.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Unpaid, Cash and GCash, amount/time/actor/reference and at-drop-off event recorded. Stock integration remains explicitly owned by supplies.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Today/-7 accepted, -8/future refused; original occurrence differs from entry and duplicate P reference opens same job without new state.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Current app price retained against written 99/100; mismatch/provenance rendered and paper jobs never create loads.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-08",
+      "status": "PASS",
+      "reason": "Stub fields, historical label, payment, actual local received times and reload persistence inspected; print callback, slip PDF and hidden shell exercised.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-09",
+      "status": "PASS",
+      "reason": "Local fonts/icons/logo, exact prototype tokens, both themes at 360/390/1280, responsive rail, focus/touch/toast and tag/stub details assessed.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-10",
+      "status": "PASS",
+      "reason": "Foreign catalog/customer requests return404; unscoped request injection ineffective; fail-closed default/base managers and future-model coverage verified; atomic rollback tested.",
+      "evidence": [
+        "V0"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "V0",
+      "action": "Original intake independent checks recorded before progression dispatch",
+      "context": "Original intake code before progression, identified by intake-implement-1 manifest; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "observation": "21 passed, 1 memory concurrency skip; separate four-worker file DB probe created 12 jobs+events numbered1017\u20131028. Original browser matrix and print/customer/paper/GCash checks passed. Original system check and migration checks clean. This historical artifact is reconstructed from the recorded original phase observations after a filename collision; current acceptance uses retained verify-2 regression instead.",
+      "reference": ".agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-implement-1.json"
+    }
+  ],
+  "regression_risks": [
+    "Recheck future shared changes; this is local intake only."
+  ],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "Historical original intake: sha256:9edb99f7e625aaa067b944a4e1ba120765b90a8e15e12ec18cac96c032134f55",
+  "reconstruction": "Original handoff filename was inadvertently reused by the first regression. This read-only historical reconstruction preserves the known original observations; original exact handoff bytes are unavailable. Attempt counts and selected scope were known and unchanged. Current state references independently observed verify-2."
+}

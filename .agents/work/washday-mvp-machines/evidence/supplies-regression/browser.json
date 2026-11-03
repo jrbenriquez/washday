@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "amendment": "D-06 job starts only on board; grid monitoring/unload and jobless paid selfservice",
+  "lifecycle_job": 1023,
+  "widths": [
+    360,
+    390,
+    1280
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "external": [],
+  "errors": [],
+  "overflow": false,
+  "runner": "Playwright Chromium; does not certify required Cypress execution"
+}

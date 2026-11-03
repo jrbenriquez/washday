@@ -1,0 +1,141 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-intake",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09",
+    "AC-10"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Regression: Persisted kg/pieces/mixed inputs, empty-job refusal and server summary demonstrated; active choices, optional shop customer create/search, steppers, notes/payment exercised.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Regression: Minimum kg, ceil load, zero-kg pieces-only, deduplicated extras/fees and 108.655\u2192108.66 half-up edge checked.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Regression: Immutable line snapshots survive edited service label/price; Heavy items kg and Rush 50/Same day are available without mixing piece weight.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Regression: UUID models, prescribed Decimal fields, branch numbering/sequence and 12 concurrent file DB creations checked; event injection failure rolls back job/lines/customer/sequences.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Regression: Unpaid, Cash and GCash, amount/time/actor/reference and at-drop-off event recorded. Stock integration remains explicitly owned by supplies.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Regression: Today/-7 accepted, -8/future refused; original occurrence differs from entry and duplicate P reference opens same job without new state.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Regression: Current app price retained against written 99/100; mismatch/provenance rendered and paper jobs never create loads.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-08",
+      "status": "PASS",
+      "reason": "Regression: Stub fields, historical label, payment, actual local received times and reload persistence inspected; print callback, slip PDF and hidden shell exercised.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-09",
+      "status": "PASS",
+      "reason": "Regression: Local fonts/icons/logo, exact prototype tokens, both themes at 360/390/1280, responsive rail, focus/touch/toast and tag/stub details assessed.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-10",
+      "status": "PASS",
+      "reason": "Regression: Foreign catalog/customer requests return404; unscoped request injection ineffective; fail-closed default/base managers and future-model coverage verified; atomic rollback tested.",
+      "evidence": [
+        "RV1",
+        "RV2"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "RV1",
+      "action": "uv run pytest -q plus scripts/check_concurrency.py",
+      "context": "Intake+progression integrated models, actual Load contract and protected Branch counters",
+      "observation": "35 passed, 1 memory-DB concurrency skip; real-file probe independently succeeds for 12 jobs/12 events. All intake cases rerun.",
+      "reference": "../../washday-mvp-progression/evidence/pytest-verify-1.txt"
+    },
+    {
+      "id": "RV2",
+      "action": "uv run python scripts/check_intake_browser.py",
+      "context": "Fresh server on file-backed /tmp/washday-browser.sqlite3 with only labelled demo fixtures; shared shell now includes Jobs navigation",
+      "observation": "Server summary, payment, paper, customer, pieces, print, cookie and local-only assets all pass again; both themes and all widths, no page overflow.",
+      "reference": "../evidence/browser.json"
+    }
+  ],
+  "regression_risks": [
+    "Recheck future shared changes; this is local intake only."
+  ],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:0d0c7ce1ff9cc0d1ccbeed7f2b96424aed238b778acca19290fb18c036df9e59; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}
