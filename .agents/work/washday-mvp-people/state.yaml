@@ -84,5 +84,5 @@
   "latest_verification": null,
   "recalibrations": [],
   "blockers": [],
-  "next": "Implement when prerequisites have sufficient current evidence."
+  "next": "Ready for first implementation: enrolled devices, personal shifts/shared PIN policies and compensating Undo. Milestone2 Cypress prerequisites now have PASS."
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "group_id": "washday-mvp",
-  "phase": "blocked",
+  "phase": "active",
   "selection": {
     "references": [
       "outcomes/washday-mvp/washday-mvp-intake.md",
@@ -128,10 +128,12 @@
       "reference": "outcomes/washday-mvp/washday-mvp-machines.md AC-08; washday-mvp-supplies.md AC-09",
       "required": "Actual Cypress lifecycle and full/partial count runs",
       "evidence": [
-        ".agents/work/washday-mvp-machines/evidence/verify-1/cypress.txt",
-        ".agents/work/washday-mvp-machines/evidence/verify-1/cypress-download.txt"
+        ".agents/work/groups/washday-mvp/cypress-recovery/run-1.txt",
+        ".agents/work/groups/washday-mvp/cypress-recovery/verify.txt",
+        ".agents/work/groups/washday-mvp/cypress-recovery/source.json"
       ],
-      "resolving_action": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
+      "resolving_action": "Resolved: official binary/Xvfb installed and both actual specs passed.",
+      "status": "resolved"
     }
   ],
   "workspace": {
@@ -143,32 +145,13 @@
       "commit": "38d1ec12886ee668572df2fb8bd8cf65b808da1f",
       "freshness": "git fetch origin main and git ls-remote --symref origin HEAD on 2026-11-03; identical SHA"
     },
-    "integrated": "sha256:9e421319702ba7c3579bc8c72b5204402bf14e4ffcd413600c40408194674aaa; manifest:.agents/work/groups/washday-mvp/snapshots/review-checkpoint.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+    "integrated": "sha256:728dfc6a160c21b1ef141c7c8b10007ae374c11c5a0465077da2c81087466e03; manifest:.agents/work/groups/washday-mvp/snapshots/cypress-recovery-review.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
     "review_commit": "ced8a20"
   },
   "coordinator": "current Codex chat /root; sequential",
   "active": [],
-  "blockers": [
-    {
-      "outcome_id": "washday-mvp-machines",
-      "code": "verification_capability",
-      "reason": "Cypress executable absent; download.cypress.io denied by enforced proxy403.",
-      "resolving_action": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
-    },
-    {
-      "outcome_id": "washday-mvp-supplies",
-      "code": "verification_capability",
-      "reason": "Cypress executable absent; download.cypress.io denied by enforced proxy403.",
-      "resolving_action": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
-    }
-  ],
+  "blockers": [],
   "waiting_on": [
-    {
-      "outcome_id": "washday-mvp-people",
-      "prerequisite_id": "washday-mvp-supplies",
-      "required": "Complete staff milestone2 acceptance including required named suites.",
-      "resolving_action": "Resolve upstream Cypress gate, reverify and resume dependency scheduling."
-    },
     {
       "outcome_id": "washday-mvp-settings",
       "prerequisite_id": "washday-mvp-people",
@@ -226,5 +209,5 @@
   ],
   "pending_regressions": [],
   "schedule_log": ".agents/work/groups/washday-mvp/events.md",
-  "next": "Resolve Cypress runner capability, reverify machines AC-08 and supplies AC-09 (and affected earlier evidence), then continue people. Budgets remain intake1/progression2/history1/machines1/supplies1 of3 each."
+  "next": "Next eligible: washday-mvp-people, with existing staff milestone evidence. Installation and required-suite recovery completed; no people invocation started in this installation request."
 }

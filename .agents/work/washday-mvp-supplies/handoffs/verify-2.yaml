@@ -1,0 +1,40 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-supplies",
+  "criteria": [
+    "AC-09"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-09",
+      "status": "PASS",
+      "reason": "Previously established ledger pytest and responsive/browser evidence is supplemented by actual passing required Cypress full/partial count suite, preserving untouched supply.",
+      "evidence": [
+        "CYPRESS1",
+        "CYPRESS2"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "CYPRESS1",
+      "action": "npm run test:e2e -- --config screenshotsFolder=.agents/work/groups/washday-mvp/cypress-recovery/screenshots",
+      "context": "Actual Cypress16.2.1 executable, Chromium, Xvfb; current local full-mode fixture server with actual stock ledger; source and all previous product inputs unchanged",
+      "observation": "2 tests passed,0failed,0pending,0skipped. lifecycle.cy.js exercised Newjob\u2192boardWashingW1\u2192monitor/unload\u2192boardDryingD1\u2192unload\u2192Ready\u2192claim\u2192timeline. count.cy.js exercised full count then partial count while preserving untouched type.",
+      "reference": "../../groups/washday-mvp/cypress-recovery/run-1.txt"
+    },
+    {
+      "id": "CYPRESS2",
+      "action": "npx cypress verify; verify official image layer digests before selective installation",
+      "context": "Existing proxy/network policy preserved. Official registry cypress/included16.2.1; user cache/localbin, no production effects",
+      "observation": "Executable verification passed. Cypress layer sha256:e9ed8650d12d0408d22c07ce367a47b11d01114c90cc6afa1f558d44c53144d8 and dependency layer sha256:eab484c837d2ba1b902f44748ef134fdd85256bea35654e7460c4fd80070fcaf verified before extraction. No product code changes or implementation attempt.",
+      "reference": "../../groups/washday-mvp/cypress-recovery/verify.txt"
+    }
+  ],
+  "regression_risks": [],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:5cf6588e12fa09bb50920de609d2518ce286e7e8c75bc66614a7fb348c040ce2; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

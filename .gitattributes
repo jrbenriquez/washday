@@ -1,3 +1,5 @@
 # Preserve original upstream licence bytes and raw HTTP diagnostic headers.
 static/fonts/*-OFL.txt -whitespace
 .agents/work/washday-mvp-machines/evidence/verify-1/cypress-download.txt -whitespace
+# Preserve Cypress's raw terminal tables as execution evidence.
+.agents/work/groups/washday-mvp/cypress-recovery/run-1.txt -whitespace

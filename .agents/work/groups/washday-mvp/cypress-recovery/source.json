@@ -1,0 +1,10 @@
+{
+  "image": "docker.io/cypress/included:16.2.1",
+  "image_config": "sha256:7666efc9688b60b90ad340b8afbee25ac90701623c3651da59d1e651b04370d3",
+  "layer": "sha256:e9ed8650d12d0408d22c07ce367a47b11d01114c90cc6afa1f558d44c53144d8",
+  "sha256_verified": true,
+  "files": 24981,
+  "destination": "/home/agent/.cache/Cypress",
+  "dependencies_layer": "sha256:eab484c837d2ba1b902f44748ef134fdd85256bea35654e7460c4fd80070fcaf",
+  "xvfb": "/home/agent/.local/bin/Xvfb"
+}

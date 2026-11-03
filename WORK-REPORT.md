@@ -2,7 +2,7 @@
 
 Execution date: 3 November 2026. Source: latest fetched `origin/main` at `38d1ec12886ee668572df2fb8bd8cf65b808da1f`. Worktree `/workspace/washday`, branch `codex/outcomes/washday-mvp`. Sequential execution; no remote push, deployment, production data, purchases or delegated agents.
 
-Three outcomes have current local acceptance evidence: **intake, progression and history**. Machines and supplies are implemented with current behavioral evidence, but their explicitly required **Cypress** runs remain **INCONCLUSIVE**. The group is **blocked**, not complete. People and all later outcomes remain prerequisite waits.
+Five outcomes have current local acceptance evidence: **intake, progression, history, machines and supplies**. The Cypress installation blocker is resolved and both required suites passed. The group is active with no invocation running; **people** is the next eligible outcome. Later outcomes retain their dependency gates.
 
 ## Implemented behavior
 
@@ -22,9 +22,9 @@ Original PRD/reference assets and original criterion IDs were preserved. The use
 | intake | complete | 1 / 3 |
 | progression | complete | 2 / 3 |
 | history | complete | 1 / 3 |
-| machines | blocked: AC-08 Cypress capability | 1 / 3 |
-| supplies | blocked: AC-09 Cypress capability | 1 / 3 |
-| people | waiting for complete staff milestone 2 acceptance | 0 / 3 |
+| machines | complete; actual Cypress lifecycle passed | 1 / 3 |
+| supplies | complete; actual Cypress full/partial count passed | 1 / 3 |
+| people | ready; no implementation invocation started | 0 / 3 |
 | settings | waiting for people | 0 / 3 |
 | monitoring | waiting for settings | 0 / 3 |
 | reports | waiting for monitoring; exact BIR sample remains external | 0 / 3 |
@@ -35,7 +35,7 @@ Original PRD/reference assets and original criterion IDs were preserved. The use
 | hardware | waiting for operations and actual hardware observation | 0 / 3 |
 | hub-rollout | waiting for hardware and real pilot/rollout evidence | 0 / 3 |
 
-Progression attempt 2 corrected the active navigation marker after independent screenshot inspection. Subsequent integration changes triggered actual earlier tests and browser regressions. The narrower supplies prerequisite was satisfied by machine event/load behavior and counter/history evidence; the complete-staff gate before people remains unmet. No exhausted budgets were reset or increased.
+Progression attempt 2 corrected the active navigation marker after independent screenshot inspection. Subsequent integration changes triggered actual earlier tests and browser regressions. The narrower supplies prerequisite was satisfied by machine event/load behavior and counter/history evidence. Actual Cypress success now resolves the complete-staff milestone 2 verification gate before people. No exhausted budgets were reset or increased.
 
 ## Checks actually performed
 
@@ -45,7 +45,8 @@ Progression attempt 2 corrected the active navigation marker after independent s
 - `scripts/check_stock_concurrency.py`: concurrent count and three receipts; expected snapshot and final ledger reconcile.
 - Playwright Chromium: intake/payment/customer/pieces/paper/duplicate/print/theme; board/correction/claim; list/history/timeline/search; full board-to-machine lifecycle and paid self-service; receipt/full count/partial count/request. Required viewport/theme matrices, local-only assets, no JavaScript errors or page overflow.
 - Django system check, migration drift check, Python undefined/unused-name check and Cypress configuration/spec JavaScript syntax checks pass.
-- `npm run test:e2e`: **could not start tests** because the Cypress binary is absent. The configured proxy returned **HTTP 403** for `download.cypress.io`. Cypress npm metadata and authored specs are present; neither installation nor syntax checks count as a Cypress run.
+- `npm run test:e2e`: **2 passed, 0 failed, 0 skipped** (actual Cypress 16.2.1 / Chromium). Job-board machine lifecycle and full/partial count suites both ran successfully.
+- `npx cypress verify`: **passed**. The original direct download returned HTTP 403. Recovery installed only the needed executable/Xvfb from official Docker image layers through the allowed registry, verifying SHA-256, without bypassing the proxy. A full-image pull exceeded the vfs disk limit and was cleaned up; selective installation used under 1 GB. The original failed command/HTTP evidence remains historical evidence of the resolved blocker.
 
 Evidence:
 
@@ -53,8 +54,11 @@ Evidence:
 - [Count/receipt concurrency](.agents/work/washday-mvp-supplies/evidence/verify-1/stock-concurrency.json)
 - [Current machine lifecycle browser result](.agents/work/washday-mvp-machines/evidence/supplies-regression/browser.json)
 - [Stock browser result](.agents/work/washday-mvp-supplies/evidence/verify-1/browser.json)
-- [Required Cypress command failure](.agents/work/washday-mvp-machines/evidence/verify-1/cypress.txt)
-- [Download policy denial](.agents/work/washday-mvp-machines/evidence/verify-1/cypress-download.txt)
+- [Historical Cypress command failure](.agents/work/washday-mvp-machines/evidence/verify-1/cypress.txt)
+- [Historical download policy denial](.agents/work/washday-mvp-machines/evidence/verify-1/cypress-download.txt)
+- [Successful actual Cypress run](.agents/work/groups/washday-mvp/cypress-recovery/run-1.txt)
+- [Cypress binary verification](.agents/work/groups/washday-mvp/cypress-recovery/verify.txt)
+- [Official artifact provenance](.agents/work/groups/washday-mvp/cypress-recovery/source.json)
 - [Group checkpoint](.agents/work/groups/washday-mvp/state.yaml), [schedule/impact log](.agents/work/groups/washday-mvp/events.md), per-outcome state and phase handoffs alongside their evidence.
 
 ## Run locally and resume
@@ -68,10 +72,10 @@ uv run python scripts/run_demo_server.py
 
 Open `http://127.0.0.1:8000/jobs/new/`. Default fixture branch is direct + simple. Use `uv run python scripts/set_demo_mode.py full` for the board machine flow. All operational names/prices/recipes are explicitly DEMO fixtures; production enrolment/authentication/PIN/Undo/owner administration are not yet implemented. A browser-probe server may already occupy port 8000 using `/tmp/washday-browser.sqlite3`, currently in full mode.
 
-Resolve the Cypress runner through supported environment configuration (allow the required binary download or use an environment with it installed), then run `npm run test:e2e` against full-mode labelled fixtures with idle W1/D1. The saved lifecycle and count specs must actually pass; rerun affected earlier evidence as needed. Resume with:
+Cypress and Xvfb are installed in the user cache/local bin. Both required specs passed against full-mode labelled fixtures. For a fresh Linux amd64 environment, `python3.13 scripts/install_cypress_from_image.py` installs the needed components from verified official image layers. Keep `$HOME/.local/bin` on PATH, run `npx cypress verify`, and run `npm run test:e2e` with idle W1/D1. The next eligible implementation is people (enrolment/shifts/PIN/Undo); prior attempt counts remain unchanged. Resume with:
 
 ```text
 orchestrate-work for outcomes/washday-mvp
 ```
 
-Retain all saved attempts and artifacts. Do not repeat unavailable diagnostics against unchanged inputs or certify the group from the successful Playwright checks. Actual mobile printing/installation, production OAuth/HTTPS/PostgreSQL backup/restore/network timing, owner review, BIR format, hardware and elapsed pilots remain unrun in their owning later outcomes.
+Retain all saved attempts and artifacts. The former Cypress blocker is resolved by actual execution; the complete group still needs later outcomes. Actual mobile printing/installation, production OAuth/HTTPS/PostgreSQL backup/restore/network timing, owner review, BIR format, hardware and elapsed pilots remain unrun in their owning later outcomes.
