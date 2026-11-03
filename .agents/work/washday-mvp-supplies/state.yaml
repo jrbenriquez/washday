@@ -14,7 +14,7 @@
     "started": 1,
     "maximum": 3
   },
-  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+  "workspace": "sha256:9e421319702ba7c3579bc8c72b5204402bf14e4ffcd413600c40408194674aaa; manifest:.agents/work/groups/washday-mvp/snapshots/review-checkpoint.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
   "criteria": [
     {
       "id": "AC-01",
@@ -34,7 +34,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Balance comes only from summed ledger entries; active units, used-today and <=low boundary checked."
+      "reason": "Balance comes only from summed ledger entries; active units, used-today and <=low boundary checked. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-02",
@@ -54,7 +54,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Actual addon-use, wash-category job/selfservice start and firstReady deductions run within state/Event transactions; repeats/backward/stale paths do not double deduct."
+      "reason": "Actual addon-use, wash-category job/selfservice start and firstReady deductions run within state/Event transactions; repeats/backward/stale paths do not double deduct. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-03",
@@ -74,7 +74,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Archived types omitted from choices/recipes; simple/paper jobs have no washer loads while addon/packing continue and old ledger remains readable."
+      "reason": "Archived types omitted from choices/recipes; simple/paper jobs have no washer loads while addon/packing continue and old ledger remains readable. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-04",
@@ -94,7 +94,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Positive receipt only, recent10 entries per page with Newer/Older and reason/time/signed qty/job timeline."
+      "reason": "Positive receipt only, recent10 entries per page with Newer/Older and reason/time/signed qty/job timeline. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-05",
@@ -114,7 +114,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Full requires all active supplies; partial only entered supplies, expected/count/variance snapshot, only nonzero adjustment, immutable records verified."
+      "reason": "Full requires all active supplies; partial only entered supplies, expected/count/variance snapshot, only nonzero adjustment, immutable records verified. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-06",
@@ -134,7 +134,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Signed0/\u00b11/\u00b13/\u00b14 thresholds and low status shown with text and color; actor/time/full-vs-partial retained for later monitoring."
+      "reason": "Signed0/\u00b11/\u00b13/\u00b14 thresholds and low status shown with text and color; actor/time/full-vs-partial retained for later monitoring. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-07",
@@ -154,7 +154,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Staff locked by default with request path; unlock creates types, same-shop case-insensitive names collide and archived original requires owner restore."
+      "reason": "Staff locked by default with request path; unlock creates types, same-shop case-insensitive names collide and archived original requires owner restore. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-08",
@@ -174,7 +174,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Scope coverage/foreign404, atomic rollback, immutable request/count Events discoverable in History; real concurrent receive/count expected/final balance verified. Later PIN/Undo behavior remains with people."
+      "reason": "Scope coverage/foreign404, atomic rollback, immutable request/count Events discoverable in History; real concurrent receive/count expected/final balance verified. Later PIN/Undo behavior remains with people. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-09",

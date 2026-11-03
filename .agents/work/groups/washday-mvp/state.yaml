@@ -143,7 +143,8 @@
       "commit": "38d1ec12886ee668572df2fb8bd8cf65b808da1f",
       "freshness": "git fetch origin main and git ls-remote --symref origin HEAD on 2026-11-03; identical SHA"
     },
-    "integrated": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/final-local-milestone2.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+    "integrated": "sha256:9e421319702ba7c3579bc8c72b5204402bf14e4ffcd413600c40408194674aaa; manifest:.agents/work/groups/washday-mvp/snapshots/review-checkpoint.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+    "review_commit": "ced8a20"
   },
   "coordinator": "current Codex chat /root; sequential",
   "active": [],

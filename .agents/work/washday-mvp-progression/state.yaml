@@ -12,7 +12,7 @@
     "started": 2,
     "maximum": 3
   },
-  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+  "workspace": "sha256:9e421319702ba7c3579bc8c72b5204402bf14e4ffcd413600c40408194674aaa; manifest:.agents/work/groups/washday-mvp/snapshots/review-checkpoint.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
   "criteria": [
     {
       "id": "AC-01",
@@ -28,7 +28,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Independent cards, defaults, received age, overdue and paid state; HTMX every20s observed."
+      "reason": "Final ledger regression: Independent cards, defaults, received age, overdue and paid state; HTMX every20s observed. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-02",
@@ -44,7 +44,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Simple mode uses first/last and configured visible middles; full next requires explicit skip; machine picker follows in its owning outcome."
+      "reason": "Final ledger regression: Simple mode uses first/last and configured visible middles; full next requires explicit skip; machine picker follows in its owning outcome. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-03",
@@ -60,7 +60,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Hidden Drying is projected under nearest shown column with actual label; switching mode preserves state; override limits verified. Machines has no exposed screen in simple mode."
+      "reason": "Final ledger regression: Hidden Drying is projected under nearest shown column with actual label; switching mode preserves state; override limits verified. Machines has no exposed screen in simple mode. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-04",
@@ -76,7 +76,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Manual from/to/reason/actor event and backward/first-ready invariants pass; actual Load fixture remains open after override."
+      "reason": "Final ledger regression: Manual from/to/reason/actor event and backward/first-ready invariants pass; actual Load fixture remains open after override. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-05",
@@ -92,7 +92,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Stale advance/override/claim all refuse with actual stage and no payment/event mutation; board refresh feedback observed."
+      "reason": "Final ledger regression: Stale advance/override/claim all refuse with actual stage and no payment/event mutation; board refresh feedback observed. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-06",
@@ -108,7 +108,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Unpaid cash/GCash claims collect once; repeated claim refused; prepaid amount/reference/time retained; injected failure rolls back."
+      "reason": "Final ledger regression: Unpaid cash/GCash claims collect once; repeated claim refused; prepaid amount/reference/time retained; injected failure rolls back. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-07",
@@ -124,7 +124,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Paper Ready shortcut needs no load/picker; sheet-paid/release times kept and future/old dates refused. Packing integrates with supplies later."
+      "reason": "Final ledger regression: Paper Ready shortcut needs no load/picker; sheet-paid/release times kept and future/old dates refused. Packing integrates with supplies later. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-08",
@@ -140,7 +140,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Claimed stub/board removal and Manila today count pass; transactions/tenant404 and messages verified."
+      "reason": "Final ledger regression: Claimed stub/board removal and Manila today count pass; transactions/tenant404 and messages verified. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-09",
@@ -156,7 +156,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Conditional active tab observed on fresh server for intake, board, correction and claim. Responsive/theme browser matrix passes again; only board container scrolls."
+      "reason": "Final ledger regression: Conditional active tab observed on fresh server for intake, board, correction and claim. Responsive/theme browser matrix passes again; only board container scrolls. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     }
   ],
   "latest_handoff": {

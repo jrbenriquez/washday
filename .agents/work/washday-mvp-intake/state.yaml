@@ -12,7 +12,7 @@
     "started": 1,
     "maximum": 3
   },
-  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+  "workspace": "sha256:9e421319702ba7c3579bc8c72b5204402bf14e4ffcd413600c40408194674aaa; manifest:.agents/work/groups/washday-mvp/snapshots/review-checkpoint.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
   "criteria": [
     {
       "id": "AC-01",
@@ -28,7 +28,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Persisted kg/pieces/mixed inputs, empty-job refusal and server summary demonstrated; active choices, optional shop customer create/search, steppers, notes/payment exercised."
+      "reason": "Final ledger regression: Regression: Persisted kg/pieces/mixed inputs, empty-job refusal and server summary demonstrated; active choices, optional shop customer create/search, steppers, notes/payment exercised. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-02",
@@ -44,7 +44,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Minimum kg, ceil load, zero-kg pieces-only, deduplicated extras/fees and 108.655\u2192108.66 half-up edge checked."
+      "reason": "Final ledger regression: Regression: Minimum kg, ceil load, zero-kg pieces-only, deduplicated extras/fees and 108.655\u2192108.66 half-up edge checked. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-03",
@@ -60,7 +60,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Immutable line snapshots survive edited service label/price; Heavy items kg and Rush 50/Same day are available without mixing piece weight."
+      "reason": "Final ledger regression: Regression: Immutable line snapshots survive edited service label/price; Heavy items kg and Rush 50/Same day are available without mixing piece weight. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-04",
@@ -76,7 +76,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: UUID models, prescribed Decimal fields, branch numbering/sequence and 12 concurrent file DB creations checked; event injection failure rolls back job/lines/customer/sequences."
+      "reason": "Final ledger regression: Regression: UUID models, prescribed Decimal fields, branch numbering/sequence and 12 concurrent file DB creations checked; event injection failure rolls back job/lines/customer/sequences. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-05",
@@ -92,7 +92,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Unpaid, Cash and GCash, amount/time/actor/reference and at-drop-off event recorded. Stock integration remains explicitly owned by supplies."
+      "reason": "Final ledger regression: Regression: Unpaid, Cash and GCash, amount/time/actor/reference and at-drop-off event recorded. Stock integration remains explicitly owned by supplies. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-06",
@@ -108,7 +108,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Today/-7 accepted, -8/future refused; original occurrence differs from entry and duplicate P reference opens same job without new state."
+      "reason": "Final ledger regression: Regression: Today/-7 accepted, -8/future refused; original occurrence differs from entry and duplicate P reference opens same job without new state. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-07",
@@ -124,7 +124,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Current app price retained against written 99/100; mismatch/provenance rendered and paper jobs never create loads."
+      "reason": "Final ledger regression: Regression: Current app price retained against written 99/100; mismatch/provenance rendered and paper jobs never create loads. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-08",
@@ -140,7 +140,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Stub fields, historical label, payment, actual local received times and reload persistence inspected; print callback, slip PDF and hidden shell exercised."
+      "reason": "Final ledger regression: Regression: Stub fields, historical label, payment, actual local received times and reload persistence inspected; print callback, slip PDF and hidden shell exercised. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-09",
@@ -156,7 +156,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Local fonts/icons/logo, exact prototype tokens, both themes at 360/390/1280, responsive rail, focus/touch/toast and tag/stub details assessed."
+      "reason": "Final ledger regression: Regression: Local fonts/icons/logo, exact prototype tokens, both themes at 360/390/1280, responsive rail, focus/touch/toast and tag/stub details assessed. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     },
     {
       "id": "AC-10",
@@ -172,7 +172,7 @@
         }
       ],
       "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-      "reason": "Final ledger regression: Regression: Foreign catalog/customer requests return404; unscoped request injection ineffective; fail-closed default/base managers and future-model coverage verified; atomic rollback tested."
+      "reason": "Final ledger regression: Regression: Foreign catalog/customer requests return404; unscoped request injection ineffective; fail-closed default/base managers and future-model coverage verified; atomic rollback tested. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
     }
   ],
   "latest_handoff": {

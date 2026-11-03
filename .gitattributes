@@ -1,0 +1,3 @@
+# Preserve original upstream licence bytes and raw HTTP diagnostic headers.
+static/fonts/*-OFL.txt -whitespace
+.agents/work/washday-mvp-machines/evidence/verify-1/cypress-download.txt -whitespace
