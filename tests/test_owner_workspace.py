@@ -495,3 +495,160 @@ def test_invalid_pin_rules_return_to_settings_without_changing_policy(own):
     assert b'action="/owner/settings/" enctype="multipart/form-data"' in response.content
     config.refresh_from_db()
     assert (config.pin_enabled, config.pin_actions, config.version) == before
+
+
+def test_settings_groups_inline_catalog_and_piece_sizes(own):
+    c, s = own
+    r = c.get("/owner/settings/")
+    text = r.content.decode()
+    assert text.count("<h3>Piece items</h3>") == 1
+    assert "<h3>Piece sizes</h3>" not in text
+    assert "<h3>Add-on supply recipes</h3>" not in text
+    assert "Uses supplies" in text and "Per packed job" in text
+    assert f"?piece_item={s['variant'].piece_item_id}" in text
+    assert f"?addon={s['addon'].pk}" in text
+    assert "data-catalog-save" in text
+    assert "Active</span>" not in text.split('id="service"')[1]
+
+
+def test_new_piece_saves_first_price_atomically_and_sizes_stay_grouped(own):
+    from catalog.models import PieceItem, PieceVariant
+
+    c, s = own
+    before = Settings.objects.get().version
+    assert (
+        c.post("/owner/edit/piece/", {"name": "Bedsheet", "price": "-1"}).status_code
+        == 422
+    )
+    assert not PieceItem.objects.filter(name="Bedsheet").exists()
+    assert Settings.objects.get().version == before
+    assert (
+        c.post(
+            "/owner/edit/piece/", {"name": "Bedsheet", "price": "125.50"}
+        ).status_code
+        == 302
+    )
+    item = PieceItem.objects.get(name="Bedsheet")
+    each = PieceVariant.objects.get(piece_item=item)
+    assert each.label == "Each" and each.price == Decimal("125.50")
+    url = f"/owner/edit/size/?piece_item={item.pk}"
+    response = c.get(url)
+    assert response.context["form"].fields["piece_item"].disabled
+    assert (
+        c.post(
+            url,
+            {"label": "King", "price": "250", "piece_item": s["variant"].piece_item_id},
+        ).status_code
+        == 302
+    )
+    each.refresh_from_db()
+    assert each.label == "Regular"
+    assert PieceVariant.objects.get(label="King").piece_item == item
+    assert c.post(url, {"label": "king", "price": "300"}).status_code == 422
+    assert PieceVariant.objects.filter(piece_item=item).count() == 2
+    assert (
+        c.post("/owner/edit/piece/", {"name": "bedsheet", "price": "5"}).status_code
+        == 422
+    )
+
+
+def test_inline_catalog_json_validation_and_saved_job_prices(own):
+    c, s = own
+    job = new_job(s)
+    old_total = job.total
+    url = f"/owner/edit/service/{s['service'].pk}/"
+    headers = {"HTTP_ACCEPT": "application/json"}
+    data = {"name": "Inline service", "mode": "load", "price": "189.50"}
+    response = c.post(url, data, **headers)
+    assert response.status_code == 200 and response.json() == {"saved": True}
+    s["service"].refresh_from_db()
+    assert s["service"].price == Decimal("189.50") and s["service"].mode == "load"
+    job.refresh_from_db()
+    assert job.total == old_total
+    version = Settings.objects.get().version
+    response = c.post(url, {**data, "price": "-5"}, **headers)
+    assert response.status_code == 422 and "price" in response.json()["errors"]
+    assert Settings.objects.get().version == version
+    s["service"].refresh_from_db()
+    assert s["service"].price == Decimal("189.50")
+
+
+def test_addon_recipe_chip_flow_deducts_edited_quantity(own):
+    from supplies.models import StockEntry
+
+    c, s = own
+    supply = SupplyType.objects.create(shop=s["shop"], name="Softener", unit="ml")
+    url = f"/owner/edit/recipe/?addon={s['addon'].pk}"
+    assert c.get(url).context["form"].fields["addon"].disabled
+    assert c.post(url, {"supply_type": supply.pk, "qty": "2.5"}).status_code == 302
+    use = AddOnUse.objects.get()
+    assert use.addon == s["addon"]
+    settings_page = c.get("/owner/settings/")
+    assert f"/owner/edit/recipe/{use.pk}/".encode() in settings_page.content
+    assert b"Softener" in settings_page.content
+    assert (
+        c.post(
+            f"/owner/edit/addon/{s['addon'].pk}/",
+            {"name": "Softener extra", "price": "29.50"},
+        ).status_code
+        == 302
+    )
+    job = new_job(s, addons=[str(s["addon"].pk)])
+    assert StockEntry.objects.get(job=job, reason="addon").qty == Decimal("-2.5")
+    assert job.lines.get(kind="addon").amount == Decimal("29.50")
+    assert (
+        c.post(f"/owner/edit/recipe/{use.pk}/", {"action": "archive"}).status_code
+        == 302
+    )
+    assert not AddOnUse.objects.exists()
+    job = new_job(s, addons=[str(s["addon"].pk)])
+    assert not StockEntry.objects.filter(job=job, reason="addon").exists()
+
+
+def test_supply_toggle_preserves_other_settings_and_stock_history(own):
+    c, s = own
+    config = Settings.objects.get()
+    old_values = (config.min_kg, config.kg_per_load, config.check_after_min)
+    assert c.post("/owner/supply-policy/", {"enabled": "1"}).status_code == 302
+    config.refresh_from_db()
+    assert config.staff_can_add_supply
+    assert (config.min_kg, config.kg_per_load, config.check_after_min) == old_values
+    c.post(
+        "/owner/operations/",
+        {"min_kg": "3", "kg_per_load": "7", "check_after_min": "90"},
+    )
+    config.refresh_from_db()
+    assert config.staff_can_add_supply
+    c.post("/owner/supply-policy/", {"enabled": "0"})
+    config.refresh_from_db()
+    assert not config.staff_can_add_supply
+
+
+def test_catalog_parent_links_are_tenant_scoped(own):
+    from catalog.models import AddOn, PieceItem
+
+    c, s = own
+    foreign = Shop.objects.create(name="Other catalog", code="OTHER-CATALOG")
+    with shop_context(foreign):
+        item = PieceItem.objects.create(shop=foreign, name="Foreign piece")
+        addon = AddOn.objects.create(shop=foreign, name="Foreign addon", price=1)
+    for url in [
+        f"/owner/edit/size/?piece_item={item.pk}",
+        f"/owner/edit/recipe/?addon={addon.pk}",
+        "/owner/edit/size/?piece_item=malformed",
+    ]:
+        assert c.get(url).status_code == 404
+        assert c.post(url, {"label": "King", "price": "10"}).status_code == 404
+    assert Client().post("/owner/supply-policy/", {"enabled": "1"}).status_code == 302
+    csrf = Client(enforce_csrf_checks=True)
+    csrf.cookies["sessionid"] = c.cookies["sessionid"].value
+    assert csrf.post("/owner/supply-policy/", {"enabled": "1"}).status_code == 403
+
+
+def test_catalog_keeps_last_service_and_size(own):
+    c, s = own
+    assert c.post(f'/owner/edit/service/{s["service"].pk}/', {'action': 'archive'}).status_code == 302
+    assert c.post(f'/owner/edit/service/{s["load"].pk}/', {'action': 'archive'}).status_code == 422
+    assert c.post(f'/owner/edit/size/{s["variant"].pk}/', {'action': 'archive'}).status_code == 422
+    s['variant'].refresh_from_db()
+    assert s['variant'].active
