@@ -1,10 +1,28 @@
 from django.urls import path
 from . import views
+from . import workspace, reports
 
 urlpatterns = [
     path("", views.home, name="owner_home"),
+    path("dashboard/", workspace.dashboard, name="owner_dashboard"),
+    path("theme/", workspace.theme, name="owner_theme"),
+    path("live/", workspace.live, name="owner_live"),
+    path("staff/", workspace.staff, name="owner_staff"),
+    path("machines/", workspace.machines, name="owner_machines"),
+    path("reports/sales.xlsx", reports.sales, name="owner_sales_export"),
+    path("counts/<uuid:branch_id>/", workspace.counts, name="owner_counts"),
+    path("operations/", workspace.operations, name="owner_operations"),
+    path(
+        "branches/<uuid:branch_id>/mode/",
+        workspace.branch_mode,
+        name="owner_branch_mode",
+    ),
+    path("edit/<slug:kind>/", workspace.edit, name="owner_record_new"),
+    path(
+        "edit/<slug:kind>/<uuid:record_id>/", workspace.edit, name="owner_record_edit"
+    ),
     path("login/", views.login, name="owner_login"),
-    path("settings/", views.shop_settings, name="owner_shop_settings"),
+    path("settings/", workspace.settings_page, name="owner_shop_settings"),
     path("staff/new/", views.staff_new, name="owner_staff_new"),
     path("staff/<uuid:staff_id>/", views.staff_update, name="owner_staff_update"),
     path("devices/new/", views.device_new, name="owner_device_new"),

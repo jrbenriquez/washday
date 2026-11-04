@@ -311,6 +311,13 @@ def revoke_device(device, owner_email=""):
 
 @transaction.atomic
 def save_staff(branch, name, pin="", staff=None, active=True, owner_email=""):
+    moving = staff is not None and staff.branch_id != branch.pk
+    if moving:
+        list(Branch.objects.select_for_update().order_by("pk"))
+        if not pin:
+            raise ValidationError(
+                "Set or generate a fresh PIN when moving staff to another branch."
+            )
     branch = Branch.objects.select_for_update().get(pk=branch.pk)
     name = name.strip()
     if not name or len(name) > 120:
@@ -339,6 +346,16 @@ def save_staff(branch, name, pin="", staff=None, active=True, owner_email=""):
         raise ValidationError("Set a fresh PIN when reactivating staff.")
     if staff is None:
         staff = Staff(shop_id=branch.shop_id, branch=branch)
+    elif moving:
+        previous_branch = staff.branch
+        staff.branch = branch
+        audit(
+            previous_branch,
+            "staff_transferred",
+            f"Staff moved to {branch.name} · {staff.name}",
+            staff_id=str(staff.id),
+            owner=owner_email,
+        )
     staff.name = name
     staff.active = active
     if pin:

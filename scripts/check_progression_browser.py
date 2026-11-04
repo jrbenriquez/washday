@@ -48,7 +48,7 @@ with sync_playwright() as p:
     page.locator(f'[data-job="{number}"]').get_by_role(
         "link", name="Correct stage"
     ).click()
-    page.get_by_label("Stage").select_option(label="Received")
+    page.get_by_role("radio", name="Received", exact=True).check()
     page.get_by_label("Reason (optional)").fill("Browser correction")
     page.get_by_role("button", name="Save stage").click()
     page.wait_for_url("**/jobs/")

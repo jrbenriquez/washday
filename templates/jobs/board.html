@@ -9,7 +9,7 @@
       <header class="col-head"><h3>{{ col.stage.name }}</h3><span class="pill plain">{{ col.cards|length }}</span></header>
       {% for job in col.cards %}
       <article class="ocard {% if job.overdue %}old{% endif %}" data-job="{{ job.number }}">
-        <a class="open" href="{% url 'stub' job.number %}" aria-label="Open claim stub for job {{ job.number }}">
+        <a class="open" data-dialog href="{% url 'stub' job.number %}" aria-label="Open claim stub for job {{ job.number }}">
           <div class="row"><span class="tag">#{{ job.number }}</span><span class="mono job-price">₱{{ job.total|floatformat:'-2' }}</span></div>
           <div class="row"><b>{{ job.customer.name|default:'Walk-in' }}</b><span class="pill {% if job.paid_at %}good{% else %}warn{% endif %}">{% if job.paid_at %}Paid{% else %}Unpaid{% endif %}</span></div>
           <div class="meta">{% if job.kg %}{{ job.kg|floatformat:1 }} kg{% else %}Pieces only{% endif %}{% for piece in job.pieces %} · {{ piece.label }}{% endfor %}{% for line in job.lines.all %}{% if line.kind == 'base' %} · {{ line.label }}{% elif line.kind == 'fee' %} · <b>{{ line.label }}</b>{% endif %}{% endfor %} · {{ job.received_at|timesince }} ago</div>
@@ -17,9 +17,9 @@
           {% if job.hidden_stage or job.paper_ref %}<div class="card-flags">{% if job.hidden_stage %}<span class="pill plain">in {{ job.status.name }}</span>{% endif %}{% if job.paper_ref %}<span class="pill plain">Paper {{ job.paper_ref }}</span>{% endif %}</div>{% endif %}
         </a>
         <div class="card-acts">
-          {% if job.status.is_last %}<a class="btn primary small" href="{% url 'claim' job.number %}">Claim{% if not job.paid_at %} & pay{% endif %}</a>
+          {% if job.status.is_last %}<a class="btn primary small" data-dialog href="{% url 'claim' job.number %}">Claim{% if not job.paid_at %} & pay{% endif %}</a>
           {% else %}<form method="post" action="{% url 'advance' job.number %}">{% csrf_token %}<input type="hidden" name="expected" value="{{ job.status_id }}"><button class="btn small block" aria-label="Move job {{ job.number }} to {{ job.next_stage.name }}">{{ job.next_stage.name }} →</button></form>{% endif %}
-          <a class="btn small icon-btn" href="{% url 'edit_stage' job.number %}" aria-label="Correct stage for job {{ job.number }}" title="Change stage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg></a>
+          <a class="btn small icon-btn" data-dialog href="{% url 'edit_stage' job.number %}" aria-label="Correct stage for job {{ job.number }}" title="Change stage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/></svg></a>
         </div>
         {% if job.paper_ref and not branch.simple_mode and not job.status.is_last %}<form method="post" action="{% url 'advance' job.number %}">{% csrf_token %}<input type="hidden" name="expected" value="{{ job.status_id }}"><button class="btn small block" name="paper_ready" value="1">Ready on paper</button></form>{% endif %}
         {% if job.current_machine_start %}<a class="btn small" href="{% url 'machine_picker' job.number %}?target={{ job.status_id }}&expected={{ job.status_id }}">Start machine for {{ job.status.name }}</a>{% endif %}
