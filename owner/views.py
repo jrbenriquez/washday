@@ -30,8 +30,7 @@ def scoped_branch(value):
 
 
 def dashboard_context(request, **extra):
-    own = owner(request)
-    policy = Settings.objects.get(shop_id=own.shop_id)
+    owner(request)
     devices = list(
         Device.objects.select_related("branch").order_by("branch__name", "name")
     )
@@ -47,19 +46,9 @@ def dashboard_context(request, **extra):
         )
     return {
         "branches": Branch.objects.order_by("number"),
-        "people": Staff.objects.select_related("branch").order_by(
-            "branch__name", "name"
-        ),
         "devices": devices,
-        "staff_form": StaffForm(),
         "device_form": DeviceForm(),
         "hours_form": HoursForm(),
-        "policy_form": PolicyForm(
-            initial={
-                "pin_enabled": policy.pin_enabled,
-                "pin_actions": policy.pin_actions,
-            }
-        ),
         **extra,
     }
 
@@ -85,6 +74,8 @@ def home(request):
 @require_POST
 @never_cache
 def staff_new(request):
+    from .workspace import staff_context
+
     own = owner(request)
     branch = scoped_branch(request.POST.get("branch"))
     form = StaffForm(request.POST)
@@ -105,8 +96,10 @@ def staff_new(request):
             form.add_error(None, e)
     return render(
         request,
-        "owner/home.html",
-        dashboard_context(request, staff_form=form),
+        "owner/staff.html",
+        staff_context(
+            request, staff_form=form, selected_branch=branch, chosen=[branch]
+        ),
         status=422,
     )
 
@@ -114,6 +107,8 @@ def staff_new(request):
 @require_POST
 @never_cache
 def staff_update(request, staff_id):
+    from .workspace import staff_context
+
     own = owner(request)
     staff = get_object_or_404(Staff, pk=staff_id)
     target_branch = (
@@ -152,12 +147,12 @@ def staff_update(request, staff_id):
                 {"saved_staff": staff, "shown_pin": pin},
             )
         messages.success(request, "Staff access updated.")
-        return redirect("owner_home")
+        return redirect("owner_staff")
     except ValidationError as e:
         return render(
             request,
-            "owner/home.html",
-            dashboard_context(request, error=" ".join(e.messages)),
+            "owner/staff.html",
+            staff_context(request, error=" ".join(e.messages)),
             status=422,
         )
 
@@ -255,6 +250,8 @@ def hours(request, branch_id):
 @require_POST
 @transaction.atomic
 def policy(request):
+    from .workspace import settings_context
+
     own = owner(request)
     form = PolicyForm(request.POST)
     if form.is_valid():
@@ -272,11 +269,11 @@ def policy(request):
                 owner=own.email,
             )
         messages.success(request, "Shared-device PIN rules saved.")
-        return redirect("owner_home")
+        return redirect("owner_shop_settings")
     return render(
         request,
-        "owner/home.html",
-        dashboard_context(request, policy_form=form),
+        "owner/settings.html",
+        settings_context(request, policy_form=form),
         status=422,
     )
 

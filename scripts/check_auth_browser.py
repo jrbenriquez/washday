@@ -116,6 +116,7 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
             hours.get_by_label("Opening time").fill("08:00")
             hours.get_by_label("Closing time").fill("23:59")
             hours.get_by_role("button", name="Save hours").click()
+            owner_page.get_by_role("link", name="Staff", exact=True).click()
             add_staff = owner_page.locator('form[action="/owner/staff/new/"]')
             add_staff.get_by_label("Staff name").fill("TEST browser staff")
             add_staff.get_by_label("Four-digit PIN").fill("1234")
@@ -124,7 +125,7 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
                 owner_page.locator('[aria-label="New staff PIN"]').inner_text()
                 == "1234"
             )
-            owner_page.get_by_role("link", name="Back to access and devices").click()
+            owner_page.get_by_role("link", name="Back to staff").click()
 
             def capture(page, view):
                 for width in [360, 390, 1280]:
@@ -142,7 +143,17 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
                             full_page=True,
                         )
 
+            capture(owner_page, "owner-staff")
+            owner_page.get_by_role("link", name="Access and devices", exact=True).first.click()
             capture(owner_page, "owner-access")
+            assert not owner_page.locator('form[action^="/owner/staff/"]').count()
+            assert not owner_page.locator('form[action="/owner/pin-rules/"]').count()
+            owner_page.get_by_role("link", name="Settings", exact=True).click()
+            policy = owner_page.locator('form[action="/owner/pin-rules/"]')
+            assert policy.count() == 1
+            policy.get_by_role("button", name="Save PIN rules").click()
+            owner_page.wait_for_url("**/owner/settings/")
+            capture(owner_page, "owner-settings")
 
             def create_device(name, kind):
                 owner_page.goto(base + "/owner/")
@@ -187,7 +198,7 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
                 "button", name=re.compile(r"Move job .* to Ready")
             ).click()
             staff_page.locator(f'[data-job="{number}"]').get_by_role(
-                "link", name="Claim", exact=True
+                "link", name="Claim & pay", exact=True
             ).click()
             staff_page.get_by_label("Payment method").select_option("cash")
             staff_page.get_by_role("button", name="Confirm claim").click()

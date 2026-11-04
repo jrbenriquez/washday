@@ -20,6 +20,7 @@ from people.services import audit
 from supplies.models import StockCount, StockEntry, SupplyRequest
 
 from .admin_forms import EDITORS, OperationsForm, editor_form
+from .forms import StaffForm
 from .views import owner, scoped_branch
 
 
@@ -287,12 +288,8 @@ def counts(request, branch_id):
     )
 
 
-@require_GET
-@never_cache
-def staff(request):
-    from .views import dashboard_context
-
-    ctx = {**dashboard_context(request), **scope(request)}
+def staff_context(request, **extra):
+    ctx = {**scope(request), "staff_form": StaffForm(), **extra}
     people = list(
         Staff.objects.filter(branch__in=ctx["chosen"])
         .select_related("branch")
@@ -303,7 +300,13 @@ def staff(request):
             staff=person, ended_at=None, ends_at__gt=timezone.now()
         ).first()
     ctx["people"] = people
-    return render(request, "owner/staff.html", ctx)
+    return ctx
+
+
+@require_GET
+@never_cache
+def staff(request):
+    return render(request, "owner/staff.html", staff_context(request))
 
 
 def sections(kinds):
@@ -348,10 +351,9 @@ def sections(kinds):
 @require_http_methods(["GET", "POST"])
 @never_cache
 def settings_page(request):
-    from .forms import PolicyForm, ShopBrandingForm
+    from .forms import ShopBrandingForm
 
     own = owner(request)
-    config = Settings.objects.get(shop_id=own.shop_id)
     branding = (
         ShopBrandingForm(request.POST or None, request.FILES or None, instance=own.shop)
         if request.method == "POST"
@@ -366,31 +368,31 @@ def settings_page(request):
     return render(
         request,
         "owner/settings.html",
-        {
-            "branding_form": branding,
-            "operations_form": OperationsForm(instance=config),
-            "policy_form": PolicyForm(
-                initial={
-                    "pin_enabled": config.pin_enabled,
-                    "pin_actions": config.pin_actions,
-                }
-            ),
-            "branches": Branch.objects.order_by("number"),
-            "sections": sections(
-                [
-                    "stage",
-                    "service",
-                    "fee",
-                    "addon",
-                    "recipe",
-                    "supply",
-                    "piece",
-                    "size",
-                ]
-            ),
-        },
+        settings_context(request, branding_form=branding),
         status=422 if branding.errors else 200,
     )
+
+
+def settings_context(request, **extra):
+    from .forms import PolicyForm, ShopBrandingForm
+
+    own = owner(request)
+    config = Settings.objects.get(shop_id=own.shop_id)
+    return {
+        "branding_form": ShopBrandingForm(instance=own.shop),
+        "operations_form": OperationsForm(instance=config),
+        "policy_form": PolicyForm(
+            initial={
+                "pin_enabled": config.pin_enabled,
+                "pin_actions": config.pin_actions,
+            }
+        ),
+        "branches": Branch.objects.order_by("number"),
+        "sections": sections(
+            ["stage", "service", "fee", "addon", "recipe", "supply", "piece", "size"]
+        ),
+        **extra,
+    }
 
 
 @require_POST
