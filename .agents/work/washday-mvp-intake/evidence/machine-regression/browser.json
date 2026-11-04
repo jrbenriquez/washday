@@ -1,0 +1,147 @@
+[
+  {
+    "view": "intake",
+    "width": 360,
+    "theme": "light",
+    "overflow": false,
+    "targets": "PASS",
+    "fonts": [
+      {
+        "font": "Figtree",
+        "loaded": true
+      },
+      {
+        "font": "Saira Condensed",
+        "loaded": true
+      },
+      {
+        "font": "JetBrains Mono",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "view": "intake",
+    "width": 360,
+    "theme": "dark",
+    "overflow": false,
+    "targets": "PASS",
+    "fonts": [
+      {
+        "font": "Figtree",
+        "loaded": true
+      },
+      {
+        "font": "Saira Condensed",
+        "loaded": true
+      },
+      {
+        "font": "JetBrains Mono",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "view": "intake",
+    "width": 390,
+    "theme": "light",
+    "overflow": false,
+    "targets": "PASS",
+    "fonts": [
+      {
+        "font": "Figtree",
+        "loaded": true
+      },
+      {
+        "font": "Saira Condensed",
+        "loaded": true
+      },
+      {
+        "font": "JetBrains Mono",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "view": "intake",
+    "width": 390,
+    "theme": "dark",
+    "overflow": false,
+    "targets": "PASS",
+    "fonts": [
+      {
+        "font": "Figtree",
+        "loaded": true
+      },
+      {
+        "font": "Saira Condensed",
+        "loaded": true
+      },
+      {
+        "font": "JetBrains Mono",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "view": "intake",
+    "width": 1280,
+    "theme": "light",
+    "overflow": false,
+    "targets": "PASS",
+    "fonts": [
+      {
+        "font": "Figtree",
+        "loaded": true
+      },
+      {
+        "font": "Saira Condensed",
+        "loaded": true
+      },
+      {
+        "font": "JetBrains Mono",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "view": "intake",
+    "width": 1280,
+    "theme": "dark",
+    "overflow": false,
+    "targets": "PASS",
+    "fonts": [
+      {
+        "font": "Figtree",
+        "loaded": true
+      },
+      {
+        "font": "Saira Condensed",
+        "loaded": true
+      },
+      {
+        "font": "JetBrains Mono",
+        "loaded": true
+      }
+    ]
+  },
+  {
+    "flows": [
+      "server summary",
+      "GCash intake",
+      "reload persistence",
+      "customer create/search/select",
+      "pieces-only",
+      "paper price mismatch/provenance",
+      "duplicate opens same stub",
+      "cookie theme",
+      "print callback and print stylesheet",
+      "keyboard focus"
+    ],
+    "external_requests": [],
+    "javascript_errors": [],
+    "regular_stub": "http://127.0.0.1:8000/jobs/1012/",
+    "paper_stub": "http://127.0.0.1:8000/jobs/1014/",
+    "status": "PASS"
+  }
+]

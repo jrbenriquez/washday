@@ -1,0 +1,43 @@
+{
+  "type": "recalibration",
+  "outcome_id": "washday-mvp-supplies",
+  "criteria": [
+    "AC-09"
+  ],
+  "status": "ESCALATE",
+  "summary": "Stock behavior verified; required Cypress count runner unavailable.",
+  "assessment": {
+    "category": "environment",
+    "confidence": "SUPPORTED",
+    "cause": "Required Cypress binary is absent and download host blocked; test scenario itself has not run.",
+    "evidence": [
+      "C1"
+    ],
+    "uncertainty": "Availability of an authorized alternative environment is unknown."
+  },
+  "evidence": [
+    {
+      "id": "C1",
+      "action": "Inspect current required Cypress capability and retained failed command",
+      "context": "Cypress npm installed, executable missing and host403; no new environment condition",
+      "observation": "Required actual count spec cannot run. Added count.cy.js with full/partial scenario; node syntax checks pass, but this is not runtime acceptance. The successful Playwright flow is reported separately.",
+      "reference": "../../washday-mvp-machines/evidence/verify-1/cypress.txt"
+    }
+  ],
+  "adjustment": "none",
+  "diagnostics": [],
+  "preserve": [
+    "Original acceptance wording, accepted decisions and all previously verified behavior."
+  ],
+  "reverify": [
+    "AC-09"
+  ],
+  "blockers": [
+    {
+      "code": "verification_capability",
+      "reason": "Cypress executable absent; download.cypress.io denied by enforced proxy403.",
+      "next": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
+    }
+  ],
+  "next": "Resolve recorded blockers before resuming."
+}

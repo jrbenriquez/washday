@@ -1,0 +1,135 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-machines",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08"
+  ],
+  "status": "INCONCLUSIVE",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Grouped category grid and20second refresh, true elapsed, idle/in-use/OOS and >=90min check threshold, no countdown verified.",
+      "evidence": [
+        "M1",
+        "M2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Atomic branch/machine locking plus unique open constraint; competing starts produce1winner; busy/OOS/foreign and repeated unload refused without effects.",
+      "evidence": [
+        "M1",
+        "M2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Accepted D-06 supersedes grid starts: explicit board target enforces current/immediate-next stage and category; custom Steam press predecessor and any-category target covered without fallback.",
+      "evidence": [
+        "M1",
+        "M2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Board Next opens target category picker, busy/OOS disabled; start appends Load+stage with machine cause; reason-required skip preserved. Actual stock integration follows supplies.",
+      "evidence": [
+        "M1",
+        "M2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Normal departure ends old loads atomically with next start; manual override preserves loads; only last unload in matching move-on stage advances and does not enter another machine-demanding stage.",
+      "evidence": [
+        "M1",
+        "M2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Jobless selfservice hidden without active per-load service; immediate collection and amount snapshot, start-day loads and history/timeline cause/duration verified.",
+      "evidence": [
+        "M1",
+        "M2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Simple mode hides/rejects machine screen/actions; paper jobs cannot start loads; stale form refusal exercised before side effects.",
+      "evidence": [
+        "M1",
+        "M2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-08",
+      "status": "INCONCLUSIVE",
+      "reason": "pytest and Playwright lifecycle/UI pass; required Cypress suite cannot run because its browser binary is unavailable behind proxy403. Ledger integrations still require owning supplies outcome before milestone2.",
+      "evidence": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "next": "Enable supported Cypress binary download/runner, run named lifecycle and integrate/retest supplies deductions."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "M1",
+      "action": "uv run pytest -q; uv run python scripts/check_machine_concurrency.py",
+      "context": "Python3.13.5/Django6.0.9; SQLite file and test database; integrated source manifest",
+      "observation": "51 passed, 1 memory-DB concurrency skip. File-backed competing4starts produce1load and3refusals; unique-open-load DB constraint separately tested. Custom immediate predecessor, explicit any-category target, OOS/busy/foreign/stale rejection, auto-advance, multiload, manual override exception, payment snapshot, today/check threshold, paper/simple no loads, start rollback tested.",
+      "reference": "../evidence/verify-1/pytest.txt"
+    },
+    {
+      "id": "M2",
+      "action": "EVIDENCE_RUN=verify-1 uv run python scripts/check_machines_browser.py; screenshot inspection against prototype",
+      "context": "Fresh current runtime, full-mode labelled fixture DB; Chromium with external requests blocked;360/390/1280 light/dark",
+      "observation": "Full New job\u2192board Washing W1\u2192Machines unload\u2192board Drying D1\u2192unload\u2192Folding\u2192Ready\u2192Cash claim\u2192timeline passes. Grid never offers job start, selfservice jobless GCash start/unload passes, no overflow/JS errors/external calls. Porthole/category grid and disabled-category picker verified.",
+      "reference": "../evidence/verify-1/browser.json"
+    },
+    {
+      "id": "M3",
+      "action": "npm run test:e2e; Cypress binary download probe through configured proxy",
+      "context": "Cypress npm16.2.1 installed; no binary at documented cache path",
+      "observation": "Actual named test command exits1 before tests; binary missing. Configured proxy CONNECT to download.cypress.io returns403. No product violation established; Playwright is separately recorded and cannot claim required Cypress pass.",
+      "reference": "../evidence/verify-1/cypress.txt"
+    },
+    {
+      "id": "M4",
+      "action": "curl -I --max-time15 https://download.cypress.io/desktop/16.2.1?platform=linux&arch=x64",
+      "context": "Configured enforced restricted network, no bypass attempted",
+      "observation": "HTTP403 CONNECT tunnel forbidden, exit56; required binary unavailable.",
+      "reference": "../evidence/verify-1/cypress-download.txt"
+    }
+  ],
+  "regression_risks": [
+    "Milestone2 is not complete until actual ledger integrations and Cypress acceptance have current evidence."
+  ],
+  "blockers": [],
+  "next": "Recalibrate nonpassing criteria.",
+  "workspace": "sha256:8d8e67280c97b9c6964f5dd404e87553291c60aa76ce055fce682117bd167b7f; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

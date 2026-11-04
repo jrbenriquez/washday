@@ -1,0 +1,16 @@
+
+> test:e2e
+> cypress run --browser chromium
+
+No version of Cypress is installed in: /home/agent/.cache/Cypress/16.2.1/Cypress
+
+Please reinstall Cypress by running: cypress install
+
+----------
+
+Cypress executable not found at: /home/agent/.cache/Cypress/16.2.1/Cypress/Cypress
+
+----------
+
+Platform: linux-x64 (Debian GNU/Linux - 13)
+Cypress Version: 16.2.1

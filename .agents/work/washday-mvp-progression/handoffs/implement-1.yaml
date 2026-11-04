@@ -1,0 +1,44 @@
+{
+  "type": "implementation",
+  "outcome_id": "washday-mvp-progression",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "jobs/transitions.py, jobs/board.py, templates/jobs, jobs migrations",
+      "summary": "Board with actual stages, independent next/claim, hidden-stage simple projection, manual corrections, six-second Undo integration boundary, immutable atomic transitions and paper collection/release times."
+    },
+    {
+      "target": "core/models.py, machines/models.py, tests/test_progression.py, scripts/check_progression_browser.py",
+      "summary": "Protect Branch counters from stale normal saves. Add minimal actual machine/load model contract to verify manual override preserves running load. Tests cover stale, duplicate, rollback, paper and first Ready."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "uv run pytest -q",
+      "context": "Current integrated implementation1 Python3.13.5/Django6.0.9",
+      "observation": "35 passed, 1 skipped; file-backed concurrency is separate intake probe.",
+      "reference": "tests/test_progression.py"
+    }
+  ],
+  "assumptions": [
+    "Local labelled fixtures only; production authentication/device evidence is deferred to its owning outcomes."
+  ],
+  "gaps": [
+    "Machine picker/load/stock integration remains with owning next outcomes."
+  ],
+  "blockers": [],
+  "next": "Independently assess all assigned criteria on the integrated workspace.",
+  "workspace": "sha256:508877bcf391f322cc82c90e3f4e61e482164eedc0328a72dbe1bb8b0c758099; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-implement-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

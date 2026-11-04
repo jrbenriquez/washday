@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "outcome_id": "washday-mvp-direct-pilot",
+  "outcome": {
+    "reference": "/workspace/washday/outcomes/washday-mvp/washday-mvp-direct-pilot.md",
+    "fingerprint": "sha256:7f1b3b7de3e38f8ed4dea4d9d4819c66ff705b9b4c24ffcc97b60c796529f1d0"
+  },
+  "phase": "implement",
+  "step": "ready",
+  "scope": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "implementation_attempts": {
+    "started": 0,
+    "maximum": 3
+  },
+  "workspace": "main:38d1ec12886ee668572df2fb8bd8cf65b808da1f; clean; Python 3.13.5",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "status": "PENDING",
+      "evidence": [],
+      "verified_workspace": null,
+      "reason": "Not yet assessed."
+    },
+    {
+      "id": "AC-02",
+      "status": "PENDING",
+      "evidence": [],
+      "verified_workspace": null,
+      "reason": "Not yet assessed."
+    },
+    {
+      "id": "AC-03",
+      "status": "PENDING",
+      "evidence": [],
+      "verified_workspace": null,
+      "reason": "Not yet assessed."
+    },
+    {
+      "id": "AC-04",
+      "status": "PENDING",
+      "evidence": [],
+      "verified_workspace": null,
+      "reason": "Not yet assessed."
+    },
+    {
+      "id": "AC-05",
+      "status": "PENDING",
+      "evidence": [],
+      "verified_workspace": null,
+      "reason": "Not yet assessed."
+    }
+  ],
+  "latest_handoff": null,
+  "latest_verification": null,
+  "recalibrations": [],
+  "blockers": [],
+  "next": "Implement when prerequisites have sufficient current evidence."
+}

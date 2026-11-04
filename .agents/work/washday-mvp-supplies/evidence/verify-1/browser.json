@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "widths": [
+    360,
+    390,
+    1280
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "flows": [
+    "positive receipt",
+    "full count",
+    "partial count preserves other supply",
+    "request without staff adding",
+    "stock/count/request history",
+    "immutable ledger balances"
+  ],
+  "overflow": false,
+  "errors": [],
+  "runner": "Playwright; actual Cypress execution remains unrun"
+}

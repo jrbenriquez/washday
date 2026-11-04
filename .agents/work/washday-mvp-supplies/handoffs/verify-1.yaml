@@ -1,0 +1,154 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-supplies",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "INCONCLUSIVE",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Balance comes only from summed ledger entries; active units, used-today and <=low boundary checked.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Actual addon-use, wash-category job/selfservice start and firstReady deductions run within state/Event transactions; repeats/backward/stale paths do not double deduct.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Archived types omitted from choices/recipes; simple/paper jobs have no washer loads while addon/packing continue and old ledger remains readable.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Positive receipt only, recent10 entries per page with Newer/Older and reason/time/signed qty/job timeline.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Full requires all active supplies; partial only entered supplies, expected/count/variance snapshot, only nonzero adjustment, immutable records verified.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Signed0/\u00b11/\u00b13/\u00b14 thresholds and low status shown with text and color; actor/time/full-vs-partial retained for later monitoring.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Staff locked by default with request path; unlock creates types, same-shop case-insensitive names collide and archived original requires owner restore.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-08",
+      "status": "PASS",
+      "reason": "Scope coverage/foreign404, atomic rollback, immutable request/count Events discoverable in History; real concurrent receive/count expected/final balance verified. Later PIN/Undo behavior remains with people.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-09",
+      "status": "INCONCLUSIVE",
+      "reason": "Required ledger pytest and responsive Playwright count/receipt/request flows pass. Actual named Cypress count suite remains unavailable before test execution.",
+      "evidence": [
+        "S1",
+        "S2",
+        "S3",
+        "C1"
+      ],
+      "next": "Provide Cypress binary through supported environment, then run lifecycle and count specs; recheck current integrated evidence."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "S1",
+      "action": "uv run pytest -q",
+      "context": "Python3.13.5/Django6.0.9 with integrated ledger and scoped immutable models",
+      "observation": "66 passed,1memory-only concurrency skip. Stock suites cover add-on once, category usage including jobless selfservice, firstReady once/backward, archived types, paper/simple, positive receipts, full/partial/zero variance, immutable entries/counts/lines, \u00b11/\u00b13/\u00b14 thresholds, low boundary, permission/CI/restore rules, requests, foreign404, pagination10 and transactional failure rollback.",
+      "reference": "../evidence/verify-1/pytest.txt"
+    },
+    {
+      "id": "S2",
+      "action": "uv run python scripts/check_stock_concurrency.py",
+      "context": "Actual file-backed SQLite;4threads,3receipts and1partial count concurrently",
+      "observation": "PASS. Initial52,0receipts before count, expected52,counted50,3receipts after count, final53. Snapshot and final ledger reconcile exactly.",
+      "reference": "../evidence/verify-1/stock-concurrency.json"
+    },
+    {
+      "id": "S3",
+      "action": "EVIDENCE_RUN=verify-1 uv run python scripts/check_supplies_browser.py; inspect screenshot versus preview",
+      "context": "Fresh server, labelled stock/recipes;360/390/1280 light/dark; integrated machine lifecycle also exercised",
+      "observation": "Receive, full/partial count preserving untouched supply, request, permission-hiding and History pass. Ledger balances displayed, signed warning/critical variance, local branded layout/nav and touch targets inspected; no overflow/JS errors.",
+      "reference": "../evidence/verify-1/browser.json"
+    },
+    {
+      "id": "C1",
+      "action": "Inspect current required Cypress capability and retained failed command",
+      "context": "Cypress npm installed, executable missing and host403; no new environment condition",
+      "observation": "Required actual count spec cannot run. Added count.cy.js with full/partial scenario; node syntax checks pass, but this is not runtime acceptance. The successful Playwright flow is reported separately.",
+      "reference": "../../washday-mvp-machines/evidence/verify-1/cypress.txt"
+    }
+  ],
+  "regression_risks": [
+    "PIN/device/Undo and owner views were not implemented or accepted early."
+  ],
+  "blockers": [],
+  "next": "Recalibrate nonpassing criteria.",
+  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

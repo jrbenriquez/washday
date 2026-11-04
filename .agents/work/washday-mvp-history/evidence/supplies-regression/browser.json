@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "views": [
+    "list",
+    "history",
+    "timeline"
+  ],
+  "widths": [
+    360,
+    390,
+    1280
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "flows": [
+    "all-dates notes search",
+    "event payment reference and dropoff context",
+    "timeline/stub links",
+    "empty state"
+  ],
+  "overflow": false,
+  "errors": []
+}

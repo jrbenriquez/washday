@@ -1,0 +1,141 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-intake",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09",
+    "AC-10"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Persisted kg/pieces/mixed inputs, empty-job refusal and server summary demonstrated; active choices, optional shop customer create/search, steppers, notes/payment exercised.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Minimum kg, ceil load, zero-kg pieces-only, deduplicated extras/fees and 108.655\u2192108.66 half-up edge checked.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Immutable line snapshots survive edited service label/price; Heavy items kg and Rush 50/Same day are available without mixing piece weight.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: UUID models, prescribed Decimal fields, branch numbering/sequence and 12 concurrent file DB creations checked; event injection failure rolls back job/lines/customer/sequences.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Unpaid, Cash and GCash, amount/time/actor/reference and at-drop-off event recorded. Stock integration remains explicitly owned by supplies.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Today/-7 accepted, -8/future refused; original occurrence differs from entry and duplicate P reference opens same job without new state.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Current app price retained against written 99/100; mismatch/provenance rendered and paper jobs never create loads.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-08",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Stub fields, historical label, payment, actual local received times and reload persistence inspected; print callback, slip PDF and hidden shell exercised.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-09",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Local fonts/icons/logo, exact prototype tokens, both themes at 360/390/1280, responsive rail, focus/touch/toast and tag/stub details assessed.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-10",
+      "status": "PASS",
+      "reason": "Final ledger regression: Regression: Foreign catalog/customer requests return404; unscoped request injection ineffective; fail-closed default/base managers and future-model coverage verified; atomic rollback tested.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "uv run pytest -q; three real-file concurrency probes",
+      "context": "Final integrated intake/progression/history/machines/supplies workspace; local SQLite",
+      "observation": "66 passed,1shared-memory concurrency skip. File tests separately prove12unique intake jobs/events, one winner among4machine starts and serialized count/receipt expected/final balances.",
+      "reference": "../../washday-mvp-supplies/evidence/verify-1/pytest.txt"
+    },
+    {
+      "id": "R2",
+      "action": "EVIDENCE_RUN=supplies-regression uv run python scripts/check_intake_browser.py",
+      "context": "Fresh server, simple-mode fixtures with actual addon/load/packing ledger integration; required widths/themes",
+      "observation": "All original browser flows pass again. Machine full-mode flow additionally proves current load/packing/history integration; all screenshot evidence retained.",
+      "reference": "../evidence/supplies-regression/browser.json"
+    }
+  ],
+  "regression_risks": [
+    "Device/PIN/Undo/owner release and production checks remain later outcomes."
+  ],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-intake-verify-1-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

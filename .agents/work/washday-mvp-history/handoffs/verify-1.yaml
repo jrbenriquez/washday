@@ -1,0 +1,108 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-history",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Board/List/History navigation, Manila default/date/Today/Yesterday, all-date number/P/customer/phone/notes/status/payment search and no-results feedback checked.",
+      "evidence": [
+        "H1",
+        "H2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "List membership derives from receipt/payment/release Events on selected day; released jobs and all required row fields/paid state displayed newest receipt first.",
+      "evidence": [
+        "H1",
+        "H2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Timeline displays ordered receipt, overrides/reasons, payment/reference/dropoff/actor and release; immutable lines and stub link retained. Load events integrate with machines next.",
+      "evidence": [
+        "H1",
+        "H2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "History contains nonjob Events and once-only day receipt/release/collection summaries; synthetic fixture self-service collection included without fake Job.",
+      "evidence": [
+        "H1",
+        "H2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Paper events appear on actual receipt/payment/release days. P reference searchable; entry actor/time distinct from original occurrence in timeline/stub.",
+      "evidence": [
+        "H1",
+        "H2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Projection membership/state and financial summary read append-only branch Events; foreign branch timeline404 and no history leakage. Future compensation integration remains with people.",
+      "evidence": [
+        "H1",
+        "H2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Required sizes/themes, local assets, navigation, text statuses, labels/focus and viewport layout inspected with no page overflow.",
+      "evidence": [
+        "H1",
+        "H2"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "H1",
+      "action": "uv run pytest -q; uv run python scripts/check_concurrency.py",
+      "context": "Integrated intake/progression/history, immutable event read-model and local file DB",
+      "observation": "41 passed, 1 shared-memory concurrency skip. Separate real-file 12-job concurrent intake probe passes. Date boundary, all search fields, released-job membership, event-only nonjob history, paper receipt/payment/release day totals, override narratives and branch isolation exercised.",
+      "reference": "../evidence/verify-1/pytest.txt"
+    },
+    {
+      "id": "H2",
+      "action": "EVIDENCE_RUN=verify-1 uv run python scripts/check_history_browser.py; inspect screenshots versus preview",
+      "context": "Fresh server, locally served assets,360/390/1280 in light/dark",
+      "observation": "List, History and timeline show no page overflow. All-date notes search, GCash reference/dropoff context, links, empty state and correct active navigation pass; no JS errors. Real branded shell, tags, reference row/timeline composition visually inspected.",
+      "reference": "../evidence/verify-1/browser.json"
+    }
+  ],
+  "regression_risks": [
+    "Machine/load/self-service UI writes, stock/device actions and compensation require current regression as owning outcomes arrive."
+  ],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:2ca535924c135136fe0cadd708fb62a6006029f3c42a1de6d3681770e99f4456; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

@@ -1,0 +1,15 @@
+[project]
+name = "washday"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=6.0,<6.1",
+    "psycopg[binary]>=3.2,<4",
+]
+
+[dependency-groups]
+dev = [
+    "playwright>=1.64.1",
+    "pytest>=9.2.0",
+    "pytest-django>=4.14.0",
+]

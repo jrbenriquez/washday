@@ -1,0 +1,51 @@
+{
+  "type": "recalibration",
+  "outcome_id": "washday-mvp-machines",
+  "criteria": [
+    "AC-08"
+  ],
+  "status": "ESCALATE",
+  "summary": "Required Cypress execution unavailable; local machine behavior has evidence.",
+  "assessment": {
+    "category": "environment",
+    "confidence": "SUPPORTED",
+    "cause": "Cypress command fails before tests because binary missing; enforced proxy denies required download host.",
+    "evidence": [
+      "M3",
+      "M4"
+    ],
+    "uncertainty": "Availability of an authorized alternative environment is unknown."
+  },
+  "evidence": [
+    {
+      "id": "M3",
+      "action": "npm run test:e2e; Cypress binary download probe through configured proxy",
+      "context": "Cypress npm16.2.1 installed; no binary at documented cache path",
+      "observation": "Actual named test command exits1 before tests; binary missing. Configured proxy CONNECT to download.cypress.io returns403. No product violation established; Playwright is separately recorded and cannot claim required Cypress pass.",
+      "reference": "../evidence/verify-1/cypress.txt"
+    },
+    {
+      "id": "M4",
+      "action": "curl -I --max-time15 https://download.cypress.io/desktop/16.2.1?platform=linux&arch=x64",
+      "context": "Configured enforced restricted network, no bypass attempted",
+      "observation": "HTTP403 CONNECT tunnel forbidden, exit56; required binary unavailable.",
+      "reference": "../evidence/verify-1/cypress-download.txt"
+    }
+  ],
+  "adjustment": "none",
+  "diagnostics": [],
+  "preserve": [
+    "Original acceptance wording, accepted decisions and all previously verified behavior."
+  ],
+  "reverify": [
+    "AC-08"
+  ],
+  "blockers": [
+    {
+      "code": "verification_capability",
+      "reason": "Cypress binary unavailable; download.cypress.io proxy403.",
+      "next": "Use supported environment configuration to permit/install Cypress binary or provide an environment with it; run npm run test:e2e. No acceptance criteria or budgets changed."
+    }
+  ],
+  "next": "Resolve recorded blockers before resuming."
+}

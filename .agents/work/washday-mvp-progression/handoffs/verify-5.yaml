@@ -1,0 +1,130 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-progression",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Final ledger regression: Independent cards, defaults, received age, overdue and paid state; HTMX every20s observed.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Final ledger regression: Simple mode uses first/last and configured visible middles; full next requires explicit skip; machine picker follows in its owning outcome.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Final ledger regression: Hidden Drying is projected under nearest shown column with actual label; switching mode preserves state; override limits verified. Machines has no exposed screen in simple mode.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Final ledger regression: Manual from/to/reason/actor event and backward/first-ready invariants pass; actual Load fixture remains open after override.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Final ledger regression: Stale advance/override/claim all refuse with actual stage and no payment/event mutation; board refresh feedback observed.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Final ledger regression: Unpaid cash/GCash claims collect once; repeated claim refused; prepaid amount/reference/time retained; injected failure rolls back.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Final ledger regression: Paper Ready shortcut needs no load/picker; sheet-paid/release times kept and future/old dates refused. Packing integrates with supplies later.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-08",
+      "status": "PASS",
+      "reason": "Final ledger regression: Claimed stub/board removal and Manila today count pass; transactions/tenant404 and messages verified.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-09",
+      "status": "PASS",
+      "reason": "Final ledger regression: Conditional active tab observed on fresh server for intake, board, correction and claim. Responsive/theme browser matrix passes again; only board container scrolls.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "uv run pytest -q; three real-file concurrency probes",
+      "context": "Final integrated intake/progression/history/machines/supplies workspace; local SQLite",
+      "observation": "66 passed,1shared-memory concurrency skip. File tests separately prove12unique intake jobs/events, one winner among4machine starts and serialized count/receipt expected/final balances.",
+      "reference": "../../washday-mvp-supplies/evidence/verify-1/pytest.txt"
+    },
+    {
+      "id": "R2",
+      "action": "EVIDENCE_RUN=supplies-regression uv run python scripts/check_progression_browser.py",
+      "context": "Fresh server, simple-mode fixtures with actual addon/load/packing ledger integration; required widths/themes",
+      "observation": "All original browser flows pass again. Machine full-mode flow additionally proves current load/packing/history integration; all screenshot evidence retained.",
+      "reference": "../evidence/supplies-regression/browser.json"
+    }
+  ],
+  "regression_risks": [
+    "Device/PIN/Undo/owner release and production checks remain later outcomes."
+  ],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-2-3.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

@@ -1,0 +1,45 @@
+{
+  "type": "implementation",
+  "outcome_id": "washday-mvp-supplies",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "catalog/supplies models/migrations, supplies/services.py/views.py, templates/supplies",
+      "summary": "Immutable signed stock ledger and counts, full/partial reconciliation, receive and recent10 pagination, low/variance status, staff permission-gated type creation and supply requests. Addon, wash-category and firstReady usage runs transactionally with original state/events."
+    },
+    {
+      "target": "jobs/services.py/transitions.py, machines/services.py, tests/test_supplies.py, browser/race/Cypress probes",
+      "summary": "Integrate actual deductions and actors, preserve archived/simple/paper/no-repeat semantics; add stock isolation/rollback/count/race/uniqueness evidence and labelled fixture recipes."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "uv run pytest -q; uv run python scripts/check_stock_concurrency.py",
+      "context": "Supplies implementation1, integrated existing behavior",
+      "observation": "66 passed,1shared-memory concurrency skip before final independent rerun; four-worker count/receipt probe executed separately.",
+      "reference": "tests/test_supplies.py"
+    }
+  ],
+  "assumptions": [
+    "Local labelled fixtures only; production authentication/device evidence is deferred to its owning outcomes."
+  ],
+  "gaps": [
+    "Required Cypress binary still unavailable; no new attempt to bypass network denial.",
+    "Device/PIN/Undo and owner management remain later complete-staff-gated outcomes."
+  ],
+  "blockers": [],
+  "next": "Independently assess all assigned criteria on the integrated workspace.",
+  "workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-supplies-implement-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

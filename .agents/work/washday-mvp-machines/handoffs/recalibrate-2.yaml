@@ -1,0 +1,43 @@
+{
+  "type": "recalibration",
+  "outcome_id": "washday-mvp-machines",
+  "criteria": [
+    "AC-08"
+  ],
+  "status": "ESCALATE",
+  "summary": "Ledger integration now verified; Cypress capability remains unresolved.",
+  "assessment": {
+    "category": "environment",
+    "confidence": "SUPPORTED",
+    "cause": "Required runner is missing before test execution, independent of product behavior.",
+    "evidence": [
+      "C1"
+    ],
+    "uncertainty": "Availability of an authorized alternative environment is unknown."
+  },
+  "evidence": [
+    {
+      "id": "C1",
+      "action": "Inspect retained Cypress command/download findings and current binary availability",
+      "context": "Same enforced network and cache, no binary provision or policy change since observed failure",
+      "observation": "Named Cypress execution was unavailable before tests; required binary missing and proxy denied download host403. No repeated unchanged install/diagnostic cycle performed. New ledger evidence resolves the prior ledger gap, but cannot establish Cypress PASS.",
+      "reference": "../evidence/verify-1/cypress.txt; ../evidence/verify-1/cypress-download.txt"
+    }
+  ],
+  "adjustment": "none",
+  "diagnostics": [],
+  "preserve": [
+    "Original acceptance wording, accepted decisions and all previously verified behavior."
+  ],
+  "reverify": [
+    "AC-08"
+  ],
+  "blockers": [
+    {
+      "code": "verification_capability",
+      "reason": "Cypress executable absent; download.cypress.io denied by enforced proxy403.",
+      "next": "Permit/install Cypress through supported environment configuration or use an environment with the binary; run npm run test:e2e against the local full-mode fixture app."
+    }
+  ],
+  "next": "Resolve recorded blockers before resuming."
+}

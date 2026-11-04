@@ -1,0 +1,137 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-progression",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "FAIL",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Independent cards, defaults, received age, overdue and paid state; HTMX every20s observed.",
+      "evidence": [
+        "V1",
+        "V2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Simple mode uses first/last and configured visible middles; full next requires explicit skip; machine picker follows in its owning outcome.",
+      "evidence": [
+        "V1",
+        "V2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Hidden Drying is projected under nearest shown column with actual label; switching mode preserves state; override limits verified. Machines has no exposed screen in simple mode.",
+      "evidence": [
+        "V1",
+        "V2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Manual from/to/reason/actor event and backward/first-ready invariants pass; actual Load fixture remains open after override.",
+      "evidence": [
+        "V1",
+        "V2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Stale advance/override/claim all refuse with actual stage and no payment/event mutation; board refresh feedback observed.",
+      "evidence": [
+        "V1",
+        "V2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Unpaid cash/GCash claims collect once; repeated claim refused; prepaid amount/reference/time retained; injected failure rolls back.",
+      "evidence": [
+        "V1",
+        "V2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Paper Ready shortcut needs no load/picker; sheet-paid/release times kept and future/old dates refused. Packing integrates with supplies later.",
+      "evidence": [
+        "V1",
+        "V2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-08",
+      "status": "PASS",
+      "reason": "Claimed stub/board removal and Manila today count pass; transactions/tenant404 and messages verified.",
+      "evidence": [
+        "V1",
+        "V2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-09",
+      "status": "FAIL",
+      "reason": "Required navigation presentation indicates New job while on Jobs. Other measured responsive/theme/overflow checks passed.",
+      "evidence": [
+        "V2",
+        "V3"
+      ],
+      "next": "Set current navigation according to route and recheck new/board/correction/claim."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "V1",
+      "action": "uv run pytest -q; file-backed concurrency regression",
+      "context": "Combined intake/progression with actual Load contract; source manifest attached",
+      "observation": "35 tests passed, 1 shared-memory concurrency skip; file probe separately passed12 jobs+12events.",
+      "reference": "../evidence/pytest-verify-1.txt"
+    },
+    {
+      "id": "V2",
+      "action": "uv run python scripts/check_progression_browser.py; inspect screenshots against source prototype",
+      "context": "Fresh local server with labelled fixtures; Chromium at360/390/1280, light/dark",
+      "observation": "Next, correction/backward, GCash claim, claimed removal and polling pass. No page overflow. Visual inspection found active navigation erroneously stays New job on Jobs page. Harness label selector was corrected without changing product code.",
+      "reference": "../evidence/browser.json"
+    },
+    {
+      "id": "V3",
+      "action": "Inspect templates/base.html nav and captured board-390-dark.png",
+      "context": "Integrated template shared by all staff screens",
+      "observation": "New job has unconditional aria-current=page; Jobs link never gets current marker. Screenshot confirms wrong highlighted tab.",
+      "reference": "../evidence/board-390-dark.png"
+    }
+  ],
+  "regression_risks": [
+    "Machine/stock/Undo additions require their own integration regressions."
+  ],
+  "blockers": [],
+  "next": "Recalibrate nonpassing criteria.",
+  "workspace": "sha256:0d0c7ce1ff9cc0d1ccbeed7f2b96424aed238b778acca19290fb18c036df9e59; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-progression-verify-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

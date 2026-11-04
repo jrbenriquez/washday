@@ -1,0 +1,108 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-history",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "reason": "Machine integration regression: Board/List/History navigation, Manila default/date/Today/Yesterday, all-date number/P/customer/phone/notes/status/payment search and no-results feedback checked.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "reason": "Machine integration regression: List membership derives from receipt/payment/release Events on selected day; released jobs and all required row fields/paid state displayed newest receipt first.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "reason": "Machine integration regression: Timeline displays ordered receipt, overrides/reasons, payment/reference/dropoff/actor and release; immutable lines and stub link retained. Load events integrate with machines next.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "reason": "Machine integration regression: History contains nonjob Events and once-only day receipt/release/collection summaries; synthetic fixture self-service collection included without fake Job.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "reason": "Machine integration regression: Paper events appear on actual receipt/payment/release days. P reference searchable; entry actor/time distinct from original occurrence in timeline/stub.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "PASS",
+      "reason": "Machine integration regression: Projection membership/state and financial summary read append-only branch Events; foreign branch timeline404 and no history leakage. Future compensation integration remains with people.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    },
+    {
+      "criterion": "AC-07",
+      "status": "PASS",
+      "reason": "Machine integration regression: Required sizes/themes, local assets, navigation, text statuses, labels/focus and viewport layout inspected with no page overflow.",
+      "evidence": [
+        "R1",
+        "R2"
+      ],
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "uv run pytest -q, intake and machine file-concurrency probes",
+      "context": "Integrated machine workspace, local SQLite",
+      "observation": "51 passed, 1 in-memory concurrency skip; separate actual file tests pass 12 intake creations and 4 competing machine starts (one winner).",
+      "reference": "../../washday-mvp-machines/evidence/verify-1/pytest.txt"
+    },
+    {
+      "id": "R2",
+      "action": "EVIDENCE_RUN=machine-regression uv run python scripts/check_history_browser.py",
+      "context": "Local labelled fixtures in simple mode, current shared nav/templates and machine integration; Python formatting/import cleanup preserves executable behavior; final full machine flow also exercised on freshly restarted runtime",
+      "observation": "Earlier browser cases pass again across required sizes/themes. Machine full-mode lifecycle additionally verifies extended history/stub/board integration.",
+      "reference": "../evidence/machine-regression/browser.json"
+    }
+  ],
+  "regression_risks": [
+    "Recheck with future ledger/device/Undo integrations."
+  ],
+  "blockers": [],
+  "next": "Complete outcome.",
+  "workspace": "sha256:8d8e67280c97b9c6964f5dd404e87553291c60aa76ce055fce682117bd167b7f; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-history-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium"
+}

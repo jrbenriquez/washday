@@ -1,0 +1,37 @@
+{
+  "type": "recalibration",
+  "outcome_id": "washday-mvp-progression",
+  "criteria": [
+    "AC-09"
+  ],
+  "status": "REIMPLEMENT",
+  "summary": "Incorrect active staff tab on Jobs screens.",
+  "assessment": {
+    "category": "implementation",
+    "confidence": "SUPPORTED",
+    "cause": "Unconditional aria-current in base template is the observed cause.",
+    "evidence": [
+      "V3"
+    ],
+    "uncertainty": "none"
+  },
+  "evidence": [
+    {
+      "id": "V3",
+      "action": "Inspect templates/base.html nav and captured board-390-dark.png",
+      "context": "Integrated template shared by all staff screens",
+      "observation": "New job has unconditional aria-current=page; Jobs link never gets current marker. Screenshot confirms wrong highlighted tab.",
+      "reference": "../evidence/board-390-dark.png"
+    }
+  ],
+  "adjustment": "Make the New job/Jobs active marker conditional on current route; preserve existing dimensions, themes and all behavior.",
+  "diagnostics": [],
+  "preserve": [
+    "Original acceptance wording, accepted decisions and all previously verified behavior."
+  ],
+  "reverify": [
+    "AC-09"
+  ],
+  "blockers": [],
+  "next": "Make the New job/Jobs active marker conditional on current route; preserve existing dimensions, themes and all behavior."
+}

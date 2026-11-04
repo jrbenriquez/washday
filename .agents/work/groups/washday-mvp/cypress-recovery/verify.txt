@@ -1,0 +1,3 @@
+
+❯  Verifying Cypress can run /home/agent/.cache/Cypress/16.2.1/Cypress
+✔  Verified Cypress!       /home/agent/.cache/Cypress/16.2.1/Cypress

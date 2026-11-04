@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "outcome_id": "washday-mvp-machines",
+  "outcome": {
+    "reference": "/workspace/washday/outcomes/washday-mvp/washday-mvp-machines.md",
+    "fingerprint": "sha256:d9a0fd4e2c059754bc35e957655e1b270d0046d803bf3253a295802acba89008"
+  },
+  "phase": "complete",
+  "step": "ready",
+  "scope": [],
+  "implementation_attempts": {
+    "started": 1,
+    "maximum": 3
+  },
+  "workspace": "sha256:5cf6588e12fa09bb50920de609d2518ce286e7e8c75bc66614a7fb348c040ce2; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Grouped category grid and20second refresh, true elapsed, idle/in-use/OOS and >=90min check threshold, no countdown verified. Actual supply integration now covered by R1/R2. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
+    },
+    {
+      "id": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Atomic branch/machine locking plus unique open constraint; competing starts produce1winner; busy/OOS/foreign and repeated unload refused without effects. Actual supply integration now covered by R1/R2. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
+    },
+    {
+      "id": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Accepted D-06 supersedes grid starts: explicit board target enforces current/immediate-next stage and category; custom Steam press predecessor and any-category target covered without fallback. Actual supply integration now covered by R1/R2. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
+    },
+    {
+      "id": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Board Next opens target category picker, busy/OOS disabled; start appends Load+stage with machine cause; reason-required skip preserved. Actual stock integration follows supplies. Actual supply integration now covered by R1/R2. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
+    },
+    {
+      "id": "AC-05",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Normal departure ends old loads atomically with next start; manual override preserves loads; only last unload in matching move-on stage advances and does not enter another machine-demanding stage. Actual supply integration now covered by R1/R2. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
+    },
+    {
+      "id": "AC-06",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Jobless selfservice hidden without active per-load service; immediate collection and amount snapshot, start-day loads and history/timeline cause/duration verified. Actual supply integration now covered by R1/R2. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
+    },
+    {
+      "id": "AC-07",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R1"
+        },
+        {
+          "handoff": "handoffs/verify-2.yaml",
+          "id": "R2"
+        }
+      ],
+      "verified_workspace": "sha256:b58bc8525f5b405a0cd3b49c6d592608aeda2f49c05eb55bb82c171f871c82cf; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-1.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Simple mode hides/rejects machine screen/actions; paper jobs cannot start loads; stale form refusal exercised before side effects. Actual supply integration now covered by R1/R2. Final review applicability: only WORK-REPORT.md and Git attributes for raw upstream licences/HTTP evidence were added after verification; application, tests, fixtures and assets are unchanged."
+    },
+    {
+      "id": "AC-08",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "CYPRESS1"
+        },
+        {
+          "handoff": "handoffs/verify-3.yaml",
+          "id": "CYPRESS2"
+        }
+      ],
+      "verified_workspace": "sha256:5cf6588e12fa09bb50920de609d2518ce286e7e8c75bc66614a7fb348c040ce2; manifest:.agents/work/groups/washday-mvp/snapshots/washday-mvp-machines-verify-1-2.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
+      "reason": "Previously established pytest, ledger, responsive and Playwright evidence is now supplemented by actual passing required Cypress lifecycle; former capability gap resolved."
+    }
+  ],
+  "latest_handoff": {
+    "type": "verification",
+    "reference": "handoffs/verify-3.yaml"
+  },
+  "latest_verification": "handoffs/verify-3.yaml",
+  "recalibrations": [
+    {
+      "reference": "handoffs/recalibrate-1.yaml",
+      "decision": "ESCALATE"
+    },
+    {
+      "reference": "handoffs/recalibrate-2.yaml",
+      "decision": "ESCALATE"
+    }
+  ],
+  "blockers": [],
+  "next": "Complete outcome."
+}
