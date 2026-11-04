@@ -1,7 +1,8 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
+    path("drive-exports/", include("backups.urls")),
     path("", views.home, name="owner_home"),
     path("login/", views.login, name="owner_login"),
     path("settings/", views.shop_settings, name="owner_shop_settings"),

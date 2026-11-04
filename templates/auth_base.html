@@ -4,7 +4,7 @@
 <body>
   <header class="top">
     {% include 'brand.html' %}
-    {% if owner %}<nav class="head-actions" aria-label="Owner navigation"><a class="btn small" href="{% url 'owner_home' %}">Access and devices</a><a class="btn small" href="{% url 'owner_shop_settings' %}">Shop settings</a></nav>{% endif %}
+    {% if owner %}<nav class="head-actions" aria-label="Owner navigation"><a class="btn small" href="{% url 'owner_home' %}">Access and devices</a><a class="btn small" href="{% url 'owner_shop_settings' %}">Shop settings</a><a class="btn small" href="{% url 'drive_exports' %}">Drive exports</a></nav>{% endif %}
   </header>
   <main class="auth-main">{% for message in messages %}<p class="toast" role="status">{{ message }}</p>{% endfor %}{% block content %}{% endblock %}</main>
 </body>

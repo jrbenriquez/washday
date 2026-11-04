@@ -1,0 +1,48 @@
+{% extends 'auth_base.html' %}
+{% load static %}
+{% block title %}Drive exports · WashDay{% endblock %}
+{% block content %}
+<div class="screen-head"><div><h2>Google Drive exports</h2><p>Keep a copy of {{ owner.shop.name }} in your own Drive.</p></div></div>
+{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+{% if not configured %}<p class="error">Drive integration needs server configuration. See docs/google-drive-exports.md for the OAuth credentials, callback URL and encryption key.</p>{% endif %}
+<div class="owner-access-grid">
+<section class="card stack">
+  <h3>1. Connect your Drive</h3>
+  {% if backup.refresh_token_encrypted %}
+  <p>Connected as {{ backup.account_email }}.</p>
+  <form method="post" action="{% url 'drive_disconnect' %}">{% csrf_token %}<button class="btn">Disconnect Drive</button></form>
+  {% endif %}
+  <p>Allow WashDay to manage the files and folders you choose or create here. Background access lets exports run while you are signed out.</p>
+  <form method="post" action="{% url 'drive_connect' %}">{% csrf_token %}<button class="btn primary" {% if not configured %}disabled{% endif %}>{% if backup.refresh_token_encrypted %}Reconnect{% else %}Connect Google Drive{% endif %}</button></form>
+</section>
+<section class="card stack">
+  <h3>2. Choose a destination</h3>
+  {% if backup.folder_id %}<p>Selected folder: <a href="https://drive.google.com/drive/folders/{{ backup.folder_id }}" target="_blank" rel="noopener noreferrer">{{ backup.folder_name }}</a></p>{% endif %}
+  {% if backup.refresh_token_encrypted %}
+  {% if picker_api_key and picker_app_id %}
+  <form id="drive-picker-form" method="post" action="{% url 'drive_folder' %}" data-token-url="{% url 'drive_picker_token' %}" data-api-key="{{ picker_api_key }}" data-app-id="{{ picker_app_id }}">{% csrf_token %}<input type="hidden" name="folder_id" id="drive-folder-id"><button type="button" id="drive-pick" class="btn">Choose existing folder</button><p id="drive-picker-status" role="status"></p></form>
+  {% else %}<p class="muted">Choosing an existing folder requires the Google Picker API key and project number on the server. You can create a folder below now.</p>{% endif %}
+  <form class="stack" method="post" action="{% url 'drive_folder' %}">{% csrf_token %}<label class="field">Or create a folder in My Drive<input name="new_name" maxlength="200" placeholder="WashDay reports" required></label><button class="btn">Create and select folder</button></form>
+  {% else %}<p>Connect your Drive to choose or create a folder.</p>{% endif %}
+</section>
+<section class="card stack">
+  <h3>3. Set your schedule</h3>
+  <form method="post" class="stack">{% csrf_token %}{{ schedule_form.as_div }}<button class="btn primary">Save schedule</button></form>
+  <p>At 10 PM, daily reports include the activity available for that day when the export runs. For a complete day, run after the shop closes. Each recurring run reports its scheduled date. Intervals longer than one day skip daily reports for the intervening days; the full snapshot keeps all business history.</p>
+  {% if backup.enabled %}<p>Next scheduled run: {{ backup.next_run_at|date:'c' }} (shown with UTC offset). Timezone: {{ backup.timezone }}.</p>{% else %}<p>Automatic exports are paused.</p>{% endif %}
+</section>
+<section class="card stack">
+  <h3>Test the connection</h3>
+  <p>Each run creates a dated folder with activity CSVs, a complete business-data snapshot and a manifest explaining the report period. Copies include customer contact details. PINs, device keys and login credentials are excluded.</p>
+  <form method="post" action="{% url 'drive_export_now' %}">{% csrf_token %}<button class="btn" {% if not backup.folder_id %}disabled{% endif %}>Queue test export now</button></form>
+  <p class="muted">The server worker must run every minute. Refresh this page to check results. Test exports work while automatic exports are paused.</p>
+</section>
+</div>
+<h3>Recent exports</h3>
+{% for run in runs %}
+<section class="card stack"><p>{{ run.scheduled_for|date:'c' }} · {% if run.manual %}Test{% else %}Scheduled{% endif %} · <strong>{{ run.status }}</strong> · Attempts: {{ run.attempts }}</p>
+{% if run.folder_id %}<a href="https://drive.google.com/drive/folders/{{ run.folder_id }}" target="_blank" rel="noopener noreferrer">{{ run.folder_name }}{% if run.status != 'success' %} (incomplete){% endif %}</a>{% endif %}
+{% if run.error %}<p class="error">{{ run.error }}</p><p>Retries after {{ run.retry_at|date:'c' }}.</p>{% endif %}</section>
+{% empty %}<p>No exports yet.</p>{% endfor %}
+{% if backup.refresh_token_encrypted and picker_api_key and picker_app_id %}<script src="https://apis.google.com/js/api.js" defer></script><script src="{% static 'js/drive-picker.js' %}" defer></script>{% endif %}
+{% endblock %}
