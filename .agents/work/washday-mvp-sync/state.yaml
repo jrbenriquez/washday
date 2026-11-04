@@ -5,92 +5,176 @@
     "reference": "/workspace/washday/outcomes/washday-mvp/washday-mvp-sync.md",
     "fingerprint": "sha256:15d7336264ab5cbcac5e93850b04d6cda76b7aeeecf072de94b77995b1d3aed4"
   },
-  "phase": "implement",
+  "phase": "blocked",
   "step": "ready",
-  "scope": [
-    "AC-01",
-    "AC-02",
-    "AC-03",
-    "AC-04",
-    "AC-05",
-    "AC-06",
-    "AC-07",
-    "AC-08",
-    "AC-09"
-  ],
+  "scope": [],
   "implementation_attempts": {
-    "started": 0,
+    "started": 1,
     "maximum": 3
   },
-  "workspace": "main:38d1ec12886ee668572df2fb8bd8cf65b808da1f; clean; Python 3.13.5",
+  "workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337; manifest:.agents/work/undo-offline/final-source-manifest.json",
   "criteria": [
     {
       "id": "AC-01",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
       "id": "AC-02",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
       "id": "AC-03",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
       "id": "AC-04",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
       "id": "AC-05",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
       "id": "AC-06",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Local regressions passed; native arm64 must be checked in PR CI."
     },
     {
       "id": "AC-07",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Capacity and protocol reconnect passed; physical four-hour router outage unavailable."
     },
     {
       "id": "AC-08",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Owner stale/as-of and reconnect passed; physical Wi-Fi latency and exhaustive new merge-form visual coverage remain."
     },
     {
       "id": "AC-09",
-      "status": "PENDING",
-      "evidence": [],
-      "verified_workspace": null,
-      "reason": "Not yet assessed."
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "reason": "Full-day personal/shared-device home dry run unavailable."
     }
   ],
-  "latest_handoff": null,
-  "latest_verification": null,
-  "recalibrations": [],
-  "blockers": [],
-  "next": "Implement when prerequisites have sufficient current evidence."
+  "latest_handoff": {
+    "type": "implementation",
+    "reference": "../undo-offline/handoffs/sync-implement-1.json"
+  },
+  "latest_verification": {
+    "reference": "../undo-offline/handoffs/sync-verify.json",
+    "status": "INCONCLUSIVE"
+  },
+  "recalibrations": [
+    {
+      "reference": "../undo-offline/handoffs/sync-recalibrate.json",
+      "status": "ESCALATE"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "external_evidence",
+      "reason": "Original rollout criteria require physical router/Wi-Fi/full-day device evidence; native arm64 awaits PR CI."
+    }
+  ],
+  "next": "Software slice ready for commit/PR; complete remaining original acceptance evidence separately. Do not reset budgets.",
+  "direct_resilience_request": {
+    "assignment": ".agents/work/undo-offline/assignment.md",
+    "scope": [
+      "AC-01",
+      "AC-02",
+      "AC-03",
+      "AC-04",
+      "AC-05",
+      "AC-06",
+      "AC-07",
+      "AC-08",
+      "AC-09"
+    ],
+    "authorization": "User asks implementation now; physical release prerequisites remain unverified."
+  }
 }

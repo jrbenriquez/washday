@@ -1,3 +1,4 @@
+from events.journal import recorded_action
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.http import Http404
@@ -11,7 +12,7 @@ from .models import Load
 
 def active_machine(branch, key):
     m = (
-        Machine.objects.select_for_update()
+        Machine.objects.select_for_update(of=("self",))
         .filter(pk=key, branch=branch, archived_at=None, category__archived_at=None)
         .first()
     )
@@ -42,7 +43,7 @@ def end_load(branch, load, staff, at):
 
 def end_job_loads(branch, job, staff, at):
     for load in (
-        Load.objects.select_for_update()
+        Load.objects.select_for_update(of=("self",))
         .filter(branch=branch, job=job, ended_at=None)
         .select_related("machine", "job")
     ):
@@ -50,6 +51,7 @@ def end_job_loads(branch, job, staff, at):
 
 
 @transaction.atomic
+@recorded_action
 def start_for_job(branch, number, expected, target_id, machine_id, staff=None):
     branch, job = lock_job(branch, number, expected)
     if branch.simple_mode or job.paper_ref:
@@ -116,8 +118,9 @@ def start_for_job(branch, number, expected, target_id, machine_id, staff=None):
 
 
 @transaction.atomic
+@recorded_action
 def self_service(branch, machine_id, service_id, method, staff=None):
-    branch = Branch.objects.select_for_update().get(pk=branch.pk)
+    branch = Branch.objects.select_for_update(of=("self",)).get(pk=branch.pk)
     if branch.simple_mode:
         raise Http404()
     m = active_machine(branch, machine_id)
@@ -159,19 +162,20 @@ def self_service(branch, machine_id, service_id, method, staff=None):
 
 
 @transaction.atomic
+@recorded_action
 def unload(branch, machine_id, expected_load, staff=None):
-    branch = Branch.objects.select_for_update().get(pk=branch.pk)
+    branch = Branch.objects.select_for_update(of=("self",)).get(pk=branch.pk)
     if branch.simple_mode:
         raise Http404()
     m = (
-        Machine.objects.select_for_update()
+        Machine.objects.select_for_update(of=("self",))
         .filter(branch=branch, pk=machine_id, archived_at=None)
         .first()
     )
     if not m:
         raise Http404()
     load = (
-        Load.objects.select_for_update()
+        Load.objects.select_for_update(of=("self",))
         .filter(branch=branch, machine=m, ended_at=None)
         .select_related("machine", "job__status")
         .first()

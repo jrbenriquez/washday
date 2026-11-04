@@ -146,7 +146,7 @@
       "commit": "ab38ab21629aa4caf4abc8c184cc5aedfd2051fc",
       "freshness": "Merged README main used as authentication baseline."
     },
-    "integrated": "sha256:231d10cd47410d53c4f2c977954658b2af292630525842b5eea1d11d55cc6b22; manifest:.agents/work/local-authentication/source-snapshot.json"
+    "integrated": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337; manifest:.agents/work/undo-offline/final-source-manifest.json"
   },
   "coordinator": "current Codex chat /root; sequential",
   "active": [],
@@ -209,5 +209,11 @@
   ],
   "pending_regressions": [],
   "schedule_log": ".agents/work/groups/washday-mvp/events.md",
-  "next": "Direct user-requested authentication slice implemented and tested; real Google consent awaits local credentials. Full people/settings criteria remain pending; resume with saved budgets and scoped evidence."
+  "next": "Finish user-authorized resilience PR and check CI; original deployment/pilot/hardware gates remain pending.",
+  "resilience_assignment": {
+    "branch": "codex/outcomes/undo-offline",
+    "base": "0db38c9ca8b7b80d2a5b2e82b15075a0d33ed492",
+    "verification": ".agents/work/undo-offline/verification.md",
+    "status": "Software implemented and locally verified; original physical acceptance remains inconclusive."
+  }
 }

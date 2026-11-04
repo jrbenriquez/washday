@@ -10,7 +10,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{% if app_theme == 'dark' %}<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>{% else %}<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>{% endif %}</svg>
     </button>
   </form>
-  <span class="sync" data-connection><span class="dot"></span><span data-connection-label>Online</span></span>
+  <span class="sync" data-connection data-serving-hub="{% if serving_hub %}true{% else %}false{% endif %}"><span class="dot"></span><span data-connection-label>Online</span></span>
 </header>
 <div class="shell">
   <nav class="rail" aria-label="Staff navigation">
@@ -19,6 +19,6 @@
     {% if not branch.simple_mode %}<a href="{% url 'machines' %}" {% if request.resolver_match.url_name == 'machines' or request.resolver_match.url_name == 'self_service' %}aria-current="page"{% endif %}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="13" r="4.5"/><path d="M7 6.5h2"/></svg><span class="rail-label">Machines{% if machine_check_count %}<span class="badge" aria-label="{{ machine_check_count }} to check">{{ machine_check_count }}</span>{% endif %}</span></a>{% endif %}
     <a href="{% url 'supplies' %}" {% if request.resolver_match.url_name == 'supplies' or request.resolver_match.url_name == 'supply_type_new' %}aria-current="page"{% endif %}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8l-1 4H9zM7 7h10l1 14H6zM9.5 13h5"/></svg><span>Supplies</span></a>
   </nav>
-  <main id="main">{% if dev_scope %}<p class="dev-note">Development fixtures · device authentication bypass explicitly enabled</p>{% endif %}{% for message in messages %}<p class="toast" role="status">{{ message }}</p>{% endfor %}{% block content %}{% endblock %}</main>
+  <main id="main">{% if dev_scope %}<p class="dev-note">Development fixtures · device authentication bypass explicitly enabled</p>{% endif %}{% for message in messages %}<div class="toast" role="status">{{ message }}{% if undo_action and undo_message_tag in message.tags %}<form method="post" action="{% url 'undo' undo_action.event_id %}" data-undo-until="{{ undo_expires }}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button type="submit">Undo</button></form>{% endif %}</div>{% endfor %}{% block content %}{% endblock %}</main>
 </div>
 </body></html>

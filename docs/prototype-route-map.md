@@ -43,7 +43,7 @@ This is a source-based mapping, not a browser visual-parity verdict. Prototype f
 | S-04 | Branch selector | `renderTop()` (`#branch`) | Staff scope comes from the enrolled device; owner administration uses branch-specific forms | No equivalent global selector. |
 | S-05 | Simple-mode indicator | `renderTop()`, `ordersView()` | `/jobs/` header | Section; located on board rather than global top bar. |
 | S-06 | Moon/sun theme button | `renderTop()` | Staff `base.html` → POST `/theme/` | Section. Staff and authenticated owner shells have a theme control; owner Settings has a display switch. |
-| S-07 | Online / synced / offline / pending events pill | `renderTop()`, `scheduleSync()` | Staff header browser Online/Offline pill | Partial. Actual browser connectivity; no offline queue/replication status. |
+| S-07 | Online / synced / offline / pending events pill | `renderTop()`, `scheduleSync()` | Staff header serving hub/cloud connectivity pill | Implemented. Hub staff see connection to their local server; owner sees replication separately. |
 | S-08 | Icon rail, active tab, Ready/check badges | `staffShell()` | Staff `base.html` rail | Section. SVG links, active state, Ready count and machine-check badges. |
 | S-09 | Owner Dashboard / Live branches / Staff / Machines / Settings tabs | `ownerView()` | Owner segmented navigation: Dashboard / Live branches / Staff / Machines / Settings / Access and devices | Section; authenticated owner entry is preserved. |
 | S-10 | Phone bottom navigation / tablet left rail | CSS `.rail`, mobile media query | Shared `static/css/app.css`, staff `base.html` | Section; visual comparison still required. |
@@ -128,7 +128,7 @@ Accepted behavior amendment: [board-driven machine starts](../outcomes/washday-m
 | O-04 | Needs attention | `dashView()` | Low stock, latest count variances, overdue Ready jobs and open requests. Replication/stale-sync warnings remain unavailable. |
 | O-05 | Fulfil request | `supplyForm()` | Dashboard → `/owner/edit/supply/?request={request_id}`. Creating the type marks the request fulfilled atomically. |
 | O-06 | Count recency/history | `countHistory()` | Dashboard status → `/owner/counts/{branch_id}/`; paginated full counts and spot checks. |
-| O-07 | Branch tablets | `dashView()` | Actual device last-contact times. This is contact history, not offline replication status. |
+| O-07 | Branch tablets | `dashView()` | Direct device contact history and authenticated hub sync status; owner sees stale/as-of data and a >30-minute alert. |
 | O-08 | Excel sales report | `data-export` | `/owner/reports/sales.xlsx?start=YYYY-MM-DD&end=YYYY-MM-DD&branch=all`; a working daily-collections workbook. A prescribed BIR template was not provided; no BIR compliance claim. |
 | O-09 | Live branch selector / mode / freshness | `liveView()` | `/owner/live/?branch={branch_id}`; branch chips, simple-mode indication, server refresh time and polling. Hub staleness is not simulated. |
 | O-10 | Running / Check / In-progress / Ready | `liveView()` | Live branch KPIs. Machine KPIs are omitted in simple mode. |
@@ -172,9 +172,9 @@ Catalog edit URLs use `/owner/edit/{kind}/{record_id}/`; creation omits `{record
 |---|---|---|---|---|
 | X-01 | PIN modal: staff selection, dots, numeric pad, failure feedback | `withPin()` | Protected POST response → `templates/people/pin.html`; `people/guards.py` | Partial. Action-bound page, not overlay; no standalone PIN route. |
 | X-02 | Modal overlay / close / Escape / return focus | `openModal()`, `closeModal()` | Most equivalent flows are standalone pages listed above | Section. Native `<dialog>` enhancement provides close, Escape, focus restoration and ordinary POST forms. Direct routes remain available. |
-| X-03 | Success/error toast | `toast()` | Django messages in `base.html` / `auth_base.html` | Partial. Current messages lack prototype auto-dismiss/Undo interaction. |
-| X-04 | Undo action in toast | `act()`, `toast()` | None | Missing. |
-| X-05 | Offline toggle / sync simulation | `renderTop()`, `scheduleSync()` | None | Prototype-only control; actual replication remains unimplemented. |
+| X-03 | Success/error toast | `toast()` | Django messages in `base.html` / `auth_base.html` | Implemented for reversible actions; six-second Undo expires in the browser and is enforced on the server. |
+| X-04 | Undo action in toast | `act()`, `toast()` | `events/undo.py`, `base.html` | Implemented with device-bound compensating events and stale-state checks. |
+| X-05 | Offline toggle / sync simulation | `renderTop()`, `scheduleSync()` | Hub worker and durable server outbox | Prototype simulator omitted; authenticated ordered replication is implemented. Physical rollout qualification remains pending. |
 
 ## 10. Current-app pages without a prototype equivalent
 
@@ -208,3 +208,5 @@ Use the IDs above to record screenshots and fixes against a specific page/sectio
 7. **Owner:** P-07–P-11, O-01–O-12, A-01–A-24; distinguish missing pages from layout drift on existing pages.
 
 No visual-fidelity acceptance is implied by this mapping. The next comparison should use the same viewport, zoom, theme, simple/full mode and equivalent data states for each mapped page.
+
+Undo and hub replication implementation, operator commands, supported actions and remaining physical qualification are documented in [offline-and-undo.md](offline-and-undo.md).

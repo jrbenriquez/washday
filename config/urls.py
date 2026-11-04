@@ -6,8 +6,18 @@ from owner import views as owner
 from jobs import views, board, history
 from machines import views as machines
 from supplies import views as supplies
+from events import views as event_views
+from events.sync.api import Push, Pull, Bootstrap
+from .health import health
+from .media import logo
 
 urlpatterns = [
+    path("health/", health),
+    path("media/<path:name>", logo),
+    path("sync/push/", Push.as_view()),
+    path("sync/pull/", Pull.as_view()),
+    path("sync/bootstrap/", Bootstrap.as_view()),
+    path("undo/<uuid:event_id>/", event_views.undo, name="undo"),
     path("owner/", include("owner.urls")),
     path("accounts/login/", owner.account_login, name="local_account_login"),
     path("accounts/signup/", owner.unavailable),

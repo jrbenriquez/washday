@@ -75,11 +75,13 @@ class Branch(TenantModel):
     code = models.CharField(max_length=30)
     number = models.PositiveIntegerField()
     mode = models.CharField(max_length=10, default="direct")
+    hub_url = models.URLField(blank=True)
     simple_mode = models.BooleanField(default=True)
     opening_time = models.TimeField(null=True)
     closing_time = models.TimeField(null=True)
     job_seq = models.PositiveIntegerField(default=0)
     event_seq = models.PositiveBigIntegerField(default=0)
+    writer_epoch = models.PositiveIntegerField(default=0)
 
     class Meta(TenantModel.Meta):
         constraints = [

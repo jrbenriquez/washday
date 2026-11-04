@@ -4,7 +4,7 @@ Washday is a laundry-shop operations app for Ivan & Ivy Laundry. It brings count
 
 The application uses **Python 3.13, Django 6, server-rendered templates, and HTMX**. Prices are calculated on the server, money is stored as decimals, and business dates use **Asia/Manila**. Fonts, icons, and branding are served locally.
 
-**Current status:** the counter, job board, history, machine, and supply workflows are implemented for local development. Google owner sign-in, enrolled devices, personal shifts, shared-device PINs, and minimal staff/device administration are now available for local testing. The owner dashboard, read-only live branches, staff/machine administration, catalog settings and Excel collection reports are available. Compensating Undo, an approved BIR export layout, Docker packaging and hub replication remain planned. The deployment sections below explain the intended architecture and rollout; this checkout is not yet a production release.
+**Current status:** the counter, job board, history, machine, and supply workflows are implemented for local development. Google owner sign-in, enrolled devices, personal shifts, shared-device PINs, and minimal staff/device administration are now available for local testing. The owner dashboard, read-only live branches, staff/machine administration, catalog settings and Excel collection reports are available. Six-second compensating Undo, the hub/cloud split and durable offline replication are implemented; physical rollout qualification and an approved BIR export layout remain pending. See [Undo and offline replication](docs/offline-and-undo.md). The deployment sections below explain the intended architecture and rollout; this checkout is not yet a production release.
 
 ## Contents
 
@@ -30,7 +30,7 @@ The application uses **Python 3.13, Django 6, server-rendered templates, and HTM
 | Supplies | Ledger-based stock, automatic add-on/washer-load/first-Ready usage, receipts, full and partial counts, variance and low-stock indicators, supply requests, and permission-gated type creation. |
 | Data and interface | Shop-scoped records, branch job numbers, transactional state/event writes, immutable historical records, responsive light/dark screens, and a theme preference saved per device. |
 
-Owners can now sign in with an allow-listed Google account and manage staff access, device setup/revocation, branch hours, and shared-device PIN rules. Enrolled personal phones sign in once per shift and open Jobs in both modes; shared tablets start at New job. The owner workspace now includes Dashboard, Live branches, Staff, Machines, Settings and Access and devices. Daily collections can be exported to Excel; a prescribed BIR layout, compensating Undo and offline hub sync remain later work. See the [outcome plan](outcomes/washday-mvp/README.md) for their scope and dependencies.
+Owners can now sign in with an allow-listed Google account and manage staff access, device setup/revocation, branch hours, and shared-device PIN rules. Enrolled personal phones sign in once per shift and open Jobs in both modes; shared tablets start at New job. The owner workspace now includes Dashboard, Live branches, Staff, Machines, Settings and Access and devices. Daily collections can be exported to Excel; a prescribed BIR layout and physical rollout qualification remain later work. Undo and hub replication are described in [the operator guide](docs/offline-and-undo.md). See the [outcome plan](outcomes/washday-mvp/README.md) for their scope and dependencies.
 
 ## Direct, hub, simple, and full modes
 
@@ -41,7 +41,7 @@ There are two separate choices for each branch:
 
 New branches default to **direct + simple**. Full mode does not mean hub mode.
 
-The deployment architecture is planned as follows:
+The deployment architecture is as follows:
 
 | | Direct mode | Hub mode |
 | --- | --- | --- |
@@ -60,7 +60,7 @@ flowchart LR
     Cloud -->|Settings and catalog| Hub
 ```
 
-**The diagram describes the target deployment, not an existing sync implementation.** The current development app has no `APP_ROLE` switch, hub branch binding, outbox, or sync endpoints. Setting a branch's `mode` field does not provision or activate a hub. The local simple/full toggle below only changes the staff workflow.
+**The role split and replication protocol are implemented.** Use the [Undo/offline operator guide](docs/offline-and-undo.md) for bootstrap, authenticated sync, fencing, migration and verification. Changing `Branch.mode` directly is not a supported switch; simple/full mode remains a separate workflow setting. Physical release gates are still pending.
 
 ## Local development
 
@@ -126,7 +126,7 @@ After owner sign-in, open [Dashboard](http://localhost:8000/owner/dashboard/) fo
 
 [Staff](http://localhost:8000/owner/staff/) manages branch access and PINs; branch transfers require a fresh PIN and end existing personal shifts. [Machines](http://localhost:8000/owner/machines/) manages categories and branch equipment. [Settings](http://localhost:8000/owner/settings/) edits operational values, simple mode, PIN policy, stages, prices, pieces, supplies and add-on recipes. Edits retain saved job price lines and stock/event history. Unload machines before changing their branch/category/service state or hiding machine tracking.
 
-The Excel report uses actual collection dates in Asia/Manila and includes paid self-service. It is a daily collections workbook; a specific BIR workbook layout has not been supplied. Device last-contact times do not represent offline hub replication.
+The Excel report uses actual collection dates in Asia/Manila and includes paid self-service. It is a daily collections workbook; a specific BIR workbook layout has not been supplied. Direct device last-contact times remain separate from authenticated hub replication status.
 
 ### Fixture preview without authentication
 
@@ -215,7 +215,7 @@ Settings are read from the **process environment**. A `.env` file is Git-ignored
 | `DEV_BRANCH_ID` | Empty | Development branch UUID, honored only when DEBUG and the explicit fixture bypass are enabled. |
 | `DEV_STAFF_ID` | Empty | UUID of an active staff member at that branch for local attribution. Set automatically by the demo server helper. |
 
-`APP_ROLE` and a hub branch-ID environment setting are **planned**, not supported configuration in this revision. Do not set `DEV_BRANCH_ID` as a substitute for production device authentication. Time zone and static paths are currently defined in [config/settings.py](config/settings.py).
+`APP_ROLE=cloud|hub` and `HUB_BRANCH_ID` are supported; hub worker configuration and mode switching are documented in the [operator guide](docs/offline-and-undo.md). Do not set `DEV_BRANCH_ID` as a substitute for production device authentication. Time zone and static paths are currently defined in [config/settings.py](config/settings.py).
 
 ## Tests and browser checks
 
@@ -268,7 +268,7 @@ See [WORK-REPORT.md](WORK-REPORT.md) for recorded verification and the current e
 
 ## Direct-mode deployment
 
-**Status: planned; production deployment is not runnable from this checkout yet.** There is no Dockerfile/Compose stack or production application-server dependency yet. Owner/device authentication is implemented, but still needs real deployment/device acceptance; DEBUG-only fixture and browser-setup shortcuts are disabled with debug off. The following is the release runbook to implement and validate, not a command to expose the development server.
+**Status: planned; production deployment is not runnable from this checkout yet.** A shared Dockerfile, Gunicorn server and local hub compose example are provided; cloud PostgreSQL/TLS/backups still require deployment configuration. Owner/device authentication is implemented, but still needs real deployment/device acceptance; DEBUG-only fixture and browser-setup shortcuts are disabled with debug off. The following is the release runbook to implement and validate, not a command to expose the development server.
 
 ### Target topology
 
@@ -276,7 +276,7 @@ Run the cloud app on a server with PostgreSQL behind an HTTPS reverse proxy. Sta
 
 ### Deployment sequence
 
-1. **Complete the release prerequisites.** Complete Undo, qualify the owner settings/collection reports against the approved BIR layout, and complete production image/server configuration; qualify the implemented owner/device/shift/PIN flows on actual release devices. Supply real branch hours, catalog/prices, supply recipes, staff/owner identities, and the approved BIR format.
+1. **Complete the release prerequisites.** Qualify Undo/hub rollout and the owner settings/collection reports against the approved BIR layout, and complete production image/server configuration; qualify the implemented owner/device/shift/PIN flows on actual release devices. Supply real branch hours, catalog/prices, supply recipes, staff/owner identities, and the approved BIR format.
 2. **Prepare the cloud infrastructure.** Provision the server, DNS/domain, HTTPS termination, and a private PostgreSQL database. Keep database access restricted to the application and administration path.
 3. **Configure the release service.** Set `DJANGO_DEBUG=0`, a generated `DJANGO_SECRET_KEY`, the actual `DJANGO_ALLOWED_HOSTS`, and `PGDATABASE`/`PGHOST`/`PGPORT`/`PGUSER`/`PGPASSWORD`. Configure `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` and register the production HTTPS callback URI. Add deployment-specific trusted-proxy/CSRF configuration as part of the release; the local setup is not a reverse-proxy configuration.
 4. **Prepare the database and assets.** Back up before upgrades; apply `manage.py migrate` and `manage.py collectstatic --noinput` using the release environment. Serve the collected `staticfiles/` directory through the release web/static server. Run `manage.py check --deploy` and address its findings. Use a production WSGI/ASGI server, not Django `runserver`; the existing WSGI entry point is `config.wsgi:application`.
@@ -288,7 +288,7 @@ The backing database can be configured today, but that alone does not satisfy th
 
 ## Hub-mode deployment
 
-**Status: planned; offline operation and cloud replication are not implemented.** A hub deployment requires a functioning cloud release and successful direct pilot first. Running the current Django app on another computer, changing `Branch.mode`, or setting an unused `APP_ROLE` variable does not create an offline-capable hub.
+**Status: implementation available; physical rollout qualification remains pending.** Follow the [operator guide](docs/offline-and-undo.md) for the shared Docker image, durable SQLite volume, cloud bootstrap, worker and fenced mode changes. The cloud release, successful direct pilot and physical outage/device checks remain rollout prerequisites.
 
 ### Target topology
 
