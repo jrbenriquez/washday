@@ -1,3 +1,4 @@
+from people.guards import pin_guard
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404
 from django.contrib import messages
@@ -12,9 +13,7 @@ from .services import quote, create_job
 
 def require_branch(request):
     if not getattr(request, "branch", None):
-        raise Http404(
-            "Device enrolment is not implemented. See local development instructions."
-        )
+        raise Http404("An enrolled device is required.")
     return request.branch
 
 
@@ -38,6 +37,17 @@ def form_context(request, data=None):
 def new(request):
     ctx = form_context(request, request.POST if request.method == "POST" else None)
     if request.method == "POST":
+        gate = pin_guard(
+            request,
+            "create",
+            *(
+                ["payment"]
+                if request.POST.get("pay_method") in ("cash", "gcash")
+                else []
+            ),
+        )
+        if gate is not None:
+            return gate
         try:
             job, created = create_job(request.POST, request.branch, request.staff)
             messages.success(

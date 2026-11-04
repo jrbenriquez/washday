@@ -29,6 +29,17 @@ class StockEntry(ImmutableModel):
 
 
 class StockCount(ImmutableModel):
+    @property
+    def actor_name(self):
+        return (
+            self.by.name
+            if self.by
+            else self.device.name
+            if self.device
+            else "Development device"
+        )
+
+    device = models.ForeignKey("people.Device", null=True, on_delete=models.PROTECT)
     branch = models.ForeignKey("core.Branch", on_delete=models.PROTECT)
     by = models.ForeignKey("people.Staff", null=True, on_delete=models.PROTECT)
     at = models.DateTimeField()

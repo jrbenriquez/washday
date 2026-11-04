@@ -1,0 +1,1 @@
+Authentication browser PASS; no real Google credentials or external requests used.

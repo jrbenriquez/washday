@@ -4,7 +4,7 @@ Washday is a laundry-shop operations app for Ivan & Ivy Laundry. It brings count
 
 The application uses **Python 3.13, Django 6, server-rendered templates, and HTMX**. Prices are calculated on the server, money is stored as decimals, and business dates use **Asia/Manila**. Fonts, icons, and branding are served locally.
 
-**Current status:** the counter, job board, history, machine, and supply workflows are implemented for local development. Production device enrolment, shifts/PINs/Undo, owner administration and reports, Docker packaging, and hub replication are still planned. The deployment sections below explain the intended architecture and rollout; this checkout is not yet a production release.
+**Current status:** the counter, job board, history, machine, and supply workflows are implemented for local development. Google owner sign-in, enrolled devices, personal shifts, shared-device PINs, and minimal staff/device administration are now available for local testing. Undo, the full owner dashboard/settings/reports, Docker packaging, and hub replication are still planned. The deployment sections below explain the intended architecture and rollout; this checkout is not yet a production release.
 
 ## Contents
 
@@ -30,7 +30,7 @@ The application uses **Python 3.13, Django 6, server-rendered templates, and HTM
 | Supplies | Ledger-based stock, automatic add-on/washer-load/first-Ready usage, receipts, full and partial counts, variance and low-stock indicators, supply requests, and permission-gated type creation. |
 | Data and interface | Shop-scoped records, branch job numbers, transactional state/event writes, immutable historical records, responsive light/dark screens, and a theme preference saved per device. |
 
-The owner dashboard, Google owner sign-in, settings editors, BIR export, enrolled devices, staff shifts/PINs, compensating Undo, and offline hub sync belong to later outcomes. See the [outcome plan](outcomes/washday-mvp/README.md) for their scope and dependencies.
+Owners can now sign in with an allow-listed Google account and manage staff access, device setup/revocation, branch hours, and shared-device PIN rules. Enrolled personal phones sign in once per shift and open Jobs in both modes; shared tablets start at New job. The full owner dashboard/catalog settings, BIR export, compensating Undo, and offline hub sync remain later work. See the [outcome plan](outcomes/washday-mvp/README.md) for their scope and dependencies.
 
 ## Direct, hub, simple, and full modes
 
@@ -73,7 +73,52 @@ flowchart LR
 
 SQLite is included with Python, so the default setup needs no database server. Node.js is for browser testing; the app has no frontend build step.
 
-### Start the app
+### Test authentication with Google locally
+
+Create a Google OAuth **Web application** client in Google Cloud. Configure its consent screen and add your Google account as a test user if the project is in Testing mode. Register this exact **Authorized redirect URI**:
+
+```text
+http://localhost:8000/accounts/google/login/callback/
+```
+
+Use `localhost` consistently throughout sign-in and setup; `127.0.0.1` is a different cookie origin. If you prefer that address, register its matching callback URI and use it consistently instead. The flow is server-side OAuth through django-allauth; the client secret is never sent to the browser.
+
+From the cloned checkout:
+
+```sh
+uv python install 3.13
+uv sync --locked
+cp .env.example .env
+```
+
+Edit `.env` to set **`GOOGLE_CLIENT_ID`** and **`GOOGLE_CLIENT_SECRET`** from your Web application client. Then run:
+
+```sh
+uv run --env-file .env python manage.py migrate
+uv run --env-file .env python manage.py seed_demo
+uv run --env-file .env python manage.py allow_owner your-google-email@example.com --shop-code DEV-ONLY
+uv run --env-file .env python manage.py runserver localhost:8000
+```
+
+Open [http://localhost:8000/owner/login/](http://localhost:8000/owner/login/) and choose **Continue with Google**. Only the verified Google email you allow-listed can sign in. The bootstrap command adds permission for an existing shop; it does not create a password or bypass Google authentication. Owner sessions last 14 days and the allow-list is checked on every owner request.
+
+In **Access and devices**:
+
+1. Set the DEMO branch's opening/closing times. A personal shift needs a configured closing time and ends at the next closing time.
+2. Add a staff member and enter a four-digit PIN, or leave it blank to generate one. The PIN is shown once and stored hashed. PINs are unique among active staff in a branch.
+3. Create a **shared counter tablet** or **personal staff phone**. You receive an installation QR/link and a separate six-digit code. The code is shown once, expires after 15 minutes, and can be used once.
+4. Open the installation link in another browser profile/private context to simulate a different device. On a phone, add it to the Home Screen, open the icon, and enter the code there. The explicit `DEVICE_SETUP_ALLOW_BROWSER=1` option in the local example also permits the setup form in a normal desktop browser; it is disabled outside DEBUG.
+5. A shared device opens New job. A personal device asks for a name/PIN, then opens Jobs in either simple or full mode. Use **End shift** to sign the person out while retaining device enrolment.
+6. Test a shared-device payment, claim, or manual stage correction: the action waits for a valid staff PIN. Paying during intake, self-service, and paper reconciliation use the same payment policy. The owner can change the enabled actions in PIN rules.
+7. Revoke a device, reset a PIN, or deactivate staff and verify that subsequent requests are refused or require sign-in again. Use **New setup code** to recover a device whose cookie was cleared; opening the installation link itself never grants access.
+
+Five failed setup-code or PIN attempts lock that device's corresponding flow for one minute. Device keys are stored only as digests on the server; the browser receives an HttpOnly, SameSite=Lax cookie (Secure outside local DEBUG mode). No public signup or password login is enabled. The local owner screen covers access provisioning, not the complete future dashboard/catalog editor.
+
+The localhost QR is intended for browser profiles on the same computer. Physical-phone setup needs a development origin reachable from that phone, with trusted HTTPS for Home Screen/secure-cookie testing; the loopback quickstart does not provide that network/TLS setup.
+
+These automated checks cover the real allauth callback pipeline with Google's network responses mocked. You can exercise the real Google consent round-trip with your own local environment values. Physical Android/iOS Home Screen persistence and hub propagation still need their release checks.
+
+### Fixture preview without authentication
 
 ```sh
 git clone https://github.com/jrbenriquez/washday.git
@@ -90,9 +135,9 @@ Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
 
 `seed_demo` creates the labelled development shop, branch, staff, catalog, machines, stock, and supply recipes. These are sample operating values; the actual brand and the prescribed Rush fee are retained. It can be rerun without duplicating the fixture records or refilling existing stock. Do not use it to provision a real branch.
 
-`run_demo_server.py` selects that fixture branch and staff through server-side environment variables, then starts Django on `127.0.0.1:8000`. It deliberately runs without automatic reload: restart it after changing Python or templates. Alternatively, `seed_demo` prints a command with `DEV_BRANCH_ID` and `DEV_STAFF_ID` for Django's normal development server with reload.
+`run_demo_server.py` selects that fixture branch and staff through server-side environment variables, then starts Django on `127.0.0.1:8000`. It deliberately runs without automatic reload: restart it after changing Python or templates. Alternatively, `seed_demo` prints a command with `ENABLE_DEV_BRANCH_SCOPE=1`, `DEV_BRANCH_ID`, and `DEV_STAFF_ID` for Django's normal development server with reload.
 
-No login is required for this local fixture flow. Device enrolment and owner authentication have not been implemented yet; keep the development server on loopback. A plain `manage.py runserver` without a configured development branch cannot open the protected staff screens.
+No login is required for this **explicit fixture bypass**; keep it on loopback. Do not use `run_demo_server.py` to test authentication. Start the normal development server using the Google setup above instead. With the bypass off, staff routes require an enrolled device even when an owner is signed in.
 
 ### Try the workflows
 
@@ -136,15 +181,15 @@ uv run python manage.py seed_demo
 uv run python scripts/run_demo_server.py
 ```
 
-A nonempty `PGDATABASE` selects PostgreSQL instead of SQLite. This creates a separate development dataset; it does not copy an existing SQLite database. Unset these `PG*` variables when returning to SQLite. Using PostgreSQL locally does not enable production authentication or hub sync.
+A nonempty `PGDATABASE` selects PostgreSQL instead of SQLite. This creates a separate development dataset; it does not copy an existing SQLite database. Unset these `PG*` variables when returning to SQLite. The same authentication flows can be tested on PostgreSQL; selecting it does not enable hub sync or complete production deployment.
 
 ## Configuration
 
-Settings are read from the **process environment**. A `.env` file is Git-ignored but is **not loaded automatically**; export variables in your shell or configure them in the service/container environment.
+Settings are read from the **process environment**. A `.env` file is Git-ignored but is **not loaded automatically**; use `uv run --env-file .env ...`, export variables in your shell, or configure them in the service/container environment.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `DJANGO_DEBUG` | `1` | `1` enables development behavior. Set `0` for a future production deployment; the current development branch binding is then disabled. |
+| `DJANGO_DEBUG` | `1` | `1` enables development behavior. Set `0` for a future production deployment; development branch binding and normal-browser setup are then disabled; enrolled-device and owner authentication remain active. |
 | `DJANGO_SECRET_KEY` | Development-only fallback | Required when debug is off. Supply a generated secret through your deployment's secret management. |
 | `DJANGO_ALLOWED_HOSTS` | `localhost,127.0.0.1,[::1],testserver` | Comma-separated hostnames accepted by Django; use hostnames, without schemes or ports. |
 | `SQLITE_PATH` | `db.sqlite3` in the repository root | SQLite database file; use an absolute path for an alternate database. Ignored when PostgreSQL is selected. |
@@ -153,7 +198,11 @@ Settings are read from the **process environment**. A `.env` file is Git-ignored
 | `PGPORT` | `5432` | PostgreSQL port. |
 | `PGUSER` | `washday` | PostgreSQL role. |
 | `PGPASSWORD` | Empty | PostgreSQL password. |
-| `DEV_BRANCH_ID` | Empty | UUID of the development branch; honored only with debug enabled. Set automatically by the demo server helper. |
+| `GOOGLE_CLIENT_ID` | Empty | Google Web application OAuth client ID. |
+| `GOOGLE_CLIENT_SECRET` | Empty | Google OAuth client secret; never commit it. Both Google variables are required to enable the sign-in button. |
+| `DEVICE_SETUP_ALLOW_BROWSER` | `0` | Set `1` with DEBUG for desktop-browser enrolment testing; Home Screen setup remains the default UI. |
+| `ENABLE_DEV_BRANCH_SCOPE` | `0` | Explicit DEBUG-only fixture bypass. Set by `run_demo_server.py`; keep off for authentication testing. |
+| `DEV_BRANCH_ID` | Empty | Development branch UUID, honored only when DEBUG and the explicit fixture bypass are enabled. |
 | `DEV_STAFF_ID` | Empty | UUID of an active staff member at that branch for local attribution. Set automatically by the demo server helper. |
 
 `APP_ROLE` and a hub branch-ID environment setting are **planned**, not supported configuration in this revision. Do not set `DEV_BRANCH_ID` as a substitute for production device authentication. Time zone and static paths are currently defined in [config/settings.py](config/settings.py).
@@ -209,7 +258,7 @@ See [WORK-REPORT.md](WORK-REPORT.md) for recorded verification and the current e
 
 ## Direct-mode deployment
 
-**Status: planned; production deployment is not runnable from this checkout yet.** There is no Dockerfile/Compose stack, production application-server dependency, owner sign-in, or device enrolment. With `DJANGO_DEBUG=0`, the development scope is disabled and staff requests cannot resolve a branch. The following is the release runbook to implement and validate, not a command to expose the development server.
+**Status: planned; production deployment is not runnable from this checkout yet.** There is no Dockerfile/Compose stack or production application-server dependency yet. Owner/device authentication is implemented, but still needs real deployment/device acceptance; DEBUG-only fixture and browser-setup shortcuts are disabled with debug off. The following is the release runbook to implement and validate, not a command to expose the development server.
 
 ### Target topology
 
@@ -217,9 +266,9 @@ Run the cloud app on a server with PostgreSQL behind an HTTPS reverse proxy. Sta
 
 ### Deployment sequence
 
-1. **Complete the release prerequisites.** Implement enrolled staff devices, shifts/PIN/Undo, allow-listed Google owner sign-in, owner settings/reports, and the production image/server configuration. Supply real branch hours, catalog/prices, supply recipes, staff/owner identities, and the approved BIR format.
+1. **Complete the release prerequisites.** Complete Undo, the full owner settings/reports, and production image/server configuration; qualify the implemented owner/device/shift/PIN flows on actual release devices. Supply real branch hours, catalog/prices, supply recipes, staff/owner identities, and the approved BIR format.
 2. **Prepare the cloud infrastructure.** Provision the server, DNS/domain, HTTPS termination, and a private PostgreSQL database. Keep database access restricted to the application and administration path.
-3. **Configure the release service.** Set `DJANGO_DEBUG=0`, a generated `DJANGO_SECRET_KEY`, the actual `DJANGO_ALLOWED_HOSTS`, and `PGDATABASE`/`PGHOST`/`PGPORT`/`PGUSER`/`PGPASSWORD`. Configure Google OAuth and trusted-proxy/cookie/CSRF settings when their implementations are added; those settings are not wired up by the current environment table.
+3. **Configure the release service.** Set `DJANGO_DEBUG=0`, a generated `DJANGO_SECRET_KEY`, the actual `DJANGO_ALLOWED_HOSTS`, and `PGDATABASE`/`PGHOST`/`PGPORT`/`PGUSER`/`PGPASSWORD`. Configure `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` and register the production HTTPS callback URI. Add deployment-specific trusted-proxy/CSRF configuration as part of the release; the local setup is not a reverse-proxy configuration.
 4. **Prepare the database and assets.** Back up before upgrades; apply `manage.py migrate` and `manage.py collectstatic --noinput` using the release environment. Serve the collected `staticfiles/` directory through the release web/static server. Run `manage.py check --deploy` and address its findings. Use a production WSGI/ASGI server, not Django `runserver`; the existing WSGI entry point is `config.wsgi:application`.
 5. **Provision the real shop.** Use the future production provisioning/settings flow, with one real Shop and real operating data. Do not run `seed_demo` or the demo server helper. Configure branches as direct + simple initially, enrol shared/personal devices against the cloud URL, and verify the owner allow-list and cross-shop isolation.
 6. **Verify and operate.** Run the staff/owner/report suites against PostgreSQL, check actual supported devices and printing, and measure shop/mobile-data performance. Schedule daily PostgreSQL backups retaining 30, then exercise a restore. Keep printed [paper job sheets](reference/docs/paper-job-sheet.pdf) at each counter and verify next-day reconciliation.
@@ -255,9 +304,9 @@ See [sync and migration](outcomes/washday-mvp/washday-mvp-sync.md), [hub operati
 | --- | --- |
 | `config/` | Django settings, URLs, and WSGI entry point. |
 | `core/` | Shop/branch scope, shared settings, stages, machine definitions, and demo seeding. |
-| `people/`, `customers/`, `catalog/` | Current staff/customer/catalog models; later device and people flows belong in `people/`. |
+| `people/`, `customers/`, `catalog/` | Staff/device/enrolment/shift/PIN flows and customer/catalog models. |
 | `jobs/`, `machines/`, `supplies/`, `events/` | Operational workflows, stock ledger, and immutable event history. |
-| `owner/` | Reserved app boundary for the planned owner features. |
+| `owner/` | Google allow-list integration and minimal staff/device/hours/PIN-policy administration; full dashboard/settings/reports are later work. |
 | `templates/`, `static/` | Server UI and locally served HTMX, fonts, icons, and brand assets. Font sources/digests/licences are in `static/fonts/`; HTMX's licence is in `static/js/`. |
 | `tests/`, `cypress/`, `scripts/` | Python tests, Cypress specs, browser/race probes, and development helpers. |
 | `reference/` | Original PRD, visual prototype, logos, and paper sheet. |
@@ -265,3 +314,5 @@ See [sync and migration](outcomes/washday-mvp/washday-mvp-sync.md), [hub operati
 | `.agents/work/` | Execution checkpoints, phase handoffs, and captured verification evidence. |
 
 The [PRD](reference/docs/PRD.md) defines behavior; the [prototype](reference/prototype/index.html) defines presentation, subject to accepted decisions. Thermal printing, customer notifications, official receipts, public sign-up/billing, loyalty, and customer tracking are outside version 1.
+
+See [authentication decisions](docs/authentication.md) for the accepted flows and the scope of this implementation.

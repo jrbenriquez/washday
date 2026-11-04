@@ -1,3 +1,4 @@
+from people.guards import pin_guard
 from decimal import Decimal
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
@@ -75,6 +76,9 @@ def index(request):
 @require_POST
 def action(request, kind):
     b = require_branch(request)
+    gate = pin_guard(request, kind)
+    if gate is not None:
+        return gate
     try:
         if kind == "receive":
             receive(
@@ -109,6 +113,9 @@ def action(request, kind):
 def new_type(request):
     b = require_branch(request)
     if request.method == "POST":
+        gate = pin_guard(request, "add_type")
+        if gate is not None:
+            return gate
         try:
             add_type(b, request.POST, request.staff)
             messages.success(request, "Supply type added.")

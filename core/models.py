@@ -1,5 +1,6 @@
 import uuid
 from django.db import models
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from .tenancy import current_shop
 
@@ -91,12 +92,18 @@ class Branch(TenantModel):
         return super().save(*args, **kwargs)
 
 
+def default_pin_actions():
+    return ["payment", "claim", "override"]
+
+
 class Settings(TenantModel):
     min_kg = models.DecimalField(max_digits=6, decimal_places=1, default=0)
     kg_per_load = models.DecimalField(max_digits=6, decimal_places=1, default=1)
     version = models.PositiveIntegerField(default=1)
     check_after_min = models.PositiveIntegerField(default=90)
     staff_can_add_supply = models.BooleanField(default=False)
+    pin_enabled = models.BooleanField(default=True)
+    pin_actions = models.JSONField(default=default_pin_actions)
 
     class Meta(TenantModel.Meta):
         constraints = [models.UniqueConstraint(fields=["shop"], name="one_settings")]
@@ -135,5 +142,20 @@ class Machine(TenantModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["branch", "label"], name="machine_branch_label"
+            )
+        ]
+
+
+class ShopOwner(TenantModel):
+    email = models.EmailField()
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT
+    )
+    active = models.BooleanField(default=True)
+
+    class Meta(TenantModel.Meta):
+        constraints = [
+            models.UniqueConstraint(
+                models.functions.Lower("email"), name="owner_email_ci"
             )
         ]

@@ -280,7 +280,8 @@ def test_paper_duplicate_http_opens_existing(setup_shop, scoped_client):
 
 def test_no_dev_scope_in_production(setup_shop, scoped_client, settings):
     settings.DEBUG = False
-    assert scoped_client.get("/jobs/new/").status_code == 404
+    response = scoped_client.get("/jobs/new/")
+    assert response.status_code == 302 and response.url == "/device/setup/"
 
 
 def test_concurrent_intake_has_unique_numbers_and_events(setup_shop, transactional_db):

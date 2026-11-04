@@ -1,3 +1,4 @@
+from people.context import current_device
 from collections import defaultdict
 from decimal import Decimal
 from django.db import transaction
@@ -123,7 +124,12 @@ def count_stock(branch, data, staff=None):
         )
     at = timezone.now()
     count = StockCount.objects.create(
-        shop_id=branch.shop_id, branch=branch, by=staff, at=at, partial=partial
+        shop_id=branch.shop_id,
+        branch=branch,
+        by=staff,
+        at=at,
+        partial=partial,
+        device=current_device(),
     )
     lines = []
     for sid, amount in entered.items():

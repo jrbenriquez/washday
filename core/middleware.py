@@ -1,7 +1,12 @@
+from datetime import timedelta
 from django.conf import settings
-from core.models import Branch
+from django.shortcuts import redirect
+from django.utils import timezone
+from core.models import Branch, ShopOwner
 from core.tenancy import shop_context
-from people.models import Staff
+from people.models import Device, Staff
+from people.context import device_context
+from people.services import authenticate_device, current_shift
 
 
 class ShopMiddleware:
@@ -9,10 +14,72 @@ class ShopMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # Development-only server configuration. Never read tenant selection from the request.
         request.branch = None
         request.staff = None
-        if settings.DEBUG and settings.DEV_BRANCH_ID:
+        request.device = None
+        request.shift = None
+        request.owner = None
+        request.dev_scope = False
+        request.sensitive_post_parameters = ("pin", "code")
+        if request.user.is_authenticated:
+            request.owner = (
+                ShopOwner.unscoped.filter(
+                    user=request.user, active=True, shop__archived_at=None
+                )
+                .select_related("shop")
+                .first()
+            )
+        # Owner and staff identities never substitute for one another.
+        if request.path.startswith("/owner/"):
+            if request.path != "/owner/login/" and not request.owner:
+                return redirect("owner_login")
+            with (
+                shop_context(request.owner.shop_id if request.owner else None),
+                device_context(None),
+            ):
+                return self.get_response(request)
+        if request.path.startswith(
+            (
+                "/accounts/",
+                "/device/start/",
+                "/device/setup/",
+                "/device/manifest.webmanifest",
+                "/static/",
+            )
+        ):
+            with shop_context(None), device_context(None):
+                return self.get_response(request)
+        token = request.COOKIES.get(settings.DEVICE_COOKIE_NAME, "")
+        device = authenticate_device(token)
+        if device:
+            request.device = device
+            request.branch = device.branch
+            with shop_context(device.shop_id), device_context(device):
+                if (
+                    request.method == "POST"
+                    or not device.last_seen_at
+                    or timezone.now() - device.last_seen_at > timedelta(seconds=60)
+                ):
+                    Device.objects.filter(pk=device.pk).update(
+                        last_seen_at=timezone.now()
+                    )
+                if device.kind == "personal":
+                    request.shift = current_shift(device)
+                    request.staff = request.shift.staff if request.shift else None
+                    if not request.shift and request.path not in (
+                        "/",
+                        "/shift/",
+                        "/shift/end/",
+                    ):
+                        return redirect("shift")
+                return self.get_response(request)
+        # Fixture bypass is explicit, development-only, and never rescues an invalid credential.
+        if (
+            not token
+            and settings.DEBUG
+            and settings.ENABLE_DEV_BRANCH_SCOPE
+            and settings.DEV_BRANCH_ID
+        ):
             branch = (
                 Branch.unscoped.select_related("shop")
                 .filter(pk=settings.DEV_BRANCH_ID)
@@ -20,7 +87,8 @@ class ShopMiddleware:
             )
             if branch:
                 request.branch = branch
-                with shop_context(branch.shop_id):
+                request.dev_scope = True
+                with shop_context(branch.shop_id), device_context(None):
                     request.staff = (
                         Staff.objects.filter(
                             pk=settings.DEV_STAFF_ID, branch=branch, active=True
@@ -29,11 +97,22 @@ class ShopMiddleware:
                         else None
                     )
                     return self.get_response(request)
-        return self.get_response(request)
+        if request.path == "/":
+            with shop_context(None), device_context(None):
+                return self.get_response(request)
+        response = redirect("device_setup")
+        if token:
+            response.delete_cookie(settings.DEVICE_COOKIE_NAME)
+        return response
 
 
 def context(request):
     return {
         "branch": getattr(request, "branch", None),
+        "owner": getattr(request, "owner", None),
+        "device": getattr(request, "device", None),
+        "shift": getattr(request, "shift", None),
+        "staff": getattr(request, "staff", None),
+        "dev_scope": getattr(request, "dev_scope", False),
         "app_theme": "dark" if request.COOKIES.get("app_theme") == "dark" else "light",
     }

@@ -1,0 +1,1 @@
+{% extends 'auth_base.html' %}{% block content %}<section class="card stack auth-card"><h2>Welcome to Washday</h2><p>Owners sign in with Google. Staff use a device enrolled for their branch.</p><a class="btn primary button-link" href="{% url 'owner_login' %}">Owner sign-in</a><a class="btn button-link" href="{% url 'device_setup' %}">Set up this device</a></section>{% endblock %}

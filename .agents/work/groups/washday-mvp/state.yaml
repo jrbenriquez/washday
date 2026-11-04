@@ -21,10 +21,11 @@
       "outcomes/washday-mvp/washday-mvp-hub-rollout.md"
     ],
     "index": "outcomes/washday-mvp/README.md",
-    "fingerprint": "sha256:481f7b59be4619ed521ccdf869917d83214ffb40035d929f66cdeaa49273b3bd",
+    "fingerprint": "sha256:f3746dc0047c9ab1ed0bcd8a09a0ba3327917b2541b98fb399b7f8b116856128",
     "decisions": [
       "outcomes/washday-mvp/README.md",
-      "outcomes/washday-mvp/decisions/2026-11-03-machine-start.md"
+      "outcomes/washday-mvp/decisions/2026-11-03-machine-start.md",
+      "docs/authentication.md"
     ],
     "user_order": [],
     "suggested_order": [
@@ -139,14 +140,13 @@
   "workspace": {
     "repository": "https://github.com/jrbenriquez/washday.git",
     "worktree": "/workspace/washday",
-    "branch": "codex/outcomes/washday-mvp",
+    "branch": "codex/authentication",
     "base": {
       "reference": "origin/main",
-      "commit": "38d1ec12886ee668572df2fb8bd8cf65b808da1f",
-      "freshness": "git fetch origin main and git ls-remote --symref origin HEAD on 2026-11-03; identical SHA"
+      "commit": "ab38ab21629aa4caf4abc8c184cc5aedfd2051fc",
+      "freshness": "Merged README main used as authentication baseline."
     },
-    "integrated": "sha256:728dfc6a160c21b1ef141c7c8b10007ae374c11c5a0465077da2c81087466e03; manifest:.agents/work/groups/washday-mvp/snapshots/cypress-recovery-review.json; Python3.13.5/Django6.0.9/SQLite/Chromium",
-    "review_commit": "ced8a20"
+    "integrated": "sha256:231d10cd47410d53c4f2c977954658b2af292630525842b5eea1d11d55cc6b22; manifest:.agents/work/local-authentication/source-snapshot.json"
   },
   "coordinator": "current Codex chat /root; sequential",
   "active": [],
@@ -209,5 +209,5 @@
   ],
   "pending_regressions": [],
   "schedule_log": ".agents/work/groups/washday-mvp/events.md",
-  "next": "Next eligible: washday-mvp-people, with existing staff milestone evidence. Installation and required-suite recovery completed; no people invocation started in this installation request."
+  "next": "Direct user-requested authentication slice implemented and tested; real Google consent awaits local credentials. Full people/settings criteria remain pending; resume with saved budgets and scoped evidence."
 }

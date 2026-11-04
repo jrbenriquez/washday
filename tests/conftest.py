@@ -56,4 +56,5 @@ def scoped_client(setup_shop, client, settings):
     settings.DEV_BRANCH_ID = str(setup_shop["branch"].id)
     settings.DEV_STAFF_ID = str(setup_shop["staff"].id)
     settings.DEBUG = True
+    settings.ENABLE_DEV_BRANCH_SCOPE = True
     return client
