@@ -25,7 +25,7 @@ PIN entry, machine pickers, device enrolment and one-time PIN/code display retai
 
 ## Verification
 
-- `uv run pytest -q`: **106 passed, 1 skipped**. The existing PostgreSQL-specific concurrency test skips on SQLite. New owner tests cover actual collections, tenant isolation, CSRF, archive/restore, immutable job prices, operational validation, active loads, stage insertion/restoration, request fulfilment and branch-unique PIN transfers.
+- `uv run pytest -q`: **106 passed, 1 skipped**. The existing concurrency test skips on in-memory SQLite; its file-backed probe is `scripts/check_concurrency.py`. New owner tests cover actual collections, tenant isolation, CSRF, archive/restore, immutable job prices, operational validation, active loads, stage insertion/restoration, request fulfilment and branch-unique PIN transfers.
 - `uv run python manage.py check`, `uv run python manage.py makemigrations --check --dry-run`, `node --check static/js/app.js`, and `git diff --check` pass. No schema migration is required.
 - `uv run python scripts/check_prototype_parity.py`: isolated temporary database and private fixture owner session; no public owner-authentication bypass. Captures 15 pages at 360/390/1280 pixels in light/dark themes, plus reference-owner and stage-dialog screenshots. Browser checks cover no page overflow, loaded routes/themes, owner creation/archive/restore, modal Escape/focus/POST routing, stage correction/claim/payment, Excel download, theme persistence, live read-only controls, intake create state and stock-count variance. Fixtures include a running machine above the check threshold, a Ready job, count variance and an open supply request.
 
