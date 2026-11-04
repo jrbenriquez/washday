@@ -110,7 +110,25 @@ class ShopMiddleware:
 def context(request):
     branch = getattr(request, "branch", None)
     owner = getattr(request, "owner", None)
+    badges = {}
+    if branch:
+        from jobs.models import Job
+        from machines.models import Load
+        from core.models import Settings
+
+        badges["ready_count"] = Job.objects.filter(
+            branch=branch, claimed_at=None, status__is_last=True
+        ).count()
+        if not branch.simple_mode:
+            policy = Settings.objects.get(shop_id=branch.shop_id)
+            badges["machine_check_count"] = Load.objects.filter(
+                branch=branch,
+                ended_at=None,
+                started_at__lte=timezone.now()
+                - timedelta(minutes=policy.check_after_min),
+            ).count()
     return {
+        **badges,
         "shop": branch.shop if branch else owner.shop if owner else None,
         "branch": getattr(request, "branch", None),
         "owner": getattr(request, "owner", None),

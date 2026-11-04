@@ -1,0 +1,4 @@
+<div class="chips branch-filters" aria-label="Filter branches">
+{% if not single %}<a class="chip {% if not selected_branch %}selected{% endif %}" href="?branch=all" {% if not selected_branch %}aria-current="true"{% endif %}>All</a>{% endif %}
+{% for b in branches %}<a class="chip {% if selected_branch.id == b.id %}selected{% endif %}" href="?branch={{ b.id }}" {% if selected_branch.id == b.id %}aria-current="true"{% endif %}>{{ b.name }}{% if b.simple_mode %}<small>simple</small>{% endif %}</a>{% endfor %}
+</div>

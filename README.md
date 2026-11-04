@@ -4,7 +4,7 @@ Washday is a laundry-shop operations app for Ivan & Ivy Laundry. It brings count
 
 The application uses **Python 3.13, Django 6, server-rendered templates, and HTMX**. Prices are calculated on the server, money is stored as decimals, and business dates use **Asia/Manila**. Fonts, icons, and branding are served locally.
 
-**Current status:** the counter, job board, history, machine, and supply workflows are implemented for local development. Google owner sign-in, enrolled devices, personal shifts, shared-device PINs, and minimal staff/device administration are now available for local testing. Undo, the full owner dashboard/settings/reports, Docker packaging, and hub replication are still planned. The deployment sections below explain the intended architecture and rollout; this checkout is not yet a production release.
+**Current status:** the counter, job board, history, machine, and supply workflows are implemented for local development. Google owner sign-in, enrolled devices, personal shifts, shared-device PINs, and minimal staff/device administration are now available for local testing. The owner dashboard, read-only live branches, staff/machine administration, catalog settings and Excel collection reports are available. Compensating Undo, an approved BIR export layout, Docker packaging and hub replication remain planned. The deployment sections below explain the intended architecture and rollout; this checkout is not yet a production release.
 
 ## Contents
 
@@ -30,7 +30,7 @@ The application uses **Python 3.13, Django 6, server-rendered templates, and HTM
 | Supplies | Ledger-based stock, automatic add-on/washer-load/first-Ready usage, receipts, full and partial counts, variance and low-stock indicators, supply requests, and permission-gated type creation. |
 | Data and interface | Shop-scoped records, branch job numbers, transactional state/event writes, immutable historical records, responsive light/dark screens, and a theme preference saved per device. |
 
-Owners can now sign in with an allow-listed Google account and manage staff access, device setup/revocation, branch hours, and shared-device PIN rules. Enrolled personal phones sign in once per shift and open Jobs in both modes; shared tablets start at New job. The full owner dashboard/catalog settings, BIR export, compensating Undo, and offline hub sync remain later work. See the [outcome plan](outcomes/washday-mvp/README.md) for their scope and dependencies.
+Owners can now sign in with an allow-listed Google account and manage staff access, device setup/revocation, branch hours, and shared-device PIN rules. Enrolled personal phones sign in once per shift and open Jobs in both modes; shared tablets start at New job. The owner workspace now includes Dashboard, Live branches, Staff, Machines, Settings and Access and devices. Daily collections can be exported to Excel; a prescribed BIR layout, compensating Undo and offline hub sync remain later work. See the [outcome plan](outcomes/washday-mvp/README.md) for their scope and dependencies.
 
 ## Direct, hub, simple, and full modes
 
@@ -104,7 +104,7 @@ Open [http://localhost:8000/owner/login/](http://localhost:8000/owner/login/) an
 
 In **Access and devices**:
 
-Open **Shop settings** in the owner header to edit the shop name and upload or clear a logo (PNG, JPEG or WebP, up to 2 MB). Shop branding appears on owner/staff headers and claim stubs once a shop is in context. Signed-out screens use WashDay and its generic icon. Uploaded files live in the Git-ignored `media/` directory; include this directory in backups and serve `/media/` through the web server when deploying. Django serves these files during local DEBUG development.
+Open **Settings → Shop branding** in the owner workspace to edit the shop name and upload or clear a logo (PNG, JPEG or WebP, up to 2 MB). Shop branding appears on owner/staff headers and claim stubs once a shop is in context. Signed-out screens use WashDay and its generic icon. Uploaded files live in the Git-ignored `media/` directory; include this directory in backups and serve `/media/` through the web server when deploying. Django serves these files during local DEBUG development.
 
 1. Set the DEMO branch's opening/closing times. A personal shift needs a configured closing time and ends at the next closing time.
 2. Add a staff member and enter a four-digit PIN, or leave it blank to generate one. The PIN is shown once and stored hashed. PINs are unique among active staff in a branch.
@@ -114,11 +114,19 @@ Open **Shop settings** in the owner header to edit the shop name and upload or c
 6. Test a shared-device payment, claim, or manual stage correction: the action waits for a valid staff PIN. Paying during intake, self-service, and paper reconciliation use the same payment policy. The owner can change the enabled actions in PIN rules.
 7. Revoke a device, reset a PIN, or deactivate staff and verify that subsequent requests are refused or require sign-in again. Use **New setup code** to recover a device whose cookie was cleared; opening the installation link itself never grants access.
 
-Five failed setup-code or PIN attempts lock that device's corresponding flow for one minute. Device keys are stored only as digests on the server; the browser receives an HttpOnly, SameSite=Lax cookie (Secure outside local DEBUG mode). No public signup or password login is enabled. The local owner screen covers access provisioning, not the complete future dashboard/catalog editor.
+Five failed setup-code or PIN attempts lock that device's corresponding flow for one minute. Device keys are stored only as digests on the server; the browser receives an HttpOnly, SameSite=Lax cookie (Secure outside local DEBUG mode). No public signup or password login is enabled. The owner workspace includes access provisioning, dashboard/live views and catalog editing. See [prototype parity](docs/prototype-parity.md) for coverage and remaining differences.
 
 The localhost QR is intended for browser profiles on the same computer. Physical-phone setup needs a development origin reachable from that phone, with trusted HTTPS for Home Screen/secure-cookie testing; the loopback quickstart does not provide that network/TLS setup.
 
 These automated checks cover the real allauth callback pipeline with Google's network responses mocked. You can exercise the real Google consent round-trip with your own local environment values. Physical Android/iOS Home Screen persistence and hub propagation still need their release checks.
+
+### Owner workspace
+
+After owner sign-in, open [Dashboard](http://localhost:8000/owner/dashboard/) for collections, loads, received kilos, unclaimed jobs, low-stock/count alerts, supply requests, count history and Excel exports. Branch filters stay within the signed-in shop. [Live branches](http://localhost:8000/owner/live/) refreshes every 20 seconds and has no counter write controls.
+
+[Staff](http://localhost:8000/owner/staff/) manages branch access and PINs; branch transfers require a fresh PIN and end existing personal shifts. [Machines](http://localhost:8000/owner/machines/) manages categories and branch equipment. [Settings](http://localhost:8000/owner/settings/) edits operational values, simple mode, PIN policy, stages, prices, pieces, supplies and add-on recipes. Edits retain saved job price lines and stock/event history. Unload machines before changing their branch/category/service state or hiding machine tracking.
+
+The Excel report uses actual collection dates in Asia/Manila and includes paid self-service. It is a daily collections workbook; a specific BIR workbook layout has not been supplied. Device last-contact times do not represent offline hub replication.
 
 ### Fixture preview without authentication
 
@@ -268,7 +276,7 @@ Run the cloud app on a server with PostgreSQL behind an HTTPS reverse proxy. Sta
 
 ### Deployment sequence
 
-1. **Complete the release prerequisites.** Complete Undo, the full owner settings/reports, and production image/server configuration; qualify the implemented owner/device/shift/PIN flows on actual release devices. Supply real branch hours, catalog/prices, supply recipes, staff/owner identities, and the approved BIR format.
+1. **Complete the release prerequisites.** Complete Undo, qualify the owner settings/collection reports against the approved BIR layout, and complete production image/server configuration; qualify the implemented owner/device/shift/PIN flows on actual release devices. Supply real branch hours, catalog/prices, supply recipes, staff/owner identities, and the approved BIR format.
 2. **Prepare the cloud infrastructure.** Provision the server, DNS/domain, HTTPS termination, and a private PostgreSQL database. Keep database access restricted to the application and administration path.
 3. **Configure the release service.** Set `DJANGO_DEBUG=0`, a generated `DJANGO_SECRET_KEY`, the actual `DJANGO_ALLOWED_HOSTS`, and `PGDATABASE`/`PGHOST`/`PGPORT`/`PGUSER`/`PGPASSWORD`. Configure `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` and register the production HTTPS callback URI. Add deployment-specific trusted-proxy/CSRF configuration as part of the release; the local setup is not a reverse-proxy configuration.
 4. **Prepare the database and assets.** Back up before upgrades; apply `manage.py migrate` and `manage.py collectstatic --noinput` using the release environment. Serve the collected `staticfiles/` directory through the release web/static server. Run `manage.py check --deploy` and address its findings. Use a production WSGI/ASGI server, not Django `runserver`; the existing WSGI entry point is `config.wsgi:application`.

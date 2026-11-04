@@ -1,4 +1,5 @@
 from datetime import timedelta, time
+import re
 from unittest.mock import patch
 from urllib.parse import parse_qs, urlsplit
 import pytest
@@ -293,7 +294,20 @@ def test_owner_forms_issue_hash_only_and_revoke_immediately(auth):
     assert r.status_code == 200 and b"4567" in r.content
     s = Staff.objects.get(name="TEST new staff")
     assert s.pin_hash != "4567" and check_password("4567", s.pin_hash)
-    assert b"4567" not in c.get("/owner/").content
+    # Route UUIDs can randomly contain the PIN digits without exposing the PIN.
+    collision = Device.objects.create(
+        id="00004567-0000-4000-8000-000000000001",
+        shop=a["shop"],
+        branch=a["branch"],
+        name="TEST UUID collision",
+        kind="shared",
+    )
+    page = c.get("/owner/").content
+    assert str(collision.pk).encode() in page
+    page_without_uuids = re.sub(
+        rb"\b[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}\b", b"", page
+    )
+    assert b"4567" not in page_without_uuids
     r = c.post(
         "/owner/devices/new/",
         {"branch": str(a["branch"].pk), "name": "TEST new tablet", "kind": "shared"},

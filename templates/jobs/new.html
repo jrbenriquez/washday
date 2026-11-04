@@ -1,7 +1,7 @@
 {% extends 'base.html' %}{% load intake %}{% block content %}
 <div class="screen-head">
   <div><h2>New drop-off job</h2><p>Weigh the clothes and tap the service, or add pieces only. Customer is optional.</p></div>
-  <a class="btn small" href="{% if paper %}{% url 'new' %}{% else %}{% url 'new' %}?paper=1{% endif %}">{% if paper %}Regular intake{% else %}From paper sheet{% endif %}</a>
+  <span class="tag">Next #{{ next_number }}</span><a class="btn small" href="{% if paper %}{% url 'new' %}{% else %}{% url 'new' %}?paper=1{% endif %}">{% if paper %}Regular intake{% else %}From paper sheet{% endif %}</a>
 </div>
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 <form method="post" id="intake" hx-post="{% url 'price' %}" hx-trigger="change, input delay:300ms" hx-target="#summary" hx-sync="this:replace">
@@ -15,7 +15,7 @@
   <section class="card">
     <div class="field-label"><h3 class="eyebrow">Weight (clothes only)</h3><span class="muted weight-hint">Minimum {{ intake_settings.min_kg|floatformat:'-1' }} kg · leave at 0 for pieces only</span></div>
     <div class="kg-row">
-      <label class="kg-display"><span class="sr">Clothes weight (kg)</span><input id="kg" name="kg" type="number" min="0" max="99999.9" step="0.1" inputmode="decimal" value="{{ data.kg|default:'0' }}"><span class="u">kilograms</span></label>
+      <label class="kg-display"><span class="sr">Clothes weight (kg)</span><input id="kg" name="kg" type="number" min="0" max="99999.9" step="0.1" inputmode="decimal" value="{{ data.kg|default:'0' }}"><span class="u">kilograms</span><small class="muted" data-load-hint data-kilos="{{ intake_settings.kg_per_load }}"></small></label>
       <div class="keypad" aria-label="Weight keypad">{% for digit in '123456789.0' %}<button type="button" data-digit="{{ digit }}" aria-label="Weight {{ digit }}">{{ digit }}</button>{% endfor %}<button type="button" data-digit="clear" aria-label="Delete weight digit">⌫</button></div>
     </div>
   </section>
@@ -28,13 +28,13 @@
   <section class="card stack">
     <h3 class="eyebrow">Customer (optional)</h3>
     <label class="field">Find by name or phone<input name="customer_search" type="search" hx-get="{% url 'customer_search' %}" hx-trigger="input changed delay:250ms" hx-target="#customers" hx-include="this" placeholder="Search this shop" autocomplete="off"></label>
-    <div id="customers"></div>
+    <div class="customer-selected" hidden data-customer-selected><b data-customer-name></b><button class="btn small" type="button" data-walkin>Walk-in / reset</button></div><div id="customers"></div>
     <div class="grid2"><label class="field">New customer name<input name="customer_name" maxlength="120" value="{{ data.customer_name }}"></label><label class="field">Phone<input name="customer_phone" maxlength="40" type="tel" value="{{ data.customer_phone }}"></label></div>
     <label class="field">Notes / price difference explanation<textarea name="notes" rows="2">{{ data.notes }}</textarea></label>
   </section>
 </div>
 <aside class="card summary">
-  <div id="summary" aria-live="polite">{% include 'jobs/summary.html' %}</div>
+  <div class="title-row"><span class="tag">#{{ next_number }}</span><b data-summary-customer>Walk-in</b></div><div id="summary" aria-live="polite">{% include 'jobs/summary.html' %}</div>
   <section class="stack payment-section">
     <h3 class="eyebrow" id="payment-label">Payment</h3>
     <div class="seg payment" role="radiogroup" aria-labelledby="payment-label">
@@ -45,7 +45,7 @@
     <label class="field gcash-reference">GCash reference (optional)<input name="pay_ref" maxlength="120" value="{{ data.pay_ref }}"></label>
     {% if paper %}<label class="field">Time paid on sheet (required if paid)<input name="paid_time" type="time" value="{{ data.paid_time }}"></label>{% endif %}
   </section>
-  <button class="btn primary block" type="submit" data-create>Create job & show stub</button>
+  <button class="btn primary block" type="submit" data-create>Create job & show stub #{{ next_number }}</button>
   <p class="sample-note">Prices and payment are saved together with the job.</p>
 </aside></div>
 </form>

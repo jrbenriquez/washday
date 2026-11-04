@@ -7,11 +7,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
-from django.views.decorators.http import require_GET, require_POST, require_http_methods
+from django.views.decorators.http import require_GET, require_POST
 from core.models import Branch, Settings
 from people.models import Device, DeviceSetupCode, Staff
 from people.services import save_staff, issue_code, revoke_device, audit
-from .forms import StaffForm, DeviceForm, HoursForm, PolicyForm, ShopBrandingForm
+from .forms import StaffForm, DeviceForm, HoursForm, PolicyForm
 
 
 def owner(request):
@@ -68,7 +68,7 @@ def dashboard_context(request, **extra):
 @never_cache
 def login(request):
     if request.owner:
-        return redirect("owner_home")
+        return redirect("owner_dashboard")
     return render(
         request,
         "owner/login.html",
@@ -80,27 +80,6 @@ def login(request):
 @never_cache
 def home(request):
     return render(request, "owner/home.html", dashboard_context(request))
-
-
-@require_http_methods(["GET", "POST"])
-@never_cache
-def shop_settings(request):
-    own = owner(request)
-    form = ShopBrandingForm(
-        request.POST if request.method == "POST" else None,
-        request.FILES if request.method == "POST" else None,
-        instance=own.shop,
-    )
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Shop branding saved.")
-        return redirect("owner_shop_settings")
-    return render(
-        request,
-        "owner/settings.html",
-        {"branding_form": form},
-        status=422 if form.errors else 200,
-    )
 
 
 @require_POST
@@ -137,6 +116,11 @@ def staff_new(request):
 def staff_update(request, staff_id):
     own = owner(request)
     staff = get_object_or_404(Staff, pk=staff_id)
+    target_branch = (
+        scoped_branch(request.POST.get("branch"))
+        if request.POST.get("branch")
+        else staff.branch
+    )
     active = request.POST.get("active") == "1"
     pin = request.POST.get("pin", "").strip()
     try:
@@ -148,13 +132,13 @@ def staff_update(request, staff_id):
                 pin = f"{secrets.randbelow(10000):04d}"
                 if not any(
                     check_password(pin, s.pin_hash)
-                    for s in Staff.objects.filter(branch=staff.branch, active=True)
+                    for s in Staff.objects.filter(branch=target_branch, active=True)
                 ):
                     break
             else:
                 raise ValidationError("Could not generate a fresh PIN. Try again.")
         staff, pin = save_staff(
-            staff.branch,
+            target_branch,
             request.POST.get("name", staff.name),
             pin,
             staff=staff,

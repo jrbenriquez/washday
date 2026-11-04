@@ -25,6 +25,7 @@ def form_context(request, data=None):
         first_service = services[0] if services else None
         data = {"service": str(first_service.id)} if first_service else {}
     return {
+        "next_number": request.branch.job_seq + 1,
         "services": services,
         "intake_settings": Settings.objects.get(shop_id=request.branch.shop_id),
         "addons": AddOn.objects.filter(archived_at=None),
