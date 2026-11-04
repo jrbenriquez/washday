@@ -102,17 +102,17 @@ uv run --env-file .env python manage.py runserver localhost:8000
 
 Open [http://localhost:8000/owner/login/](http://localhost:8000/owner/login/) and choose **Continue with Google**. Only the verified Google email you allow-listed can sign in. The bootstrap command adds permission for an existing shop; it does not create a password or bypass Google authentication. Owner sessions last 14 days and the allow-list is checked on every owner request.
 
-In **Access and devices**:
+To set up branch access:
 
 Open **Settings → Shop branding** in the owner workspace to edit the shop name and upload or clear a logo (PNG, JPEG or WebP, up to 2 MB). Shop branding appears on owner/staff headers and claim stubs once a shop is in context. Signed-out screens use WashDay and its generic icon. Uploaded files live in the Git-ignored `media/` directory; include this directory in backups and serve `/media/` through the web server when deploying. Django serves these files during local DEBUG development.
 
-1. Set the DEMO branch's opening/closing times. A personal shift needs a configured closing time and ends at the next closing time.
-2. Add a staff member and enter a four-digit PIN, or leave it blank to generate one. The PIN is shown once and stored hashed. PINs are unique among active staff in a branch.
-3. Create a **shared counter tablet** or **personal staff phone**. You receive an installation QR/link and a separate six-digit code. The code is shown once, expires after 15 minutes, and can be used once.
+1. In **Access and devices**, set the DEMO branch's opening/closing times. A personal shift needs a configured closing time and ends at the next closing time.
+2. In **Staff**, choose a branch, add a staff member and enter a four-digit PIN, or leave it blank to generate one. The PIN is shown once and stored hashed. PINs are unique among active staff in a branch.
+3. In **Access and devices**, create a **shared counter tablet** or **personal staff phone**. You receive an installation QR/link and a separate six-digit code. The code is shown once, expires after 15 minutes, and can be used once.
 4. Open the installation link in another browser profile/private context to simulate a different device. On a phone, add it to the Home Screen, open the icon, and enter the code there. The explicit `DEVICE_SETUP_ALLOW_BROWSER=1` option in the local example also permits the setup form in a normal desktop browser; it is disabled outside DEBUG.
 5. A shared device opens New job. A personal device asks for a name/PIN, then opens Jobs in either simple or full mode. Use **End shift** to sign the person out while retaining device enrolment.
-6. Test a shared-device payment, claim, or manual stage correction: the action waits for a valid staff PIN. Paying during intake, self-service, and paper reconciliation use the same payment policy. The owner can change the enabled actions in PIN rules.
-7. Revoke a device, reset a PIN, or deactivate staff and verify that subsequent requests are refused or require sign-in again. Use **New setup code** to recover a device whose cookie was cleared; opening the installation link itself never grants access.
+6. Test a shared-device payment, claim, or manual stage correction: the action waits for a valid staff PIN. Paying during intake, self-service, and paper reconciliation use the same payment policy. The owner can change the enabled actions in **Settings → Shared-device PIN rules**.
+7. Revoke a device in **Access and devices**, or reset a PIN or deactivate staff in **Staff**, and verify that subsequent requests are refused or require sign-in again. Use **New setup code** to recover a device whose cookie was cleared; opening the installation link itself never grants access.
 
 Five failed setup-code or PIN attempts lock that device's corresponding flow for one minute. Device keys are stored only as digests on the server; the browser receives an HttpOnly, SameSite=Lax cookie (Secure outside local DEBUG mode). No public signup or password login is enabled. The owner workspace includes access provisioning, dashboard/live views and catalog editing. See [prototype parity](docs/prototype-parity.md) for coverage and remaining differences.
 
