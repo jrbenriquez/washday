@@ -1,3 +1,18 @@
+# Authentication implementation — 4 November 2026
+
+Implemented the accepted local authentication slice on `codex/authentication`, based on merged main `ab38ab2`. Google configuration comes from local environment variables; no credentials are committed. See [local setup](README.md#test-authentication-with-google-locally) and [accepted flows](docs/authentication.md).
+
+Owners use verified, allow-listed Google identities and can provision staff, shared/personal devices, branch hours and PIN policies. Enrolment uses a separate single-use expiring code; device keys and PINs are stored hashed. Personal devices use closing-time shifts and land on Jobs. Shared devices request a PIN for each protected action. Revocation, PIN reset and staff deactivation take effect on subsequent requests. Operational history records staff and device attribution.
+
+Verification on the integrated source: **93 pytest tests passed, 1 skipped**; both actual Cypress lifecycle/count suites passed; Chromium exercised owner provisioning, QR/enrolment, shared PIN actions, personal shifts, installation-link reopening and revocation at 360/390/1280 px in light/dark, without overflow, external requests or JavaScript errors. Django checks and migration drift checks passed. The skipped SQLite memory concurrency test has the earlier file-database probes documented in the historical outcome report.
+
+Evidence: [pytest](.agents/work/local-authentication/evidence/verification/pytest-final.txt), [Cypress](.agents/work/local-authentication/evidence/verification/cypress.txt), [browser result](.agents/work/local-authentication/evidence/auth-reopen-final/browser.json), [scoped verification](.agents/work/local-authentication/verification.json).
+
+The allauth callback tests run the real callback pipeline with Google's network exchange mocked. Real Google consent requires your local OAuth client. Physical Android/iOS Home Screen persistence remains untested. Undo, complete owner settings/reporting, hub replication and production deployment remain future work. The people/settings outcomes are partial; this request does not certify their full criteria or launch the remaining outcome schedule. Their existing budgets record one bounded implementation attempt each; all original criterion IDs and prior outcome evidence are preserved.
+
+<details>
+<summary>Historical checkpoint before authentication</summary>
+
 # Washday orchestration checkpoint
 
 Execution date: 3 November 2026. Source: latest fetched `origin/main` at `38d1ec12886ee668572df2fb8bd8cf65b808da1f`. Worktree `/workspace/washday`, branch `codex/outcomes/washday-mvp`. Sequential execution; no remote push, deployment, production data, purchases or delegated agents.
@@ -79,3 +94,5 @@ orchestrate-work for outcomes/washday-mvp
 ```
 
 Retain all saved attempts and artifacts. The former Cypress blocker is resolved by actual execution; the complete group still needs later outcomes. Actual mobile printing/installation, production OAuth/HTTPS/PostgreSQL backup/restore/network timing, owner review, BIR format, hardware and elapsed pilots remain unrun in their owning later outcomes.
+
+</details>

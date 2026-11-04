@@ -1,0 +1,118 @@
+{
+  "outcome_id": "local-authentication",
+  "criteria": [
+    "AUTH-01",
+    "AUTH-02",
+    "AUTH-03",
+    "AUTH-04",
+    "AUTH-05",
+    "AUTH-06",
+    "AUTH-07"
+  ],
+  "evidence": [
+    {
+      "id": "pytest",
+      "action": "uv run pytest -q",
+      "context": "Integrated source snapshot 231d10cd47410d53c4f2c977954658b2af292630525842b5eea1d11d55cc6b22",
+      "observation": "93 passed, 1 skipped; actual allauth callback with mocked Google exchange",
+      "reference": ".agents/work/local-authentication/evidence/verification/pytest-final.txt"
+    },
+    {
+      "id": "cypress",
+      "action": "npm run test:e2e",
+      "context": "Fresh file SQLite demo server; explicit fixture scope only",
+      "observation": "2 passed, 0 failed",
+      "reference": ".agents/work/local-authentication/evidence/verification/cypress.txt"
+    },
+    {
+      "id": "browser",
+      "action": "EVIDENCE_RUN=auth-reopen-final uv run python scripts/check_auth_browser.py",
+      "context": "Isolated file SQLite, actual enrolled cookies; owner fixture session; 3 widths \u00d7 2 themes",
+      "observation": "PASS; owner/setup/shared PIN/personal shift/reopen/revocation; no JS errors or external requests",
+      "reference": ".agents/work/local-authentication/evidence/auth-reopen-final/browser.json"
+    }
+  ],
+  "blockers": [],
+  "workspace": ".agents/work/local-authentication/source-snapshot.json",
+  "next": "Test real Google consent locally using README, then continue remaining outcome criteria separately.",
+  "type": "verification",
+  "status": "INCONCLUSIVE",
+  "results": [
+    {
+      "criterion": "AUTH-01",
+      "status": "INCONCLUSIVE",
+      "reason": "Automated callback pipeline passes; real Google consent awaits local credentials.",
+      "evidence": [
+        "pytest",
+        "browser"
+      ],
+      "next": "Run Google sign-in with local env credentials."
+    },
+    {
+      "criterion": "AUTH-02",
+      "status": "PASS",
+      "reason": "Automated integration and browser observations support the accepted local slice.",
+      "evidence": [
+        "pytest",
+        "browser"
+      ],
+      "next": "None for this local slice."
+    },
+    {
+      "criterion": "AUTH-03",
+      "status": "PASS",
+      "reason": "Automated integration and browser observations support the accepted local slice.",
+      "evidence": [
+        "pytest",
+        "browser"
+      ],
+      "next": "None for this local slice."
+    },
+    {
+      "criterion": "AUTH-04",
+      "status": "PASS",
+      "reason": "Automated integration and browser observations support the accepted local slice.",
+      "evidence": [
+        "pytest",
+        "browser"
+      ],
+      "next": "None for this local slice."
+    },
+    {
+      "criterion": "AUTH-05",
+      "status": "PASS",
+      "reason": "Automated integration and browser observations support the accepted local slice.",
+      "evidence": [
+        "pytest",
+        "browser"
+      ],
+      "next": "None for this local slice."
+    },
+    {
+      "criterion": "AUTH-06",
+      "status": "PASS",
+      "reason": "Automated integration and browser observations support the accepted local slice.",
+      "evidence": [
+        "pytest",
+        "browser"
+      ],
+      "next": "None for this local slice."
+    },
+    {
+      "criterion": "AUTH-07",
+      "status": "PASS",
+      "reason": "Automated integration and browser observations support the accepted local slice.",
+      "evidence": [
+        "pytest",
+        "cypress",
+        "browser"
+      ],
+      "next": "None for this local slice."
+    }
+  ],
+  "regression_risks": [
+    "Real Google consent requires local OAuth credentials; callback network exchange mocked in automated tests.",
+    "Physical Home Screen persistence and offline hub replication are not verified.",
+    "Undo and full people/settings acceptance remain outside this authentication slice."
+  ]
+}

@@ -4,6 +4,16 @@ from events.models import ImmutableModel
 
 
 class Job(TenantModel):
+    @property
+    def received_by_display(self):
+        return (
+            self.created_by.name
+            if self.created_by
+            else self.created_device.name
+            if self.created_device
+            else "Development staff"
+        )
+
     branch = models.ForeignKey("core.Branch", on_delete=models.PROTECT)
     number = models.PositiveIntegerField()
     customer = models.ForeignKey(
@@ -24,6 +34,9 @@ class Job(TenantModel):
     claimed_at = models.DateTimeField(null=True)
     ready_at = models.DateTimeField(null=True)
     first_ready_at = models.DateTimeField(null=True)
+    created_device = models.ForeignKey(
+        "people.Device", null=True, on_delete=models.PROTECT
+    )
     created_by = models.ForeignKey("people.Staff", null=True, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     paper_ref = models.CharField(max_length=30, blank=True)

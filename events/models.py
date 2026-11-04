@@ -39,6 +39,7 @@ class Event(ImmutableModel):
     seq = models.PositiveBigIntegerField()
     type = models.CharField(max_length=80)
     payload = models.JSONField()
+    device = models.ForeignKey("people.Device",null=True,on_delete=models.PROTECT)
     actor_staff = models.ForeignKey("people.Staff", null=True, on_delete=models.PROTECT)
     occurred_at = models.DateTimeField()
     received_at = models.DateTimeField(auto_now_add=True)

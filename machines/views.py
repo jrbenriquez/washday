@@ -1,3 +1,4 @@
+from people.guards import pin_guard
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.http import Http404
@@ -158,6 +159,9 @@ def start_self(request, machine_id):
         # This endpoint can never start/link/create a Job. Job starts belong to the board.
         if any(request.POST.get(k) for k in ("job", "job_id", "number")):
             raise Http404()
+        gate = pin_guard(request, "payment")
+        if gate is not None:
+            return gate
         try:
             self_service(
                 branch,

@@ -32,7 +32,7 @@ def project(branch):
     rows = {}
     events = list(
         Event.objects.filter(branch=branch)
-        .select_related("actor_staff")
+        .select_related("actor_staff", "device")
         .order_by("seq")
     )
     for event in events:
@@ -92,7 +92,13 @@ def project(branch):
 def annotate(event):
     p = event.payload
     event.job_number = p.get("number")
-    event.actor = event.actor_staff.name if event.actor_staff else "Development device"
+    event.actor = (
+        event.actor_staff.name
+        if event.actor_staff
+        else event.device.name
+        if event.device
+        else p.get("owner", "Development device")
+    )
     if event.type == "job_created":
         details = f"{p.get('kg', '0.0')} kg · ₱{p.get('total', '0.00')}"
         event.description = "Received · " + details

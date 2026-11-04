@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "widths": [
+    360,
+    390,
+    1280
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "flows": [
+    "owner fixture session and scoped provisioning",
+    "QR SVG and install without enrolment",
+    "code enrolment and cookie flags",
+    "shared unpaid intake device actor",
+    "shared claim PIN and staff actor",
+    "wrong PIN no mutation",
+    "personal shift and full-mode Jobs landing",
+    "personal payment without another PIN",
+    "end shift and reopen preserves enrolment",
+    "owner revocation blocks next request"
+  ],
+  "oauth": "Real allauth callback covered by tests with mocked Google exchange; real Google consent requires user local env credentials. No Google request in this probe.",
+  "external_requests": [],
+  "javascript_errors": []
+}

@@ -1,10 +1,21 @@
-from django.urls import path
-from django.views.generic import RedirectView
+from django.urls import path, include, re_path
+from people import views as people
+from owner import views as owner
 from jobs import views, board, history
 from machines import views as machines
 from supplies import views as supplies
 
 urlpatterns = [
+    path("owner/", include("owner.urls")),
+    path("accounts/login/", owner.account_login, name="local_account_login"),
+    path("accounts/signup/", owner.unavailable),
+    re_path(r"^accounts/password/", owner.unavailable),
+    path("accounts/", include("allauth.urls")),
+    path("device/start/", people.start, name="device_start"),
+    path("device/setup/", people.setup, name="device_setup"),
+    path("device/manifest.webmanifest", people.manifest, name="device_manifest"),
+    path("shift/", people.shift, name="shift"),
+    path("shift/end/", people.end, name="shift_end"),
     path("supplies/", supplies.index, name="supplies"),
     path(
         "supplies/receive/", supplies.action, {"kind": "receive"}, name="stock_receive"
@@ -23,7 +34,7 @@ urlpatterns = [
     path("jobs/<int:number>/advance/", board.move, name="advance"),
     path("jobs/<int:number>/stage/", board.edit, name="edit_stage"),
     path("jobs/<int:number>/claim/", board.release, name="claim"),
-    path("", RedirectView.as_view(pattern_name="new", permanent=False)),
+    path("", people.home, name="home"),
     path("jobs/new/", views.new, name="new"),
     path("jobs/price/", views.price, name="price"),
     path("customers/search/", views.customers, name="customer_search"),

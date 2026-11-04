@@ -116,5 +116,5 @@ class Command(BaseCommand):
                 ).exists():
                     receive(branch, supply.id, "100", staff)
         self.stdout.write(
-            f"DEVELOPMENT ONLY. All prices/names except brand and Rush are labelled fixtures.\nDEV_BRANCH_ID={branch.id} DEV_STAFF_ID={staff.id} uv run python manage.py runserver 127.0.0.1:8000"
+            f"DEVELOPMENT ONLY. All prices/names except brand and Rush are labelled fixtures.\nENABLE_DEV_BRANCH_SCOPE=1 DEV_BRANCH_ID={branch.id} DEV_STAFF_ID={staff.id} uv run python manage.py runserver 127.0.0.1:8000"
         )

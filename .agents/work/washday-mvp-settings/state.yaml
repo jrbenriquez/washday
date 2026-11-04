@@ -21,10 +21,10 @@
     "AC-11"
   ],
   "implementation_attempts": {
-    "started": 0,
+    "started": 1,
     "maximum": 3
   },
-  "workspace": "main:38d1ec12886ee668572df2fb8bd8cf65b808da1f; clean; Python 3.13.5",
+  "workspace": "sha256:231d10cd47410d53c4f2c977954658b2af292630525842b5eea1d11d55cc6b22; manifest:.agents/work/local-authentication/source-snapshot.json",
   "criteria": [
     {
       "id": "AC-01",
@@ -108,5 +108,12 @@
   "latest_verification": null,
   "recalibrations": [],
   "blockers": [],
-  "next": "Implement when prerequisites have sufficient current evidence."
+  "next": "Assess authentication-slice evidence against original criteria, then implement remaining scope (including Undo for people and full owner administration for settings).",
+  "direct_authentication_request": {
+    "assignment": ".agents/work/local-authentication/assignment.md",
+    "implementation": ".agents/work/local-authentication/implementation.json",
+    "verification": ".agents/work/local-authentication/verification.json",
+    "status": "partial; full original criteria not certified",
+    "budget_note": "One bounded implementation invocation counted; no budget reset."
+  }
 }

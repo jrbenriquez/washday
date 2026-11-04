@@ -1,3 +1,4 @@
+from people.guards import pin_guard
 from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
@@ -71,6 +72,9 @@ def edit(request, number):
         Job.objects.select_related("status"), branch=branch, number=number
     )
     if request.method == "POST":
+        gate = pin_guard(request, "override")
+        if gate is not None:
+            return gate
         try:
             override(
                 branch,
@@ -152,6 +156,9 @@ def release(request, number):
         Job.objects.select_related("status"), branch=branch, number=number
     )
     if request.method == "POST":
+        gate = pin_guard(request, "claim", *(["payment"] if not job.paid_at else []))
+        if gate is not None:
+            return gate
         try:
             claim(
                 branch,

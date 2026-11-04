@@ -19,6 +19,7 @@ shop = Shop.objects.get(code="DEV-ONLY")
 with shop_context(shop):
     branch = Branch.objects.get(code="DEMO")
     staff = Staff.objects.filter(branch=branch, active=True).first()
+os.environ["ENABLE_DEV_BRANCH_SCOPE"] = "1"
 os.environ["DEV_BRANCH_ID"] = str(branch.id)
 os.environ["DEV_STAFF_ID"] = str(staff.id)
 os.execv(

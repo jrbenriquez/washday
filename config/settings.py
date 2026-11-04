@@ -4,7 +4,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = os.environ.get("DJANGO_DEBUG", "1") == "1"
-SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "development-only-never-deploy")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY") or "development-only-never-deploy"
 if not DEBUG and SECRET_KEY == "development-only-never-deploy":
     raise ImproperlyConfigured("Set DJANGO_SECRET_KEY for production")
 ALLOWED_HOSTS = os.environ.get(
@@ -16,6 +16,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "core",
     "people",
     "customers",
@@ -28,11 +32,13 @@ INSTALLED_APPS = [
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "core.middleware.ShopMiddleware",
 ]
 ROOT_URLCONF = "config.urls"
@@ -78,3 +84,46 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DEV_BRANCH_ID = os.environ.get("DEV_BRANCH_ID", "") if DEBUG else ""
 DEV_STAFF_ID = os.environ.get("DEV_STAFF_ID", "") if DEBUG else ""
+
+# Owner authentication is Google-only; credentials stay in the process environment.
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_OAUTH_CONFIGURED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {"SCOPE": ["openid", "email", "profile"], "OAUTH_PKCE_ENABLED": True}
+}
+if GOOGLE_OAUTH_CONFIGURED:
+    SOCIALACCOUNT_PROVIDERS["google"]["APP"] = {
+        "client_id": GOOGLE_CLIENT_ID,
+        "secret": GOOGLE_CLIENT_SECRET,
+        "key": "",
+    }
+ACCOUNT_ADAPTER = "owner.adapters.OwnerAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "owner.adapters.OwnerSocialAdapter"
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*"]
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_SESSION_REMEMBER = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_STORE_TOKENS = False
+SOCIALACCOUNT_LOGIN_ON_GET = False
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
+SESSION_COOKIE_AGE = 14 * 24 * 60 * 60
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+LOGIN_URL = "owner_login"
+LOGIN_REDIRECT_URL = "/owner/"
+LOGOUT_REDIRECT_URL = "/owner/login/"
+DEVICE_COOKIE_NAME = "washday_device"
+DEVICE_COOKIE_MAX_AGE = 365 * 24 * 60 * 60
+DEVICE_SETUP_ALLOW_BROWSER = (
+    DEBUG and os.environ.get("DEVICE_SETUP_ALLOW_BROWSER", "0") == "1"
+)
+ENABLE_DEV_BRANCH_SCOPE = (
+    DEBUG and os.environ.get("ENABLE_DEV_BRANCH_SCOPE", "0") == "1"
+)

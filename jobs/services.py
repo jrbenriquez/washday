@@ -1,3 +1,4 @@
+from people.context import current_device, actor_name
 import re
 from datetime import datetime, timedelta
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP, ROUND_CEILING
@@ -162,6 +163,7 @@ def append_event(branch, type, payload, occurred_at, staff):
         payload=payload,
         occurred_at=occurred_at,
         actor_staff=staff,
+        device=current_device(),
     )
 
 
@@ -235,6 +237,7 @@ def create_job(data, branch, staff=None):
         pay_ref=ref,
         paid_amount=q["total"] if method else 0,
         created_by=staff,
+        created_device=current_device(),
         paper_ref=paper_ref,
         paper_date=paper_date,
         written_total=written,
@@ -251,7 +254,7 @@ def create_job(data, branch, staff=None):
         "from_paper": paper,
         "paper_ref": paper_ref,
         "entered_at": job.created_at.isoformat(),
-        "entered_by": staff.name if staff else "Development staff",
+        "entered_by": actor_name(staff),
         "received_at": received.isoformat(),
         "customer_name": customer.name if customer else "Walk-in",
         "customer_phone": customer.phone if customer else "",
