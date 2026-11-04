@@ -69,6 +69,15 @@ Missing capabilities produce recorded limitations and INCONCLUSIVE for checks
 that cannot run; an observed violation is FAIL. Neither is PASS. Follow the
 existing recalibration/no-progress rules rather than retrying unavailable checks.
 
+For UI outcomes with supplied prototypes, apply the visual acceptance policy in
+HANDOFFS.md to every phase assignment and completion decision. Track the supplied
+reference's authority, relevant screen/route/state coverage, paired visual evidence
+and deviations in a project-owned comparison matrix. Do not accept functional
+suite success as visual PASS. Incomplete comparisons or missing outcome coverage
+must be reconciled before completion; observed unaccepted mismatches route through
+recalibration. Shared shell, style, font, icon and asset changes trigger affected
+screen comparisons on the integrated workspace, with existing budgets preserved.
+
 Verification is a separate assessment against original criteria: inspect actual
 code and independently gather observations, fixtures, failure paths and regression
 evidence instead of accepting implementation checks as proof. A single agent can

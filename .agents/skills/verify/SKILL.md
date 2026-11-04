@@ -19,6 +19,14 @@ evidence rules, examples, and phase routing.
 1. Identify observable evidence required for each criterion.
 2. Discover applicable project-specific verification skills, scripts, and application controls without assuming they exist.
 3. Run appropriate automated tests, checks, and behavioral inspection where feasible.
+   For UI work with supplied prototypes, apply the shared visual acceptance
+   policy. Independently open reference and application at equivalent states and
+   viewports, inspect paired screenshots and complete the visual comparison matrix
+   across the affected routes. Check icons, alignment, wrapping and occlusion;
+   no-overflow and workflow tests alone cannot establish visual fidelity.
+   Mark unaccepted mismatches FAIL and uninspected/unavailable comparisons
+   INCONCLUSIVE for affected criteria. Do not claim visual PASS from captures
+   alone or carry it forward after relevant shared-component changes.
 4. Record the commands/actions performed, environment, results, and evidence locations.
    Identify inspected code, configuration and fixtures, including dirty/untracked
    inputs. For groups, inspect the coordinator's integrated workspace and affected

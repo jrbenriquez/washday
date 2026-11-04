@@ -22,6 +22,13 @@ the preview governs visual presentation and interaction design. Carry accessible
 package-relative asset paths and relevant preview references into each affected
 outcome, resolved from the outcome's location, so execution does not depend on
 chat history. Keep sample data and disposable preview code identified as such.
+For affected UI outcomes, preserve supplied visual requirements as observable
+acceptance and verification notes: prototype screen/state-to-route mapping,
+paired visual inspection at specified viewports/themes, actual icons/assets,
+alignment/wrapping/occlusion and explicit deviation records. Do not reduce visual
+acceptance to copied tokens, no overflow or functional tests. A sole supplied
+visual reference is the design baseline; screens not previewed are identified as
+inferred. Preserve IDs and reconcile coverage explicitly for existing outcomes.
 
 Inspect the affected app's existing stack, manifests/lockfiles, configuration and
 accepted architecture decisions. Preserve those choices in outcome constraints;

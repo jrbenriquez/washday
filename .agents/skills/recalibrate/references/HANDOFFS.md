@@ -55,6 +55,64 @@ change requirements. Optional project capabilities may supply actions and
 evidence; their absence does not change these contracts or imply failure.
 Additional project fields may be included without redefining required fields.
 
+## Supplied prototypes and visual acceptance
+
+When a user supplies a prototype, sample page, mockup or reference package for UI
+work, treat it as the primary authority for visual presentation and interaction
+design, subject to explicit user decisions and the package's stated authority.
+If it is the only visual reference, do not treat it as optional inspiration or
+replace it with a generic design. Preserve its layout, component hierarchy,
+spacing, typography, icons, assets and responsive behavior. Functional rules,
+validation and data remain governed by the PRD/accepted requirements; disposable
+prototype storage, demo controls and implementation technology are not mandates.
+Record necessary functional adaptations without discarding the visual design.
+If supplied references conflict without a stated priority, resolve the material
+conflict; do not silently pick a new design. Screens absent from the reference
+should reuse its visual language and be labelled as inferred, not prototype-matched.
+
+For affected UI work, implementation and verification handoffs must include or
+link a project-owned **visual comparison matrix**, mapped to existing criterion
+IDs. This is evidence for supplied requirements, not permission to invent scope,
+rewrite criteria or implement future screens. Include:
+
+- Reference path/version and prototype screen/state mapped to each implemented
+  route/component in the assigned scope. Inventory the reference's relevant
+  navigation, dialogs and interactions, rather than testing only the landing page.
+- Viewports, themes, representative data and UI states to compare. Use specified
+  sizes, plus relevant breakpoint boundaries; include populated/empty, validation,
+  modal/PIN and long-content states where applicable. Identify absent coverage.
+- Paired reference/application screenshots at equivalent viewports and states,
+  with accessible artifact paths and the inspected workspace identity. Open and
+  visually inspect both; screenshot capture alone is not a comparison. Record
+  fixture/content/font-loading differences that affect the comparison.
+- Observations on hierarchy, spacing/alignment, typography, icons/assets, control
+  styling, wrapping, navigation, fixed/sticky elements and overlap/occlusion.
+  Verify actual icons/images render; successful requests or loaded fonts alone
+  cannot establish that. Test resizing and relevant interactions, not just stills.
+- Every material difference, its disposition and evidence: corrected/rechecked,
+  explicitly accepted deviation with decision reference, or unresolved mismatch.
+  A functional adaptation is not blanket permission for unrelated visual changes.
+  Pixel-diff/overlay tools can assist; exact pixel equality is not required when
+  dynamic content or rendering differs, but material design differences must be
+  explained and resolved. Do not invent a similarity score or arbitrary tolerance.
+
+Functional/browser tests, no-overflow assertions, touch-target checks, copied
+CSS/tokens and application-only screenshots do not establish prototype fidelity.
+Report functional, accessibility/responsive and visual comparison observations
+separately. An observed unaccepted visual mismatch is FAIL for the affected
+criterion; missing reference access, uninspected comparisons or incomplete visual
+coverage is INCONCLUSIVE, never PASS. If no existing criterion can represent a
+material supplied visual requirement, flag the coverage gap for explicit outcome
+reconciliation rather than silently ignoring it or changing criterion IDs.
+The orchestrator cannot declare affected UI work complete with that gap unresolved.
+
+For example, replacing supplied SVG icons with Unicode symbols is a visual
+mismatch even when links work. A bottom navigation bar can pass a page-width test
+while labels wrap incorrectly or content is covered. Neither case earns visual
+PASS. Shared CSS, shell, icon, font or navigation changes require comparisons of
+all affected implemented screens; retain prior evidence only with an explicit
+applicability assessment. Historical screenshots cannot certify changed markup.
+
 ## Implementation result
 
 ```yaml

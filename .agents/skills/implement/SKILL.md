@@ -21,6 +21,11 @@ evidence rules, examples, and phase routing.
    apply only to genuinely new or undecided choices under the shared policy.
 2. Confirm the current branch and repository state; do not discard unrelated changes.
 3. Plan the smallest coherent change that satisfies the assigned criteria.
+   For UI work with supplied prototypes, follow the shared visual acceptance
+   policy: inspect the reference, map affected screens/states to routes and reuse
+   its components/assets faithfully within the required stack. Adapt semantics
+   and server behavior without replacing its design with generic controls.
+   Keep a visual comparison matrix and record justified/accepted deviations.
 4. Implement and add or update appropriate tests.
 5. Run fast, relevant checks available in the environment.
 6. Return an implementation result using the shared contract, including changes,
