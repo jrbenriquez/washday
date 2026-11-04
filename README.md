@@ -2,7 +2,7 @@
 
 Washday is a laundry-shop operations app for Ivan & Ivy Laundry. It brings counter intake, job tracking, machine loads, payments, and supplies into one workflow across branches. Staff record the work as it happens, while an immutable event history keeps jobs, collections, and stock auditable.
 
-The application uses **Python 3.13, Django 6, server-rendered templates, and HTMX**. Prices are calculated on the server, money is stored as decimals, and business dates use **Asia/Manila**. Fonts, icons, and branding are served locally.
+The application uses **Python 3.13, Django 6, server-rendered templates, and HTMX**.Prices are calculated on the server, money is stored as decimals, and business dates use **Asia/Manila**. Fonts, icons, and branding are served locally.
 
 **Current status:** the counter, job board, history, machine, and supply workflows are implemented for local development. Google owner sign-in, enrolled devices, personal shifts, shared-device PINs, and minimal staff/device administration are now available for local testing. The owner dashboard, read-only live branches, staff/machine administration, catalog settings and Excel collection reports are available. Compensating Undo, an approved BIR export layout, Docker packaging and hub replication remain planned. The deployment sections below explain the intended architecture and rollout; this checkout is not yet a production release.
 
