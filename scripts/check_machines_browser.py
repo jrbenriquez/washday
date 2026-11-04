@@ -33,7 +33,7 @@ with sync_playwright() as p:
     number = int(page.url.rstrip("/").split("/")[-1])
     page.goto("http://127.0.0.1:8000/jobs/")
     page.locator(f'[data-job="{number}"]').get_by_role(
-        "button", name="Next · Washing"
+        "button", name=re.compile(r"Move job .* to Washing")
     ).click()
     page.wait_for_url("**/machine/**")
     assert page.get_by_role("button", name="Start D1", exact=True).count() == 0
@@ -69,7 +69,7 @@ with sync_playwright() as p:
     assert "Unloaded after" in page.locator("#machine-grid").inner_text()
     page.goto("http://127.0.0.1:8000/jobs/")
     page.locator(f'[data-job="{number}"]').get_by_role(
-        "button", name="Next · Drying"
+        "button", name=re.compile(r"Move job .* to Drying")
     ).click()
     page.wait_for_url("**/machine/**")
     page.get_by_role("button", name="Start D1", exact=True).click()
@@ -79,11 +79,11 @@ with sync_playwright() as p:
     page.wait_for_url("**/machines/")
     page.goto("http://127.0.0.1:8000/jobs/")
     page.locator(f'[data-job="{number}"]').get_by_role(
-        "button", name="Next · Ready"
+        "button", name=re.compile(r"Move job .* to Ready")
     ).click()
     page.wait_for_url("**/jobs/")
     page.locator(f'[data-job="{number}"]').get_by_role(
-        "link", name="Claim", exact=True
+        "link", name="Claim & pay", exact=True
     ).click()
     page.get_by_label("Payment method").select_option("cash")
     page.get_by_role("button", name="Confirm claim").click()

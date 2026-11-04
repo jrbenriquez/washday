@@ -184,7 +184,7 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
             assert "TEST browser counter" in staff_page.locator("article").inner_text()
             staff_page.goto(base + "/jobs/")
             staff_page.locator(f'[data-job="{number}"]').get_by_role(
-                "button", name="Next · Ready"
+                "button", name=re.compile(r"Move job .* to Ready")
             ).click()
             staff_page.locator(f'[data-job="{number}"]').get_by_role(
                 "link", name="Claim", exact=True

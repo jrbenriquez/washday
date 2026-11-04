@@ -11,9 +11,10 @@ OUT = ROOT / ".agents/work/washday-mvp-intake/evidence"
 OUT = OUT / os.environ.get("EVIDENCE_RUN", "latest")
 OUT.mkdir(parents=True, exist_ok=True)
 results = []
+BASE_URL = os.environ.get("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 with sync_playwright() as p:
     browser = p.chromium.launch(
-        executable_path="/usr/bin/chromium", args=["--no-sandbox"]
+        executable_path=os.environ.get("CHROMIUM_PATH"), args=["--no-sandbox"]
     )
     context = browser.new_context()
     page = context.new_page()
@@ -22,7 +23,7 @@ with sync_playwright() as p:
     page.on("pageerror", lambda e: errors.append(str(e)))
 
     def route(r):
-        if r.request.url.startswith("http://127.0.0.1:8000/"):
+        if r.request.url.startswith(BASE_URL + "/"):
             r.continue_()
         else:
             external.append(r.request.url)
@@ -33,9 +34,9 @@ with sync_playwright() as p:
         page.set_viewport_size({"width": width, "height": 900})
         for theme in ["light", "dark"]:
             context.add_cookies(
-                [{"name": "app_theme", "value": theme, "url": "http://127.0.0.1:8000"}]
+                [{"name": "app_theme", "value": theme, "url": BASE_URL}]
             )
-            page.goto("http://127.0.0.1:8000/jobs/new/")
+            page.goto(BASE_URL + "/jobs/new/")
             page.evaluate("document.fonts.ready")
             assert page.locator("html").get_attribute("data-app-theme") == theme
             overflow = page.evaluate(
@@ -51,7 +52,7 @@ with sync_playwright() as p:
             )
             assert not sizes, sizes
             fonts = page.evaluate(
-                "['Figtree','Saira Condensed','JetBrains Mono'].map(f=>({font:f,loaded:document.fonts.check('600 16px \\\"'+f+'\\\"')}))"
+                "[['Figtree',400],['Saira Condensed',800],['JetBrains Mono',700]].map(([f,w])=>({font:f,loaded:document.fonts.check(w+' 16px \\\"'+f+'\\\"')}))"
             )
             assert all(f["loaded"] for f in fonts), fonts
             page.screenshot(
@@ -68,6 +69,27 @@ with sync_playwright() as p:
                 }
             )
     page.set_viewport_size({"width": 390, "height": 900})
+    # Native radio inputs retain keyboard access behind the prototype's chip/segment UI.
+    assert page.locator("[name=service]:checked").count() == 1
+    page.get_by_label("DEMO Wash-dry-fold").check()
+    for digit in ["3", ".", "1"]:
+        page.get_by_role("button", name="Weight " + digit, exact=True).click()
+    assert page.locator("#kg").input_value() == "3.1"
+    page.get_by_role("button", name="Delete weight digit").click()
+    assert page.locator("#kg").input_value() == "3"
+    page.get_by_role("button", name="Weight 2", exact=True).click()
+    assert page.locator("#kg").input_value() == "3.2"
+    page.get_by_label("Clothes weight (kg)").fill("0")
+    for digit in [".", "5"]:
+        page.get_by_role("button", name="Weight " + digit, exact=True).click()
+    assert page.locator("#kg").input_value() == "0.5"
+    assert not page.get_by_label("GCash reference (optional)").is_visible()
+    page.locator('[name=pay_method][value="gcash"]').focus()
+    page.keyboard.press("Space")
+    assert page.get_by_label("GCash reference (optional)").is_visible()
+    page.locator('[name=pay_method][value="cash"]').focus()
+    page.keyboard.press("Space")
+    assert not page.get_by_label("GCash reference (optional)").is_visible()
     page.get_by_label("DEMO Wash-dry-fold").check()
     page.get_by_label("Clothes weight (kg)").fill("3.1")
     page.wait_for_function(
@@ -92,7 +114,7 @@ with sync_playwright() as p:
         page.set_viewport_size({"width": width, "height": 900})
         for theme in ["light", "dark"]:
             context.add_cookies(
-                [{"name": "app_theme", "value": theme, "url": "http://127.0.0.1:8000"}]
+                [{"name": "app_theme", "value": theme, "url": BASE_URL}]
             )
             page.reload()
             assert not page.evaluate(
@@ -113,7 +135,7 @@ with sync_playwright() as p:
         print_background=True,
     )
     page.emulate_media(media="screen")
-    page.goto("http://127.0.0.1:8000/jobs/new/")
+    page.goto(BASE_URL + "/jobs/new/")
     page.get_by_label("Find by name or phone").fill("0900-TEST")
     page.wait_for_function(
         "document.querySelector('#customers').textContent.includes('DEMO browser customer')"
@@ -129,7 +151,7 @@ with sync_playwright() as p:
         "Pieces only" in page.locator("article").inner_text()
         and "DEMO browser customer" in page.locator("article").inner_text()
     )
-    page.goto("http://127.0.0.1:8000/jobs/new/?paper=1")
+    page.goto(BASE_URL + "/jobs/new/?paper=1")
     sheet = (
         (datetime.now(ZoneInfo("Asia/Manila")) - timedelta(days=1)).date().isoformat()
     )
@@ -154,12 +176,12 @@ with sync_playwright() as p:
     page.wait_for_url(re.compile(r".*/jobs/\d+/"))
     paper_url = page.url
     assert "Received on paper as " + pref in page.locator("article").inner_text()
-    page.goto("http://127.0.0.1:8000/jobs/new/?paper=1")
+    page.goto(BASE_URL + "/jobs/new/?paper=1")
     fill_paper()
     page.get_by_role("button", name="Create job & show stub").click()
     page.wait_for_url(paper_url)
     assert "already entered" in page.locator(".toast").inner_text()
-    page.goto("http://127.0.0.1:8000/jobs/new/")
+    page.goto(BASE_URL + "/jobs/new/")
     old = page.locator("html").get_attribute("data-app-theme")
     page.get_by_role("button", name=re.compile("Switch to .* theme")).click()
     assert page.locator("html").get_attribute("data-app-theme") != old
@@ -176,6 +198,8 @@ with sync_playwright() as p:
         {
             "flows": [
                 "server summary",
+                "decimal keypad and backspace",
+                "keyboard payment selection and conditional GCash reference",
                 "GCash intake",
                 "reload persistence",
                 "customer create/search/select",

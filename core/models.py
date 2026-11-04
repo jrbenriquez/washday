@@ -1,8 +1,13 @@
 import uuid
+from pathlib import Path
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from .tenancy import current_shop
+
+
+def shop_logo_path(instance, filename):
+    return f"shops/{instance.pk}/logos/{uuid.uuid4().hex}{Path(filename).suffix.lower()}"
 
 
 class TenantManager(models.Manager):
@@ -25,10 +30,19 @@ class UUIDModel(models.Model):
 class Shop(UUIDModel):
     name = models.CharField(max_length=160)
     code = models.CharField(max_length=40, unique=True)
-    logo = models.CharField(max_length=240, default="img/logo-header.png")
+    logo = models.ImageField(upload_to=shop_logo_path, max_length=240, blank=True)
     timezone = models.CharField(max_length=40, default="Asia/Manila")
     created_at = models.DateTimeField(auto_now_add=True)
     archived_at = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def logo_url(self):
+        # Existing static logo references remain valid until replaced via settings.
+        if self.logo and self.logo.name.startswith("img/"):
+            from django.templatetags.static import static
+
+            return static(self.logo.name)
+        return self.logo.url if self.logo else ""
 
 
 class TenantModel(UUIDModel):

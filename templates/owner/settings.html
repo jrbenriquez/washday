@@ -1,0 +1,16 @@
+{% extends 'auth_base.html' %}
+{% block title %}Shop settings · WashDay{% endblock %}
+{% block content %}
+<div class="screen-head"><div><h2>Shop settings</h2><p>Your shop name and logo appear on owner and staff screens.</p></div></div>
+<section class="card stack branding-settings">
+  <h3>Shop branding</h3>
+  {% if shop.logo_url %}<img class="shop-logo-preview" src="{{ shop.logo_url }}" alt="Current shop logo">{% endif %}
+  <form method="post" enctype="multipart/form-data" class="stack">
+    {% csrf_token %}
+    {{ branding_form.non_field_errors }}
+    <div class="field">{{ branding_form.name.label_tag }}{{ branding_form.name }}{{ branding_form.name.errors }}</div>
+    <div class="field">{{ branding_form.logo.label_tag }}{{ branding_form.logo }}<small class="muted">{{ branding_form.logo.help_text }}</small>{{ branding_form.logo.errors }}</div>
+    <button class="btn primary">Save shop branding</button>
+  </form>
+</section>
+{% endblock %}

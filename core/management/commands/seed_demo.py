@@ -19,7 +19,10 @@ class Command(BaseCommand):
         if not settings.DEBUG:
             raise CommandError("seed_demo is development-only")
         shop, _ = Shop.objects.get_or_create(
-            code="DEV-ONLY", defaults={"name": "Ivan & Ivy Laundry · DEMO"}
+            code="DEV-ONLY",
+            defaults={
+                "name": "Bula & Banlaw Laundry",
+            },
         )
         with shop_context(shop):
             branch, _ = Branch.objects.get_or_create(

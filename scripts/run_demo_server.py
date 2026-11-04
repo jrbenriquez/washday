@@ -24,5 +24,5 @@ os.environ["DEV_BRANCH_ID"] = str(branch.id)
 os.environ["DEV_STAFF_ID"] = str(staff.id)
 os.execv(
     sys.executable,
-    [sys.executable, "manage.py", "runserver", "127.0.0.1:8000", "--noreload"],
+    [sys.executable, "manage.py", "runserver", "127.0.0.1:8000"],
 )

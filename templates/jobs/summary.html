@@ -1,1 +1,8 @@
-<h3>Job summary</h3>{% if error %}<p class="error" role="status">{{ error }}</p>{% elif quote %}<div class="lines">{% for line in quote.lines %}<div class="line"><span>{{ line.label }}</span><span class="mono">₱{{ line.amount|floatformat:2 }}</span></div>{% endfor %}</div><div class="total"><span>Total</span><b>₱{{ quote.total|floatformat:2 }}</b></div>{% if quote.written_total %}<p>Written on sheet: ₱{{ quote.written_total }}. The app total is kept; add an explanation in Notes if needed.</p>{% endif %}{% else %}<p class="muted">Enter clothes weight or add a piece to see the price.</p>{% endif %}
+<h3 class="eyebrow">Job summary</h3>
+<div class="lines">
+  {% if error %}<p class="error" role="status">{{ error }}</p>
+  {% elif quote %}{% for line in quote.lines %}<div class="line"><span>{{ line.label }}</span><span class="num">₱{{ line.amount|floatformat:2 }}</span></div>{% endfor %}
+  {% else %}<span class="muted">Enter the weight or add a piece to see the price.</span>{% endif %}
+</div>
+<div class="total"><span class="eyebrow">Total</span><b>₱{% if quote %}{{ quote.total|floatformat:2 }}{% else %}0{% endif %}</b></div>
+{% if quote.written_total %}<p>Written on sheet: ₱{{ quote.written_total }}. The app total is kept; add an explanation in Notes if needed.</p>{% endif %}

@@ -59,6 +59,73 @@ def owner_client(a):
     return c
 
 
+def test_header_branding_requires_authenticated_shop_context(auth):
+    from django.utils.html import escape
+
+    c = Client()
+    for path in ("/", "/owner/login/", "/device/setup/", f'/device/start/?invite={auth["shared"].pk}'):
+        response = c.get(path)
+        header = response.content.decode().split('<header class="top">')[1].split("</header>")[0]
+        assert "WashDay" in header
+        assert auth["shop"].name not in header
+        assert "img/app-icon.svg" in header
+    assert escape(auth["shop"].name).encode() in owner_client(auth).get("/owner/").content
+    staff, _ = staff_client(auth)
+    assert escape(auth["shop"].name).encode() in staff.get("/jobs/").content
+
+
+def test_owner_can_upload_replace_and_clear_shop_logo(auth, settings, tmp_path):
+    from io import BytesIO
+    from PIL import Image
+    from django.core.files.uploadedfile import SimpleUploadedFile
+    from jobs.services import create_job
+
+    settings.MEDIA_ROOT = tmp_path
+    c = owner_client(auth)
+
+    def logo():
+        image = BytesIO()
+        Image.new("RGB", (40, 40), "blue").save(image, format="PNG")
+        return SimpleUploadedFile("logo.png", image.getvalue(), content_type="image/png")
+
+    assert c.get("/owner/settings/").status_code == 200
+    assert c.post("/owner/settings/", {"name": "My Laundry", "logo": logo()}).status_code == 302
+    shop = auth["shop"]
+    shop.refresh_from_db()
+    first_url = shop.logo.url
+    assert shop.logo.name.startswith(f"shops/{shop.pk}/logos/")
+    assert shop.logo.storage.exists(shop.logo.name)
+    assert first_url.encode() in c.get("/owner/").content
+    staff, _ = staff_client(auth)
+    assert first_url.encode() in staff.get("/jobs/").content
+    job, _ = create_job(job_data(auth), auth["branch"], auth["staff"])
+    assert first_url.encode() in staff.get(f"/jobs/{job.number}/").content
+    assert b"multipart/form-data" in c.get("/owner/settings/").content
+    assert c.post("/owner/settings/", {"name": "My Laundry", "logo": logo()}).status_code == 302
+    shop.refresh_from_db()
+    assert shop.logo.url != first_url
+    invalid = SimpleUploadedFile("bad.png", b"not an image", content_type="image/png")
+    assert c.post("/owner/settings/", {"name": "My Laundry", "logo": invalid}).status_code == 422
+    shop.refresh_from_db()
+    assert shop.logo
+    assert c.post("/owner/settings/", {"name": "My Laundry", "logo-clear": "on"}).status_code == 302
+    shop.refresh_from_db()
+    assert not shop.logo
+    assert b"img/app-icon.svg" in c.get("/owner/").content
+    assert Client().post("/owner/settings/", {"name": "Intruder"}).url == "/owner/login/"
+    assert staff.post("/owner/settings/", {"name": "Intruder"}).url == "/owner/login/"
+    shop.refresh_from_db()
+    assert shop.name == "My Laundry"
+
+
+def test_existing_static_shop_logos_remain_usable(auth):
+    shop = auth["shop"]
+    shop.logo = "img/bula-banlaw.svg"
+    shop.save(update_fields=["logo"])
+    assert shop.logo_url == "/static/img/bula-banlaw.svg"
+    assert b'/static/img/bula-banlaw.svg' in owner_client(auth).get("/owner/").content
+
+
 def staff_client(a, kind="shared"):
     d = a[kind]
     code, _ = issue_code(d)

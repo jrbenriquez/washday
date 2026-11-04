@@ -8,7 +8,7 @@ OUT = OUT / os.environ.get("EVIDENCE_RUN", "latest")
 OUT.mkdir(parents=True, exist_ok=True)
 with sync_playwright() as p:
     browser = p.chromium.launch(
-        executable_path="/usr/bin/chromium", args=["--no-sandbox"]
+        executable_path=os.environ.get("CHROMIUM_PATH"), args=["--no-sandbox"]
     )
     ctx = browser.new_context()
     page = ctx.new_page()
@@ -24,7 +24,7 @@ with sync_playwright() as p:
     page.goto("http://127.0.0.1:8000/jobs/")
     card = page.locator(f'[data-job="{number}"]')
     assert "Received" in card.locator("xpath=..").locator("h3").inner_text()
-    card.get_by_role("button", name="Next · Ready").click()
+    card.get_by_role("button", name=f"Move job {number} to Ready").click()
     page.wait_for_url("**/jobs/")
     assert (
         "Ready"
@@ -53,11 +53,11 @@ with sync_playwright() as p:
     page.get_by_role("button", name="Save stage").click()
     page.wait_for_url("**/jobs/")
     page.locator(f'[data-job="{number}"]').get_by_role(
-        "button", name="Next · Ready"
+        "button", name=f"Move job {number} to Ready"
     ).click()
     page.wait_for_url("**/jobs/")
     page.locator(f'[data-job="{number}"]').get_by_role(
-        "link", name="Claim", exact=True
+        "link", name="Claim & pay", exact=True
     ).click()
     page.get_by_label("Payment method").select_option("gcash")
     page.get_by_label("GCash reference (optional)").fill("CLAIM-BROWSER")

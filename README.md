@@ -104,6 +104,8 @@ Open [http://localhost:8000/owner/login/](http://localhost:8000/owner/login/) an
 
 In **Access and devices**:
 
+Open **Shop settings** in the owner header to edit the shop name and upload or clear a logo (PNG, JPEG or WebP, up to 2 MB). Shop branding appears on owner/staff headers and claim stubs once a shop is in context. Signed-out screens use WashDay and its generic icon. Uploaded files live in the Git-ignored `media/` directory; include this directory in backups and serve `/media/` through the web server when deploying. Django serves these files during local DEBUG development.
+
 1. Set the DEMO branch's opening/closing times. A personal shift needs a configured closing time and ends at the next closing time.
 2. Add a staff member and enter a four-digit PIN, or leave it blank to generate one. The PIN is shown once and stored hashed. PINs are unique among active staff in a branch.
 3. Create a **shared counter tablet** or **personal staff phone**. You receive an installation QR/link and a separate six-digit code. The code is shown once, expires after 15 minutes, and can be used once.
@@ -135,7 +137,7 @@ Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
 
 `seed_demo` creates the labelled development shop, branch, staff, catalog, machines, stock, and supply recipes. These are sample operating values; the actual brand and the prescribed Rush fee are retained. It can be rerun without duplicating the fixture records or refilling existing stock. Do not use it to provision a real branch.
 
-`run_demo_server.py` selects that fixture branch and staff through server-side environment variables, then starts Django on `127.0.0.1:8000`. It deliberately runs without automatic reload: restart it after changing Python or templates. Alternatively, `seed_demo` prints a command with `ENABLE_DEV_BRANCH_SCOPE=1`, `DEV_BRANCH_ID`, and `DEV_STAFF_ID` for Django's normal development server with reload.
+`run_demo_server.py` selects that fixture branch and staff through server-side environment variables, then starts Django on `127.0.0.1:8000` with automatic reload for local development. Alternatively, `seed_demo` prints the equivalent command with `ENABLE_DEV_BRANCH_SCOPE=1`, `DEV_BRANCH_ID`, and `DEV_STAFF_ID`.
 
 No login is required for this **explicit fixture bypass**; keep it on loopback. Do not use `run_demo_server.py` to test authentication. Start the normal development server using the Google setup above instead. With the bypass off, staff routes require an enrolled device even when an owner is signed in.
 

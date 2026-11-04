@@ -1,4 +1,6 @@
 from django.urls import path, include, re_path
+from django.conf import settings
+from django.conf.urls.static import static
 from people import views as people
 from owner import views as owner
 from jobs import views, board, history
@@ -41,3 +43,5 @@ urlpatterns = [
     path("jobs/<int:number>/", views.stub, name="stub"),
     path("theme/", views.theme, name="theme"),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

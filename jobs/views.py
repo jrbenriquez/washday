@@ -7,6 +7,7 @@ from django.views.decorators.http import require_GET, require_POST, require_http
 from django.db.models import Q
 from catalog.models import Service, AddOn, Fee, PieceVariant
 from customers.models import Customer
+from core.models import Settings
 from .models import Job
 from .services import quote, create_job
 
@@ -19,8 +20,13 @@ def require_branch(request):
 
 def form_context(request, data=None):
     require_branch(request)
+    services = list(Service.objects.filter(archived_at=None))
+    if data is None:
+        first_service = services[0] if services else None
+        data = {"service": str(first_service.id)} if first_service else {}
     return {
-        "services": Service.objects.filter(archived_at=None),
+        "services": services,
+        "intake_settings": Settings.objects.get(shop_id=request.branch.shop_id),
         "addons": AddOn.objects.filter(archived_at=None),
         "fees": Fee.objects.filter(archived_at=None),
         "variants": PieceVariant.objects.filter(
