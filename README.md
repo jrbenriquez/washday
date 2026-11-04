@@ -326,3 +326,12 @@ See [sync and migration](outcomes/washday-mvp/washday-mvp-sync.md), [hub operati
 The [PRD](reference/docs/PRD.md) defines behavior; the [prototype](reference/prototype/index.html) defines presentation, subject to accepted decisions. Thermal printing, customer notifications, official receipts, public sign-up/billing, loyalty, and customer tracking are outside version 1.
 
 See [authentication decisions](docs/authentication.md) for the accepted flows and the scope of this implementation.
+
+## Google Drive exports
+
+Owners can connect their own Drive, choose or create a destination folder, and
+export all branches on a recurring local-time schedule. Dated folders contain
+daily activity CSVs and a full business-data JSON snapshot. A manual test export
+uses the same path while the schedule is paused. See the [setup and testing
+guide](docs/google-drive-exports.md) for Google OAuth/Picker configuration, the
+token encryption key, and the `run_drive_exports` command to schedule every minute.

@@ -1,8 +1,9 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 from . import workspace, reports
 
 urlpatterns = [
+    path("drive-exports/", include("backups.urls")),
     path("", views.home, name="owner_home"),
     path("dashboard/", workspace.dashboard, name="owner_dashboard"),
     path("theme/", workspace.theme, name="owner_theme"),

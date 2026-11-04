@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "supplies",
     "events",
     "owner",
+    "backups",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -94,6 +95,13 @@ AUTHENTICATION_BACKENDS = [
 ]
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_DRIVE_CLIENT_ID = os.environ.get("GOOGLE_DRIVE_CLIENT_ID", GOOGLE_CLIENT_ID)
+GOOGLE_DRIVE_CLIENT_SECRET = os.environ.get("GOOGLE_DRIVE_CLIENT_SECRET", GOOGLE_CLIENT_SECRET)
+GOOGLE_DRIVE_REDIRECT_URI = os.environ.get("GOOGLE_DRIVE_REDIRECT_URI", "")
+GOOGLE_DRIVE_PICKER_API_KEY = os.environ.get("GOOGLE_DRIVE_PICKER_API_KEY", "")
+GOOGLE_DRIVE_APP_ID = os.environ.get("GOOGLE_DRIVE_APP_ID", "")
+# A separate stable Fernet key, shared by the web app and scheduled worker.
+GOOGLE_DRIVE_TOKEN_KEY = os.environ.get("GOOGLE_DRIVE_TOKEN_KEY", "")
 GOOGLE_OAUTH_CONFIGURED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
 SOCIALACCOUNT_PROVIDERS = {
     "google": {"SCOPE": ["openid", "email", "profile"], "OAUTH_PKCE_ENABLED": True}

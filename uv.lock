@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.13"
 
 [[package]]
@@ -682,10 +682,12 @@ name = "washday"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "cryptography" },
     { name = "django" },
     { name = "django-allauth", extra = ["socialaccount"] },
     { name = "pillow" },
     { name = "psycopg", extra = ["binary"] },
+    { name = "requests" },
 ]
 
 [package.dev-dependencies]
@@ -697,10 +699,12 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cryptography", specifier = ">=50,<51" },
     { name = "django", specifier = ">=6.0,<6.1" },
     { name = "django-allauth", extras = ["socialaccount"], specifier = ">=65,<66" },
     { name = "pillow", specifier = ">=12,<13" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.2,<4" },
+    { name = "requests", specifier = ">=2.32,<3" },
 ]
 
 [package.metadata.requires-dev]
