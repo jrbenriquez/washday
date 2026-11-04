@@ -27,6 +27,11 @@ concurrency. Apply its local execution and evidence rules to single outcomes too
    decisions. Read full outcomes and dependencies; validate identities and the
    graph. Preserve criteria; resolve material ambiguity without inventing a spec.
    Do not silently add external prerequisites to the assignment.
+   For UI work, inspect supplied prototypes in a browser and establish their visual
+   authority using the handoff contract's visual acceptance policy. A sole supplied
+   visual reference is the design baseline, not optional inspiration. Carry its
+   screen/route/state mapping and comparison requirements into phase assignments;
+   flag missing outcome coverage without silently changing original criteria.
 2. Inspect default/current branches, dirty work, and saved work identity. Establish
    or recover the group branch and durable checkpoint per the group reference.
 3. Validate or initialize project-owned per-outcome state using the state reference.
@@ -41,6 +46,12 @@ concurrency. Apply its local execution and evidence rules to single outcomes too
 6. Save and validate each handoff, then checkpoint its consumption and next
    action. Use independent `verify` results for criterion verdicts. Reconsider
    prior passes when subsequent changes could invalidate their evidence.
+   For affected UI criteria, require paired, inspected prototype/application
+   evidence and a visual comparison matrix, including accepted deviations and
+   untested states. Functional passes, matching tokens and no-overflow checks
+   cannot substitute. Missing comparisons are INCONCLUSIVE; observed unaccepted
+   visual mismatches are FAIL. Enforce this gate before dependent work/completion;
+   shared shell/style/asset changes queue affected screen comparisons.
 7. Route FAIL or INCONCLUSIVE verification through `recalibrate` before another
    implementation. Follow its scoped adjustment or diagnostic action subject to
    the state rules, budget, and no-progress stopping condition.
