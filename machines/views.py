@@ -78,6 +78,12 @@ def grid(request):
         "machines/grid.html",
         {
             "tiles": tiles(branch),
+            "loads_today": Load.objects.filter(
+                branch=branch, started_at__date=timezone.localdate()
+            ).count(),
+            "check_minutes": Settings.objects.get(
+                shop_id=branch.shop_id
+            ).check_after_min,
             "self_services": Service.objects.filter(archived_at=None, mode="load"),
         },
     )

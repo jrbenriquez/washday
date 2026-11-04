@@ -1,0 +1,32 @@
+# Prototype parity: 4 November 2026
+
+Compared against `reference/prototype/index.html`, starting from main `7e06b91`. The [route map](prototype-route-map.md) records the current destinations and differences by prototype ID.
+
+## Implemented
+
+- Owner Dashboard: branch filters, actual collection/load/received/Ready KPIs, category-coloured machine-load bars, low-stock/count/overdue/request alerts, stock-count recency/history, device last contact, and a working date/branch-filtered Excel collections report.
+- Owner Live branches: branch selector, simple/full modes, running/check/in-progress/Ready KPIs, read-only machine portholes and job boards, server timestamp, and 20-second refresh.
+- Owner Staff: branch filters, avatar/access/shift cards, creation, PIN reset, activation, deactivation and branch transfer. Transfers require a fresh PIN unique in the destination branch and end personal shifts.
+- Owner Machines: categories plus branch cards, creation/editing, out-of-service status, archive/restore. Active loads prevent removal or branch/category/service-state changes.
+- Owner Settings: minimum kilos, kilos/load, check threshold, staff supply permission, branch simple mode, PIN actions, theme, branding, stage ordering/machine/auto-next/simple settings, services, fees, add-ons, supply recipes, supplies, pieces and sizes. Inserting/restoring stages keeps a distinct order with first/Ready endpoints. Existing job price lines and historical ledgers remain unchanged.
+- Shared shell: prototype segmented owner tabs, contextual Manila clock, theme controls, Ready/check badges and browser connectivity indication.
+- Staff intake: next-number tags, customer identity/reset, per-load hint and create-button state. Native inputs and server pricing remain authoritative.
+- Jobs: stage chips, payment/status/price/notes hierarchy, event-kind timeline colours, and dialogs for stage correction, claim, stub and history.
+- Supplies: stock table beside ledger, receive/request sections, full-width count table with live variance, count history and severity badges. Machines gain the daily-load summary and state legend.
+- Dialogs: native dialog overlay, close/Escape/focus restoration, actual server POST destinations, direct-route fallback and print handling. Owner catalog links open the same form as either a dialog or a standalone page.
+
+## Preserved decisions and remaining differences
+
+Authentication still separates owners from enrolled branch devices. There is no unauthenticated role switch or arbitrary staff branch selector. Machine starts remain driven by the Jobs board, as recorded in the [accepted decision](../outcomes/washday-mvp/decisions/2026-11-03-machine-start.md).
+
+The prototype's offline switch and sample-data reset are simulations. Hub replication, queued writes and compensating Undo remain separate work. Device last contact is labelled as contact history; it is not presented as a successful sync. The Excel export contains daily collections, including self-service, and does not claim to implement a prescribed BIR template that was not supplied.
+
+PIN entry, machine pickers, device enrolment and one-time PIN/code display retain their existing secure page flows. Machine unload remains an explicit button. Staff receipt/request forms remain visible sections; catalog edits use dialogs instead of inline autosave. Stock-count history uses a paginated owner page. Customer creation retains the existing name/phone fields alongside search/selection/reset. Recipe uses are edited in a separate table rather than inline chips. Toasts do not offer Undo.
+
+## Verification
+
+- `uv run pytest -q`: **106 passed, 1 skipped**. The existing concurrency test skips on in-memory SQLite; its file-backed probe is `scripts/check_concurrency.py`. New owner tests cover actual collections, tenant isolation, CSRF, archive/restore, immutable job prices, operational validation, active loads, stage insertion/restoration, request fulfilment and branch-unique PIN transfers.
+- `uv run python manage.py check`, `uv run python manage.py makemigrations --check --dry-run`, `node --check static/js/app.js`, and `git diff --check` pass. No schema migration is required.
+- `uv run python scripts/check_prototype_parity.py`: isolated temporary database and private fixture owner session; no public owner-authentication bypass. Captures 15 pages at 360/390/1280 pixels in light/dark themes, plus reference-owner and stage-dialog screenshots. Browser checks cover no page overflow, loaded routes/themes, owner creation/archive/restore, modal Escape/focus/POST routing, stage correction/claim/payment, Excel download, theme persistence, live read-only controls, intake create state and stock-count variance. Fixtures include a running machine above the check threshold, a Ready job, count variance and an open supply request.
+
+Evidence: [browser results](../.agents/work/prototype-parity/evidence/current/browser.json), [owner dashboard](../.agents/work/prototype-parity/evidence/current/dashboard-1280-light.png), [phone machine administration](../.agents/work/prototype-parity/evidence/current/machine-admin-390-dark.png), [phone stage dialog](../.agents/work/prototype-parity/evidence/current/stage-dialog-390.png). Captures use equivalent viewports, fonts and themes; operating data intentionally differs from the prototype's hard-coded sample shop.

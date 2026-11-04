@@ -91,6 +91,12 @@ def project(branch):
 
 def annotate(event):
     p = event.payload
+    event.kind = {
+        "payment_recorded": "paid",
+        "job_claimed": "claimed",
+        "stage_overridden": "override",
+        "stage_changed": "stage",
+    }.get(event.type, "received")
     event.job_number = p.get("number")
     event.actor = (
         event.actor_staff.name
