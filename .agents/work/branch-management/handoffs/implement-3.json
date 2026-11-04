@@ -1,0 +1,29 @@
+{
+  "type": "implementation",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-05"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "static/css/app.css",
+      "summary": "Scope a two-column grid to branch editor workflow checkbox so label and help remain readable at mobile width."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "Inspect scoped selector",
+      "context": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "observation": "Four rules target branch editor checkbox only; Python/product behavior unchanged.",
+      "reference": "../../../../static/css/app.css"
+    }
+  ],
+  "assumptions": [],
+  "gaps": [
+    "New screenshots required."
+  ],
+  "blockers": [],
+  "next": "Repeat browser matrix and visually inspect mobile editor."
+}

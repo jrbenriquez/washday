@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "outcome_id": "branch-management",
+  "outcome": {
+    "reference": "assignment.md",
+    "fingerprint": "sha256:17fdab932da6ff8867d1b5636ac6b7ae9e9728252a64844ddffb83a8055df53c"
+  },
+  "phase": "blocked",
+  "step": "ready",
+  "scope": [],
+  "implementation_attempts": {
+    "started": 3,
+    "maximum": 3
+  },
+  "workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback."
+    },
+    {
+      "id": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback."
+    },
+    {
+      "id": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback."
+    },
+    {
+      "id": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback."
+    },
+    {
+      "id": "AC-05",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-3.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "reason": "Final browser matrix and mobile screenshots pass. Full regression suite has a pre-existing midnight-sensitive machine-test failure; merge gate remains unmet."
+    }
+  ],
+  "latest_handoff": {
+    "type": "recalibration",
+    "reference": "handoffs/recalibrate-3.json"
+  },
+  "latest_verification": "handoffs/verify-3.json",
+  "recalibrations": [
+    {
+      "reference": "handoffs/recalibrate-1.json",
+      "decision": "REIMPLEMENT"
+    },
+    {
+      "reference": "handoffs/recalibrate-2.json",
+      "decision": "REIMPLEMENT"
+    },
+    {
+      "reference": "handoffs/recalibrate-3.json",
+      "decision": "ESCALATE"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "attempt_limit",
+      "reason": "3 of 3 implementation attempts used. Pre-existing test clock needs correction.",
+      "next": "User approval requested to raise maximum to 4."
+    }
+  ],
+  "next": "Await budget decision; feature complete but merge gate is pending green full suite."
+}

@@ -1,0 +1,53 @@
+{
+  "type": "implementation",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "owner, templates/owner, static/css/app.css",
+      "summary": "Branches navigation and live/manage views; validated branch create/edit, locked numbering allocation, atomic settings version and audit; central hours/workflow home; preserved old live route."
+    },
+    {
+      "target": "tests/test_branch_management.py; scripts/check_branches_browser.py",
+      "summary": "Tenant, validation, atomicity, counter and navigation regressions plus isolated browser interactions/viewport checks."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "uv run pytest -q tests/test_branch_management.py tests/test_owner_workspace.py tests/test_authentication.py",
+      "context": "sha256:fcf355e781bc5c7447cdf8dad30da7ca9c5f8e979e5c92e8c465374c911d90f3",
+      "observation": "66 passed in 70.33s",
+      "reference": "../implementation-tests.txt"
+    },
+    {
+      "id": "I2",
+      "action": "manage.py check; makemigrations --check --dry-run; git diff --check",
+      "context": "sha256:fcf355e781bc5c7447cdf8dad30da7ca9c5f8e979e5c92e8c465374c911d90f3",
+      "observation": "No issues; no model changes; no whitespace errors.",
+      "reference": "Inline observation"
+    },
+    {
+      "id": "I3",
+      "action": "Initial browser harness execution",
+      "context": "Local fixture server and Chromium",
+      "observation": "Harness timed out using exact label Name because Django includes a trailing colon. Changed harness to select labelled field IDs; no product defect established.",
+      "reference": "../browser.txt"
+    }
+  ],
+  "assumptions": [
+    "The accepted chat proposal is the scope; this does not execute or certify all original MVP outcomes."
+  ],
+  "gaps": [
+    "Browser verification is in progress. PostgreSQL concurrency and physical devices are not qualified by SQLite/Chromium."
+  ],
+  "blockers": [],
+  "next": "Independently review branch ownership/locking and validate original AC-01 through AC-05 with full regressions and browser evidence."
+}

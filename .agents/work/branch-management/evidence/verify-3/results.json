@@ -1,0 +1,183 @@
+{
+  "status": "PASS",
+  "pages": [
+    {
+      "page": "manage",
+      "width": 360,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "manage",
+      "width": 360,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "manage",
+      "width": 1280,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "manage",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "new",
+      "width": 360,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "new",
+      "width": 360,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "new",
+      "width": 1280,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "new",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "edit",
+      "width": 360,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "edit",
+      "width": 360,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "edit",
+      "width": 1280,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "edit",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "live",
+      "width": 360,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "live",
+      "width": 360,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "live",
+      "width": 1280,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "live",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "live-legacy",
+      "width": 360,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "live-legacy",
+      "width": 360,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "live-legacy",
+      "width": 1280,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "live-legacy",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 360,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 360,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 1280,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "settings",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "access",
+      "width": 360,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "access",
+      "width": 360,
+      "theme": "dark",
+      "overflow": false
+    },
+    {
+      "page": "access",
+      "width": 1280,
+      "theme": "light",
+      "overflow": false
+    },
+    {
+      "page": "access",
+      "width": 1280,
+      "theme": "dark",
+      "overflow": false
+    }
+  ],
+  "interactions": [
+    "navigation",
+    "create",
+    "edit",
+    "live shortcut",
+    "duplicate validation",
+    "read-only board",
+    "20-second refresh"
+  ],
+  "page_errors": []
+}

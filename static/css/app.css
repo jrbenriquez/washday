@@ -446,3 +446,17 @@ a.btn{text-decoration:none}
 @media print{body:has(.app-dialog[open])>.shell,body:has(.app-dialog[open])>.auth-main{display:none!important}.app-dialog[open]{position:static;width:auto;max-height:none;overflow:visible;box-shadow:none}.app-dialog .dialog-close{display:none}.app-dialog .dialog-content{padding:0}}
 .machine-admin-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .machine-admin-row>span:first-child{flex:1;min-width:80px}.machine-admin-row small{display:block}.machine-admin-row .head-actions{flex-wrap:wrap}
+
+.branch-tabs,.branch-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.branch-tabs{margin-bottom:20px}
+.branch-tabs .btn[aria-current=page]{background:var(--ink);color:var(--surface)}
+.branch-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:16px}
+.branch-card{min-width:0;overflow-wrap:anywhere}
+.branch-card .row{flex-wrap:wrap}
+.branch-editor{max-width:680px}
+.branch-editor .errorlist{color:var(--crit);padding-left:20px}
+.branch-editor .helptext{color:var(--muted);font-size:14px}
+.branch-editor .owner-form>div:has(>input[type=checkbox]){display:grid;grid-template-columns:24px minmax(0,1fr);align-items:start;gap:6px 10px}
+.branch-editor .owner-form>div:has(>input[type=checkbox])>label{grid-column:2;grid-row:1}
+.branch-editor .owner-form>div>input[type=checkbox]{grid-column:1;grid-row:1;width:22px;height:22px;margin-top:2px}
+.branch-editor .owner-form>div:has(>input[type=checkbox])>.helptext{grid-column:2;grid-row:2}

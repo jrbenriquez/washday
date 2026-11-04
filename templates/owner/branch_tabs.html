@@ -1,0 +1,4 @@
+<nav class="branch-tabs" aria-label="Branch views">
+  <a class="btn {% if branch_view == 'live' %}ink{% endif %}" href="{% url 'owner_branches' %}{% if selected_branch %}?branch={{ selected_branch.id }}{% endif %}" {% if branch_view == 'live' %}aria-current="page"{% endif %}>Live Branches</a>
+  <a class="btn {% if branch_view == 'manage' %}ink{% endif %}" href="{% url 'owner_branch_manage' %}" {% if branch_view == 'manage' %}aria-current="page"{% endif %}>Manage Branches</a>
+</nav>
