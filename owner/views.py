@@ -7,11 +7,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from core.models import Branch, Settings
 from people.models import Device, DeviceSetupCode, Staff
 from people.services import save_staff, issue_code, revoke_device, audit
-from .forms import StaffForm, DeviceForm, HoursForm, PolicyForm
+from .forms import StaffForm, DeviceForm, HoursForm, PolicyForm, ShopBrandingForm
 
 
 def owner(request):
@@ -80,6 +80,27 @@ def login(request):
 @never_cache
 def home(request):
     return render(request, "owner/home.html", dashboard_context(request))
+
+
+@require_http_methods(["GET", "POST"])
+@never_cache
+def shop_settings(request):
+    own = owner(request)
+    form = ShopBrandingForm(
+        request.POST if request.method == "POST" else None,
+        request.FILES if request.method == "POST" else None,
+        instance=own.shop,
+    )
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Shop branding saved.")
+        return redirect("owner_shop_settings")
+    return render(
+        request,
+        "owner/settings.html",
+        {"branding_form": form},
+        status=422 if form.errors else 200,
+    )
 
 
 @require_POST

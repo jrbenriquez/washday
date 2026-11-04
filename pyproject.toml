@@ -5,6 +5,7 @@ requires-python = ">=3.13"
 dependencies = [
     "django>=6.0,<6.1",
     "django-allauth[socialaccount]>=65,<66",
+    "pillow>=12,<13",
     "psycopg[binary]>=3.2,<4",
 ]
 

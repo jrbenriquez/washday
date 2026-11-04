@@ -1,0 +1,5 @@
+{% load static %}
+<div class="brand">
+  {% if shop.logo_url %}<img src="{{ shop.logo_url }}" alt="{{ shop.name }} logo">{% else %}<img src="{% static 'img/app-icon.svg' %}" alt="WashDay icon">{% endif %}
+  <div><b>{% if shop %}{{ shop.name }}{% else %}WashDay{% endif %}</b>{% if branch %}<small>{{ branch.name }}</small>{% endif %}</div>
+</div>

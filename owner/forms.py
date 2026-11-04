@@ -1,4 +1,29 @@
 from django import forms
+from core.models import Shop
+
+
+class ShopBrandingForm(forms.ModelForm):
+    class Meta:
+        model = Shop
+        fields = ["name", "logo"]
+        labels = {"name": "Shop name", "logo": "Shop logo"}
+        widgets = {
+            "logo": forms.ClearableFileInput(
+                attrs={"accept": "image/png,image/jpeg,image/webp"}
+            )
+        }
+        help_texts = {
+            "logo": "PNG, JPEG or WebP, up to 2 MB. Leave empty to use the WashDay icon."
+        }
+
+    def clean_logo(self):
+        logo = self.cleaned_data.get("logo")
+        if logo and hasattr(logo, "image"):
+            if logo.size > 2 * 1024 * 1024:
+                raise forms.ValidationError("Choose a logo smaller than 2 MB.")
+            if logo.image.format not in ("PNG", "JPEG", "WEBP"):
+                raise forms.ValidationError("Choose a PNG, JPEG or WebP image.")
+        return logo
 
 
 class StaffForm(forms.Form):

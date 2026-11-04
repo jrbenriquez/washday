@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 224" role="img" aria-label="Bula and Banlaw Laundry logo">
+  <defs><clipPath id="hexIn"><polygon points="100,26 176,70 176,154 100,198 24,154 24,70"/></clipPath></defs>
+  <polygon points="100,4 196,59 196,165 100,220 4,165 4,59" fill="#FFFFFF"/>
+  <polygon points="100,13 188,63 188,161 100,211 12,161 12,63" fill="#FFFFFF" stroke="#4AA8E0" stroke-width="7" stroke-linejoin="round"/>
+  <polygon points="100,22 180,68 180,156 100,202 20,156 20,68" fill="#FFFFFF" stroke="#2537A0" stroke-width="6" stroke-linejoin="round"/>
+  <g clip-path="url(#hexIn)"><rect x="0" y="136" width="200" height="90" fill="#19B5AF"/></g>
+  <text textLength="54" lengthAdjust="spacingAndGlyphs" x="100" y="45" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="600" font-size="11" letter-spacing="2" fill="#16246A">EST 2020</text>
+  <rect x="74" y="52" width="52" height="64" rx="7" fill="#2537A0"/>
+  <rect x="81" y="57" width="20" height="3" rx="1.5" fill="#FFFFFF"/>
+  <circle cx="113" cy="59" r="2.6" fill="#FFFFFF"/>
+  <circle cx="120" cy="59" r="2.6" fill="#FFFFFF"/>
+  <circle cx="100" cy="88" r="18" fill="#FFFFFF"/>
+  <circle cx="100" cy="88" r="14" fill="#2537A0"/>
+  <path d="M87 89c4-3 7 2 11 0s6-4 10-1 5 2 6 1v1a14 14 0 0 1-27 0z" fill="#FFFFFF"/>
+  <g fill="none" stroke="#A9B4C8" stroke-width="2"><circle cx="50" cy="66" r="6"/><circle cx="58" cy="108" r="7"/><circle cx="148" cy="66" r="7"/><circle cx="152" cy="108" r="6"/><circle cx="42" cy="118" r="4"/><circle cx="160" cy="118" r="4"/></g>
+  <text textLength="40" lengthAdjust="spacingAndGlyphs" x="47" y="93" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="17" fill="#2537A0">QUICK</text>
+  <text textLength="40" lengthAdjust="spacingAndGlyphs" x="153" y="93" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="17" fill="#2537A0">CLEAN</text>
+  <text textLength="132" lengthAdjust="spacingAndGlyphs" x="100" y="166" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="27" fill="#2537A0">BULA &amp; BANLAW</text>
+  <text textLength="66" lengthAdjust="spacingAndGlyphs" x="100" y="188" text-anchor="middle" font-family="Saira Condensed, Arial Narrow, sans-serif" font-weight="800" font-size="17" letter-spacing="2" fill="#2537A0">LAUNDRY</text>
+</svg>

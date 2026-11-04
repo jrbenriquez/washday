@@ -45,6 +45,7 @@ class ShopMiddleware:
                 "/device/setup/",
                 "/device/manifest.webmanifest",
                 "/static/",
+                settings.MEDIA_URL,
             )
         ):
             with shop_context(None), device_context(None):
@@ -107,7 +108,10 @@ class ShopMiddleware:
 
 
 def context(request):
+    branch = getattr(request, "branch", None)
+    owner = getattr(request, "owner", None)
     return {
+        "shop": branch.shop if branch else owner.shop if owner else None,
         "branch": getattr(request, "branch", None),
         "owner": getattr(request, "owner", None),
         "device": getattr(request, "device", None),
