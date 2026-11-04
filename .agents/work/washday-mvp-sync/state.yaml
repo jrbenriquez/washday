@@ -12,7 +12,7 @@
     "started": 1,
     "maximum": 3
   },
-  "workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337; manifest:.agents/work/undo-offline/final-source-manifest.json",
+  "workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a; manifest:.agents/work/undo-offline/integrated-main-manifest.json",
   "criteria": [
     {
       "id": "AC-01",
@@ -23,9 +23,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
@@ -37,9 +38,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
@@ -51,9 +53,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
@@ -65,9 +68,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
@@ -79,9 +83,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Protocol behavior and failure boundaries verified by integrated tests."
     },
     {
@@ -93,9 +98,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Local regressions passed; native arm64 must be checked in PR CI."
     },
     {
@@ -107,9 +113,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Capacity and protocol reconnect passed; physical four-hour router outage unavailable."
     },
     {
@@ -121,9 +128,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Owner stale/as-of and reconnect passed; physical Wi-Fi latency and exhaustive new merge-form visual coverage remain."
     },
     {
@@ -135,9 +143,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Full-day personal/shared-device home dry run unavailable."
     }
   ],
@@ -146,7 +155,7 @@
     "reference": "../undo-offline/handoffs/sync-implement-1.json"
   },
   "latest_verification": {
-    "reference": "../undo-offline/handoffs/sync-verify.json",
+    "reference": "../undo-offline/handoffs/sync-verify-main.json",
     "status": "INCONCLUSIVE"
   },
   "recalibrations": [

@@ -12,7 +12,7 @@
     "started": 2,
     "maximum": 3
   },
-  "workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337; manifest:.agents/work/undo-offline/final-source-manifest.json",
+  "workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a; manifest:.agents/work/undo-offline/integrated-main-manifest.json",
   "criteria": [
     {
       "id": "AC-01",
@@ -58,9 +58,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Integrated compensation, security, history/financial and visual regressions passed; see verification.md."
     },
     {
@@ -79,9 +80,10 @@
         "V3",
         "V4",
         "V5",
-        "V6"
+        "V6",
+        "V8"
       ],
-      "verified_workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "verified_workspace": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a",
       "reason": "Integrated compensation, security, history/financial and visual regressions passed; see verification.md."
     }
   ],
@@ -90,7 +92,7 @@
     "reference": "../undo-offline/handoffs/undo-implement-2.json"
   },
   "latest_verification": {
-    "reference": "../undo-offline/handoffs/people-verify.json",
+    "reference": "../undo-offline/handoffs/people-verify-main.json",
     "status": "PASS"
   },
   "recalibrations": [],

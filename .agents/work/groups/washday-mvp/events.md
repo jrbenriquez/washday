@@ -97,3 +97,5 @@ Final installation review: normal PATH finds user-local Xvfb; npx cypress versio
 2026-11-04: User-authorized Undo/offline slice on codex/outcomes/undo-offline from fetched main 0db38c9. No active workers; same /root coordinator retains canonical state ownership. New assignment .agents/work/undo-offline/assignment.md. Original physical gates and budgets preserved.
 
 2026-11-04: Undo/offline scoped integrated verification: SQLite136, PostgreSQL136, Cypress3 specs in each role, actual HTTP outage/reconnect and fenced roundtrip pass. Paired changed-component visuals inspected. Source identity cf4b3ad0 (final-source-manifest). Original physical gates remain inconclusive, no attempt reset. Preparing authorized PR; no deployment/merge.
+
+2026-11-04: PR11 opened/attached. Integrated newly landed main PR8 cleanly;148 tests and configuration checks pass. Applicability of unchanged protocol and visual evidence reviewed. Native/database/browser CI queued; physical gates unchanged.

@@ -146,7 +146,7 @@
       "commit": "ab38ab21629aa4caf4abc8c184cc5aedfd2051fc",
       "freshness": "Merged README main used as authentication baseline."
     },
-    "integrated": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337; manifest:.agents/work/undo-offline/final-source-manifest.json"
+    "integrated": "sha256:3cf050c61f11981430bd7615c4b3e325b08d689b40cae4cc72bb68ce50cc9f4a; manifest:.agents/work/undo-offline/integrated-main-manifest.json"
   },
   "coordinator": "current Codex chat /root; sequential",
   "active": [],
@@ -209,11 +209,14 @@
   ],
   "pending_regressions": [],
   "schedule_log": ".agents/work/groups/washday-mvp/events.md",
-  "next": "Finish user-authorized resilience PR and check CI; original deployment/pilot/hardware gates remain pending.",
+  "next": "PR11 open and source integrated with latest main;148 tests pass locally. Inspect expanded native/database/browser CI. Original physical rollout gates remain pending.",
   "resilience_assignment": {
     "branch": "codex/outcomes/undo-offline",
     "base": "0db38c9ca8b7b80d2a5b2e82b15075a0d33ed492",
     "verification": ".agents/work/undo-offline/verification.md",
-    "status": "Software implemented and locally verified; original physical acceptance remains inconclusive."
+    "status": "Software implemented and locally verified; original physical acceptance remains inconclusive.",
+    "merged_main": "312eb367506c76b12415b7674c3c12a0336ae734",
+    "pull_request": "https://github.com/jrbenriquez/washday/pull/11",
+    "integration_verification": ".agents/work/undo-offline/integrated-main-verification.md"
   }
 }
