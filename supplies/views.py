@@ -1,3 +1,4 @@
+from events.feedback import success as reversible_success
 from people.guards import pin_guard
 from decimal import Decimal
 from django.shortcuts import render, redirect
@@ -6,7 +7,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.utils import timezone
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from catalog.models import SupplyType
 from core.models import Settings
 from jobs.views import require_branch
@@ -16,18 +17,34 @@ from .services import balance, receive, count_stock, request_supply, add_type
 
 def context(request):
     b = require_branch(request)
+    from events.undo import reversed_counts
+    from catalog.supply_identity import identities
+
+    reversed_ids = reversed_counts(b)
     rows = []
     for supply in SupplyType.objects.filter(archived_at=None).order_by("name"):
         amount = balance(b, supply)
         used = StockEntry.objects.filter(
             branch=b,
-            supply_type=supply,
-            qty__lt=0,
+            supply_type_id__in=identities(supply),
             at__date=timezone.localdate(),
-            reason__in=["washer_load", "packed_job", "addon"],
+        ).filter(
+            Q(reason__in=["washer_load", "packed_job", "packed_job_reapplied", "addon"])
+            | Q(
+                reason="undo",
+                reverses__reason__in=[
+                    "washer_load",
+                    "packed_job",
+                    "packed_job_reapplied",
+                    "addon",
+                ],
+            )
         ).aggregate(total=Sum("qty"))["total"] or Decimal("0")
         latest = (
-            StockCountLine.objects.filter(count__branch=b, supply_type=supply)
+            StockCountLine.objects.filter(
+                count__branch=b, supply_type_id__in=identities(supply)
+            )
+            .exclude(count_id__in=reversed_ids)
             .order_by("-count__at")
             .first()
         )
@@ -55,6 +72,14 @@ def context(request):
         .select_related("supply_type", "job")
         .order_by("-at", "-id")
     )
+    counts = list(
+        StockCount.objects.filter(branch=b)
+        .select_related("by", "device")
+        .prefetch_related("lines__supply_type")
+        .order_by("-at")[:10]
+    )
+    for count in counts:
+        count.was_undone = str(count.pk) in reversed_ids
     return {
         "stocks": rows,
         "entries": Paginator(entries, 10).get_page(request.GET.get("page")),
@@ -62,9 +87,7 @@ def context(request):
         "requests": SupplyRequest.objects.filter(branch=b, status="open").order_by(
             "-created_at"
         ),
-        "counts": StockCount.objects.filter(branch=b)
-        .select_related("by")
-        .order_by("-at")[:10],
+        "counts": counts,
     }
 
 
@@ -101,7 +124,7 @@ def action(request, kind):
             message = "Supply request sent to the owner."
         else:
             raise ValidationError("Unknown supply action.")
-        messages.success(request, message)
+        reversible_success(request, message)
         return redirect("supplies")
     except ValidationError as e:
         c = context(request)
@@ -118,7 +141,7 @@ def new_type(request):
             return gate
         try:
             add_type(b, request.POST, request.staff)
-            messages.success(request, "Supply type added.")
+            reversible_success(request, "Supply type added.")
             return redirect("supplies")
         except ValidationError as e:
             return render(

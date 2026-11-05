@@ -7,6 +7,7 @@ from core.tenancy import shop_context
 from people.models import Device, Staff
 from people.context import device_context
 from people.services import authenticate_device, current_shift
+from django.http import HttpResponseNotFound, HttpResponse
 
 
 class ShopMiddleware:
@@ -20,6 +21,10 @@ class ShopMiddleware:
         request.shift = None
         request.owner = None
         request.dev_scope = False
+        if settings.APP_ROLE == "hub" and request.path.startswith(
+            ("/owner/", "/accounts/")
+        ):
+            return HttpResponseNotFound()
         request.sensitive_post_parameters = ("pin", "code")
         if request.user.is_authenticated:
             request.owner = (
@@ -41,6 +46,8 @@ class ShopMiddleware:
         if request.path.startswith(
             (
                 "/accounts/",
+                "/sync/",
+                "/health/",
                 "/device/start/",
                 "/device/setup/",
                 "/device/manifest.webmanifest",
@@ -53,6 +60,17 @@ class ShopMiddleware:
         token = request.COOKIES.get(settings.DEVICE_COOKIE_NAME, "")
         device = authenticate_device(token)
         if device:
+            if settings.APP_ROLE == "hub":
+                from events.models import Replica
+
+                with shop_context(device.shop_id):
+                    if not Replica.objects.filter(
+                        branch=device.branch, writer_active=True, frozen=False
+                    ).exists():
+                        return HttpResponse(
+                            "This hub is preparing or its writer has been frozen. Use the active branch address.",
+                            status=503,
+                        )
             request.device = device
             request.branch = device.branch
             with shop_context(device.shop_id), device_context(device):
@@ -112,6 +130,25 @@ def context(request):
     owner = getattr(request, "owner", None)
     badges = {}
     if branch:
+        from events.models import Action
+
+        if getattr(request, "device", None):
+            action = (
+                Action.objects.filter(branch=branch, device=request.device)
+                .select_related("event")
+                .order_by("-event__seq")
+                .first()
+            )
+            if (
+                action
+                and not action.undone_at
+                and timezone.now() - action.created_at <= timedelta(seconds=6)
+            ):
+                badges["undo_action"] = action
+                badges["undo_message_tag"] = "undo-" + str(action.event_id)
+                badges["undo_expires"] = (
+                    action.created_at + timedelta(seconds=6)
+                ).isoformat()
         from jobs.models import Job
         from machines.models import Load
         from core.models import Settings
@@ -130,6 +167,7 @@ def context(request):
     return {
         **badges,
         "shop": branch.shop if branch else owner.shop if owner else None,
+        "serving_hub": settings.APP_ROLE == "hub",
         "branch": getattr(request, "branch", None),
         "owner": getattr(request, "owner", None),
         "device": getattr(request, "device", None),

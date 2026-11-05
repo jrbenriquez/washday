@@ -35,7 +35,7 @@ updateClock();setInterval(updateClock,30000);
 function updateConnection(){
  document.querySelectorAll('[data-connection]').forEach(el=>{
   el.classList.toggle('off',!navigator.onLine);
-  el.querySelector('[data-connection-label]').textContent=navigator.onLine?'Online':'Offline';
+  el.querySelector('[data-connection-label]').textContent=el.dataset.servingHub==='true'?(navigator.onLine?'Connected to hub':'Disconnected'):(navigator.onLine?'Online':'Offline');
  });
 }
 updateConnection();window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);
@@ -137,3 +137,6 @@ document.addEventListener('submit',async e=>{
   if(form.dataset.pending){delete form.dataset.pending;form.requestSubmit();}
  }
 });
+// The server authorizes Undo; this timer only retires its short-lived control.
+function expireUndo(){document.querySelectorAll('[data-undo-until]').forEach(form=>{if(Date.now()>=Date.parse(form.dataset.undoUntil)){form.querySelector('button').disabled=true;form.hidden=true;}});}
+expireUndo();setInterval(expireUndo,250);

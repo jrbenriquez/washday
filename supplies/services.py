@@ -1,3 +1,4 @@
+from events.journal import recorded_action
 from people.context import current_device
 from collections import defaultdict
 from decimal import Decimal
@@ -8,6 +9,7 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from django.utils import timezone
 from core.models import Branch, Settings
 from catalog.models import SupplyType, AddOnUse
+from catalog.supply_identity import resolve, identities
 from jobs.services import dec, get_active, append_event
 from .models import StockEntry, StockCount, StockCountLine, SupplyRequest
 
@@ -22,14 +24,24 @@ def qty(raw):
 
 
 def balance(branch, supply):
-    return StockEntry.objects.filter(branch=branch, supply_type=supply).aggregate(
-        total=Sum("qty")
-    )["total"] or Decimal("0")
+    return StockEntry.objects.filter(
+        branch=branch, supply_type_id__in=identities(supply)
+    ).aggregate(total=Sum("qty"))["total"] or Decimal("0")
 
 
-def record(branch, supply, amount, reason, staff, at, job=None, load=None):
+def record(
+    branch, supply, amount, reason, staff, at, job=None, load=None, reversal_of=None
+):
+    supply = resolve(supply)
     if not amount:
         return None
+    if (
+        reason == "packed_job"
+        and StockEntry.objects.filter(
+            job=job, supply_type=supply, reason=reason
+        ).exists()
+    ):
+        reason = "packed_job_reapplied"
     entry = StockEntry.objects.create(
         shop_id=branch.shop_id,
         branch=branch,
@@ -40,8 +52,10 @@ def record(branch, supply, amount, reason, staff, at, job=None, load=None):
         at=at,
         job=job,
         load=load,
+        reverses_id=reversal_of,
     )
     payload = {
+        "reverses": str(reversal_of) if reversal_of else None,
         "stock_entry": str(entry.id),
         "supply_type": str(supply.id),
         "supply": supply.name,
@@ -93,6 +107,7 @@ def deduct_packing(branch, job, staff, at):
 
 
 @transaction.atomic
+@recorded_action
 def receive(branch, supply_id, raw, staff=None):
     branch = Branch.objects.select_for_update().get(pk=branch.pk)
     supply = get_active(SupplyType, supply_id, archived_at=None)
@@ -103,6 +118,7 @@ def receive(branch, supply_id, raw, staff=None):
 
 
 @transaction.atomic
+@recorded_action
 def count_stock(branch, data, staff=None):
     branch = Branch.objects.select_for_update().get(pk=branch.pk)
     partial = str(data.get("partial", "")) == "1"
@@ -170,6 +186,7 @@ def count_stock(branch, data, staff=None):
 
 
 @transaction.atomic
+@recorded_action
 def request_supply(branch, name, note="", staff=None):
     branch = Branch.objects.select_for_update().get(pk=branch.pk)
     name = name.strip()
@@ -193,6 +210,7 @@ def request_supply(branch, name, note="", staff=None):
 
 
 @transaction.atomic
+@recorded_action
 def add_type(branch, data, staff=None):
     branch = Branch.objects.select_for_update().get(pk=branch.pk)
     if (

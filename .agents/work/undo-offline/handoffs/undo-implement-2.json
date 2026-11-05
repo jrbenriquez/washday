@@ -1,0 +1,22 @@
+{
+  "type": "implementation",
+  "outcome_id": "washday-mvp-people",
+  "criteria": [
+    "AC-06",
+    "AC-08"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "events/journal.py, events/undo.py",
+      "summary": "Device-bound six-second compare-and-set compensation with immutable events and stock reversals."
+    }
+  ],
+  "evidence": [],
+  "assumptions": [],
+  "gaps": [
+    "Integrated browser visual verification and final full regression are pending."
+  ],
+  "blockers": [],
+  "next": "Verify boundaries, financial projection, stock/load restoration and toast in integrated workspace."
+}

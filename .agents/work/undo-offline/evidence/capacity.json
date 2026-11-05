@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "fixture": "30 days \u00d7 600 envelopes/day; 1 KiB event payload plus full envelope metadata",
+  "unsent_events": 18000,
+  "journal_mode": "wal",
+  "database_bytes": 68653056,
+  "retention_evictions": 0,
+  "batch_limit": 500,
+  "physical_time_elapsed": "not a 30-day soak; deterministic capacity/retention fixture"
+}

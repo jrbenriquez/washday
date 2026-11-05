@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "databases": 2,
+  "http_servers": 2,
+  "offline_jobs": 3,
+  "collections": "630.00",
+  "event_count": 65,
+  "direct_hub_direct": "PASS",
+  "duplicate_worker": "PASS",
+  "offline_undo": "PASS",
+  "physical_router_outage": "NOT RUN",
+  "reconnect_to_owner_seconds": 1.887,
+  "cypress_roles": "direct and hub PASS"
+}

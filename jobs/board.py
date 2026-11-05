@@ -1,3 +1,4 @@
+from events.feedback import success as reversible_success
 from people.guards import pin_guard
 from datetime import timedelta
 from django.shortcuts import render, redirect, get_object_or_404
@@ -84,7 +85,7 @@ def edit(request, number):
                 request.POST.get("reason", ""),
                 request.staff,
             )
-            messages.success(request, f"Job #{number}: stage corrected.")
+            reversible_success(request, f"Job #{number}: stage corrected.")
             return redirect("board")
         except StaleAction as e:
             messages.error(request, " ".join(e.messages))
@@ -133,7 +134,7 @@ def move(request, number):
             request.POST.get("skip_reason", ""),
             request.POST.get("paper_ready") == "1",
         )
-        messages.success(request, f"Job #{number} moved to {job.status.name}.")
+        reversible_success(request, f"Job #{number} moved to {job.status.name}.")
     except StaleAction as e:
         messages.error(request, " ".join(e.messages))
     except ValidationError as e:
@@ -167,7 +168,7 @@ def release(request, number):
                 request.POST,
                 request.staff,
             )
-            messages.success(request, f"Job #{number} claimed.")
+            reversible_success(request, f"Job #{number} claimed.")
             return redirect("stub", number=number)
         except StaleAction as e:
             messages.error(request, " ".join(e.messages))

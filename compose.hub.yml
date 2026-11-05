@@ -1,0 +1,27 @@
+services:
+  web:
+    build: .
+    image: washday:local
+    restart: unless-stopped
+    env_file: .env.hub
+    environment:
+      APP_ROLE: hub
+      SQLITE_PATH: /data/washday.sqlite3
+      MEDIA_ROOT: /data/media
+    ports:
+      - "8000:8000"
+    volumes:
+      - hub-data:/data
+  sync:
+    image: washday:local
+    restart: unless-stopped
+    env_file: .env.hub
+    environment:
+      APP_ROLE: hub
+      SQLITE_PATH: /data/washday.sqlite3
+      MEDIA_ROOT: /data/media
+    command: ["python", "manage.py", "sync_hub"]
+    volumes:
+      - hub-data:/data
+volumes:
+  hub-data:

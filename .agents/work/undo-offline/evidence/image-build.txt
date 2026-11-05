@@ -1,0 +1,6 @@
+PASS: docker build --target test (shared hub/cloud base).
+Image sha256:e34fd6e9f1bf87d320782eaee36a02deb2040c2d08a7909ee44299c5e0f4af62
+Architecture linux/amd64; runtime UID10001.
+Full in-image suite: 136 passed.
+TLS verified using the session CA as an optional BuildKit secret; no CA/credential persisted.
+Native arm64 execution configured in PR CI, unavailable in the local builder.

@@ -1,0 +1,3 @@
+Cypress direct PASS
+Cypress hub PASS
+PASS: real HTTP bootstrap, offline jobs/Undo, replay-safe reconnect and fenced direct/hub/direct migration.

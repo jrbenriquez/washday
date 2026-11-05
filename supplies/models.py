@@ -4,6 +4,9 @@ from events.models import ImmutableModel
 
 
 class StockEntry(ImmutableModel):
+    reverses = models.OneToOneField(
+        "self", null=True, on_delete=models.PROTECT, related_name="reversal"
+    )
     branch = models.ForeignKey("core.Branch", on_delete=models.PROTECT)
     supply_type = models.ForeignKey("catalog.SupplyType", on_delete=models.PROTECT)
     qty = models.DecimalField(max_digits=12, decimal_places=3)

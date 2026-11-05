@@ -462,3 +462,7 @@ a.btn{text-decoration:none}
 .settings-section{min-width:0}
 .settings-section .table-wrap{position:relative}
 .set-grid .owner-editor-section{grid-column:1/-1}
+.toast:has([data-undo-until]){background:var(--ink);color:var(--surface);padding:8px 8px 8px 16px}
+.toast form{margin:0;flex:none}
+.live-note.stale{background:var(--warn-soft);color:var(--warn)}
+.live-note.stale .dot{background:var(--warn)}
