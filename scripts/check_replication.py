@@ -17,7 +17,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-OUT = ROOT / ".agents/work/undo-offline/evidence"
+OUT = Path(
+    os.environ.get(
+        "REPLICATION_EVIDENCE_DIR", ROOT / ".agents/work/undo-offline/evidence"
+    )
+)
 OUT.mkdir(parents=True, exist_ok=True)
 
 
@@ -35,6 +39,31 @@ def wait(base):
         except OSError:
             time.sleep(0.1)
     raise RuntimeError("Private fixture server did not start.")
+
+
+def settle_fonts(page):
+    # Screenshots also wait for fonts; measure the same layout they capture.
+    page.evaluate("() => document.fonts.ready.then(() => null)")
+
+
+def assert_no_horizontal_overflow(page, width, theme):
+    settle_fonts(page)
+    layout = page.evaluate("""() => ({
+        viewport: innerWidth,
+        document: document.documentElement.scrollWidth,
+        fonts: document.fonts.status,
+        elements: [...document.querySelectorAll('body *')].flatMap(el => {
+            const r = el.getBoundingClientRect();
+            return r.width && (r.right > innerWidth || r.left < 0)
+                ? [{tag: el.tagName, id: el.id, classes: el.className,
+                    left: r.left, right: r.right, width: r.width}] : [];
+        }).slice(0, 30)
+    })""")
+    if layout["document"] > layout["viewport"]:
+        stem = f"overflow-{width}-{theme}"
+        (OUT / (stem + ".json")).write_text(json.dumps(layout, indent=2))
+        page.screenshot(path=str(OUT / (stem + ".png")), full_page=True)
+        raise AssertionError(f"Horizontal overflow ({width}px, {theme}): {layout}")
 
 
 with tempfile.TemporaryDirectory(prefix="washday-replication-") as temp:
@@ -339,6 +368,9 @@ with tempfile.TemporaryDirectory(prefix="washday-replication-") as temp:
                         [{"name": "app_theme", "value": theme, "url": hub_url}]
                     )
                     page.goto(hub_url + "/supplies/")
+                    # Finish font loading before starting the real six-second receipt.
+                    settle_fonts(page)
+                    settle_fonts(reference)
                     page.locator("[name=qty]").fill("1")
                     page.get_by_role("button", name="Receive stock", exact=True).click()
                     page.locator("[data-undo-until]").wait_for()
@@ -346,9 +378,7 @@ with tempfile.TemporaryDirectory(prefix="washday-replication-") as temp:
                         "theme=>{document.documentElement.dataset.appTheme=theme;window.__referenceToast('Stock received',()=>{});}",
                         theme,
                     )
-                    assert not page.evaluate(
-                        "document.documentElement.scrollWidth>innerWidth"
-                    )
+                    assert_no_horizontal_overflow(page, width, theme)
                     page.screenshot(
                         path=str(OUT / f"undo-{width}-{theme}.png"), full_page=False
                     )
