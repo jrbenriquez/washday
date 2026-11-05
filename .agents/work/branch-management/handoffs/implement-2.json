@@ -1,0 +1,33 @@
+{
+  "type": "implementation",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "scripts/check_branches_browser.py",
+      "summary": "Avoid synchronous ORM during Playwright event loop; obtain created branch UUID from authenticated edit URL."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "Review browser harness against recalibration",
+      "context": "sha256:de107b38ea8697b43517ba565b8a31b306271bfc4fb519e267e40aa42a45ad06",
+      "observation": "The only ORM queries now precede sync_playwright; application source is unchanged.",
+      "reference": "../../../../scripts/check_branches_browser.py"
+    }
+  ],
+  "assumptions": [],
+  "gaps": [
+    "Final browser matrix and full-suite results pending."
+  ],
+  "blockers": [],
+  "next": "Complete in-progress browser and full regression checks."
+}

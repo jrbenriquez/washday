@@ -1,0 +1,45 @@
+...............................F........................................ [ 42%]
+........................................................................ [ 84%]
+..........................                                               [100%]
+=================================== FAILURES ===================================
+________________ test_add_defaults_allocation_version_and_event ________________
+
+own = (<django.test.client.Client object at 0x7f9b7ff0fe30>, {'shop': <Shop: Shop object (160756dd-fb35-456d-bb31-cc7097b3f8...3ac032ea-2e2e-4f77-bbd1-4a8326ea5b41)>, 'load': <Service: Service object (c2b313d6-e522-4041-b4f9-cb318def909e)>, ...})
+
+    def test_add_defaults_allocation_version_and_event(own):
+        c, s = own
+        version = Settings.objects.get().version
+        r = c.get("/owner/branches/new/")
+        assert r.context["form"]["simple_mode"].value() is True
+        assert r.context["form"]["connection_mode"].value() == "direct"
+        # Sparse numbering is preserved; no existing counter is overwritten.
+        Branch.objects.create(shop=s["shop"], name="Sparse", code="SPARSE", number=7)
+        r = c.post("/owner/branches/new/", details(number="1", shop="forged", job_seq="99"))
+        assert r.status_code == 302 and r.url == "/owner/branches/manage/"
+        b = Branch.objects.get(code="NORTH")
+        assert (b.number, b.job_seq, b.mode, b.simple_mode) == (8, 8000, "direct", True)
+        assert b.shop_id == s["shop"].pk
+        assert b.opening_time == time(8) and b.closing_time == time(20)
+>       assert Settings.objects.get().version == version + 1
+E       assert 15 == (13 + 1)
+E        +  where 15 = <Settings: Settings object (cca6af2b-f1c1-4253-a128-26f9d9c32460)>.version
+E        +    where <Settings: Settings object (cca6af2b-f1c1-4253-a128-26f9d9c32460)> = get()
+E        +      where get = <core.models.TenantManager object at 0x7f9b86c111d0>.get
+E        +        where <core.models.TenantManager object at 0x7f9b86c111d0> = Settings.objects
+
+tests/test_branch_management.py:71: AssertionError
+=============================== warnings summary ===============================
+tests/test_authentication.py: 1 warning
+tests/test_branch_management.py: 14 warnings
+tests/test_intake.py: 1 warning
+tests/test_owner_workspace.py: 29 warnings
+tests/test_role_workflows.py: 2 warnings
+tests/test_sync.py: 2 warnings
+tests/test_undo.py: 1 warning
+  /workspace/washday/.venv/lib/python3.13/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /workspace/washday/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_branch_management.py::test_add_defaults_allocation_version_and_event
+1 failed, 169 passed, 50 warnings in 98.77s (0:01:38)

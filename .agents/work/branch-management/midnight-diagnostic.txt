@@ -1,0 +1,29 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ test_check_threshold_elapsed_today_and_no_countdown ______________
+
+machine_setup = {'shop': <Shop: Shop object (49c50003-37e7-4a8d-b33d-c180eb35494e)>, 'branch': <Branch: Branch object (06983c0b-0f3c-4...(7b45924c-d7be-4cee-ba7b-70ea70e5584f)>, 'load': <Service: Service object (3d11e212-f7fd-4edd-a2a2-c2b036a35a5b)>, ...}
+scoped_client = <django.test.client.Client object at 0x7f867a4e20d0>
+
+    def test_check_threshold_elapsed_today_and_no_countdown(machine_setup, scoped_client):
+        s = machine_setup
+        j = job(s)
+        l = start(s, j)
+        Load.objects.filter(pk=l.pk).update(
+            started_at=timezone.now() - timedelta(minutes=90)
+        )
+        r = scoped_client.get("/machines/")
+>       assert (
+            b"Check it" in r.content
+            and b"In use" in r.content
+            and b"1 loads today" in r.content
+        )
+E       assert (b'Check it' in b'<!doctype html>\n<html lang="en" data-app-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="w...739f1-3c77-4de1-91ef-693527772a34/start/">Paid self-service</a></section></div></div></main>\n</div>\n</body></html>\n' and b'In use' in b'<!doctype html>\n<html lang="en" data-app-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="w...739f1-3c77-4de1-91ef-693527772a34/start/">Paid self-service</a></section></div></div></main>\n</div>\n</body></html>\n' and b'1 loads today' in b'<!doctype html>\n<html lang="en" data-app-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="w...739f1-3c77-4de1-91ef-693527772a34/start/">Paid self-service</a></section></div></div></main>\n</div>\n</body></html>\n')
+E        +  where b'<!doctype html>\n<html lang="en" data-app-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="w...739f1-3c77-4de1-91ef-693527772a34/start/">Paid self-service</a></section></div></div></main>\n</div>\n</body></html>\n' = <HttpResponse status_code=200, "text/html; charset=utf-8">.content
+E        +  and   b'<!doctype html>\n<html lang="en" data-app-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="w...739f1-3c77-4de1-91ef-693527772a34/start/">Paid self-service</a></section></div></div></main>\n</div>\n</body></html>\n' = <HttpResponse status_code=200, "text/html; charset=utf-8">.content
+E        +  and   b'<!doctype html>\n<html lang="en" data-app-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="w...739f1-3c77-4de1-91ef-693527772a34/start/">Paid self-service</a></section></div></div></main>\n</div>\n</body></html>\n' = <HttpResponse status_code=200, "text/html; charset=utf-8">.content
+
+tests/test_machines.py:227: AssertionError
+=========================== short test summary info ============================
+FAILED tests/test_machines.py::test_check_threshold_elapsed_today_and_no_countdown
+1 failed in 3.15s

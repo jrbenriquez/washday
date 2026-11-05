@@ -6,6 +6,12 @@ The application uses **Python 3.13, Django 6, server-rendered templates, and HTM
 
 **Current status:** the counter, job board, history, machine, and supply workflows are implemented for local development. Google owner sign-in, enrolled devices, personal shifts, shared-device PINs, and minimal staff/device administration are now available for local testing. The owner dashboard, read-only live branches, staff/machine administration, catalog settings and Excel collection reports are available. Six-second compensating Undo, the hub/cloud split and durable offline replication are implemented; physical rollout qualification and an approved BIR export layout remain pending. See [Undo and offline replication](docs/offline-and-undo.md). The deployment sections below explain the intended architecture and rollout; this checkout is not yet a production release.
 
+## Branch management
+
+Owner → **Branches** opens **Live Branches**, the existing watch-only screen with its 20-second refresh. Switch to **Manage Branches** to add a branch or edit its name, unique code, hours and simple/full workflow. The selected live branch also has an **Edit branch** shortcut. Branch hours and workflow are managed here; Settings and Access and devices no longer duplicate these forms.
+
+New branches start with Direct connection and Simple workflow. Internal numbering is allocated automatically and cannot be changed in the editor. Connection mode is shown read-only until safe hub migration is implemented. Unload running machines before changing a full branch to simple workflow. Branch changes update the shared settings version and append an owner audit event.
+
 ## Contents
 
 - [Core features](#core-features)

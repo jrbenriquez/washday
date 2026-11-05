@@ -1,0 +1,45 @@
+{
+  "type": "recalibration",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "status": "REIMPLEMENT",
+  "summary": "Browser harness uses synchronous Django ORM inside Playwright context.",
+  "assessment": {
+    "category": "verification coverage",
+    "confidence": "SUPPORTED",
+    "cause": "Playwright sync wrapper runs an event loop; Django refuses synchronous ORM in that context.",
+    "evidence": [
+      "R1"
+    ],
+    "uncertainty": "Viewport checks still need to run."
+  },
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "Inspect browser-2 traceback and harness ORM call",
+      "context": "sha256:fcf355e781bc5c7447cdf8dad30da7ca9c5f8e979e5c92e8c465374c911d90f3",
+      "observation": "SynchronousOnlyOperation is raised by the browser-only ORM cross-check; create/edit/duplicate browser interactions already completed.",
+      "reference": "../browser-2.txt"
+    }
+  ],
+  "adjustment": "Remove ORM use inside Playwright; derive branch UUID from the edit URL and retain behavioral browser assertions. Database invariants are already covered by Django tests.",
+  "diagnostics": [],
+  "preserve": [
+    "All application behavior and prior passing Django tests."
+  ],
+  "reverify": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "blockers": [],
+  "next": "Bounded harness correction, then complete browser matrix and full suite."
+}

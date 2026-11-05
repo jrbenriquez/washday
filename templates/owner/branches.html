@@ -1,0 +1,17 @@
+{% extends 'auth_base.html' %}
+{% block title %}Manage branches · WashDay{% endblock %}
+{% block content %}
+{% include 'owner/branch_tabs.html' with branch_view='manage' %}
+<div class="screen-head"><div><h2>Manage branches</h2><p>Set up your branches and keep their details, hours and workflow up to date.</p></div><a class="btn primary button-link" href="{% url 'owner_branch_new' %}">Add branch</a></div>
+<div class="branch-grid">
+{% for b in branches %}
+<section class="card stack branch-card">
+  <div class="row"><h3>{{ b.name }}</h3><span class="pill plain">{{ b.code }}</span></div>
+  <p class="muted">{% if b.opening_time != None and b.closing_time != None %}{{ b.opening_time|time:'g:i A' }} – {{ b.closing_time|time:'g:i A' }}{% else %}Hours not set{% endif %}</p>
+  <p><span class="pill plain">{{ b.mode|capfirst }}</span> <span class="pill plain">{% if b.simple_mode %}Simple{% else %}Full{% endif %} workflow</span></p>
+  {% if b.mode == 'direct' %}<p class="muted">This branch stops working whenever its internet is down. Staff use the paper job sheet until it's back.</p>{% endif %}
+  <div class="branch-actions"><a class="btn" href="{% url 'owner_branch_edit' b.id %}" aria-label="Edit {{ b.name }}">Edit details</a><a class="button-link" aria-label="View {{ b.name }} live" href="{% url 'owner_branches' %}?branch={{ b.id }}">View live</a></div>
+</section>
+{% empty %}<section class="card stack"><h3>No branches yet</h3><p>Add your first branch to set its hours and start using WashDay. New branches start with Direct connection and Simple workflow.</p></section>{% endfor %}
+</div>
+{% endblock %}

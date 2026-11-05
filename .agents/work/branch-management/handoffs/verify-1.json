@@ -1,0 +1,73 @@
+{
+  "type": "verification",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "status": "INCONCLUSIVE",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Browser interaction checks reached create/edit and duplicate rejection, but the harness failed before completing viewport evidence; full regression suite is still running.",
+      "next": "Complete independent browser/full-suite evidence."
+    },
+    {
+      "criterion": "AC-02",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Browser interaction checks reached create/edit and duplicate rejection, but the harness failed before completing viewport evidence; full regression suite is still running.",
+      "next": "Complete independent browser/full-suite evidence."
+    },
+    {
+      "criterion": "AC-03",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Browser interaction checks reached create/edit and duplicate rejection, but the harness failed before completing viewport evidence; full regression suite is still running.",
+      "next": "Complete independent browser/full-suite evidence."
+    },
+    {
+      "criterion": "AC-04",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Browser interaction checks reached create/edit and duplicate rejection, but the harness failed before completing viewport evidence; full regression suite is still running.",
+      "next": "Complete independent browser/full-suite evidence."
+    },
+    {
+      "criterion": "AC-05",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Browser interaction checks reached create/edit and duplicate rejection, but the harness failed before completing viewport evidence; full regression suite is still running.",
+      "next": "Complete independent browser/full-suite evidence."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "V1",
+      "action": "Run browser interactions with Django ORM cross-check",
+      "context": "sha256:fcf355e781bc5c7447cdf8dad30da7ca9c5f8e979e5c92e8c465374c911d90f3",
+      "observation": "Playwright starts an async context; synchronous Django ORM call inside it raised SynchronousOnlyOperation after successful create/edit/duplicate interactions. Harness issue, not an observed product violation.",
+      "reference": "../browser-2.txt"
+    }
+  ],
+  "regression_risks": [
+    "Viewport and timed refresh checks have not run yet."
+  ],
+  "blockers": [],
+  "next": "Recalibrate browser evidence gap."
+}

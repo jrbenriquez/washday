@@ -1,0 +1,97 @@
+{
+  "type": "verification",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "status": "PASS",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Latest main integration preserves the accepted Branches behavior; full current regressions and both browser probes pass. Main supplies its deterministic midnight machine test; previous fixture-version mismatch corrected.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Latest main integration preserves the accepted Branches behavior; full current regressions and both browser probes pass. Main supplies its deterministic midnight machine test; previous fixture-version mismatch corrected.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Latest main integration preserves the accepted Branches behavior; full current regressions and both browser probes pass. Main supplies its deterministic midnight machine test; previous fixture-version mismatch corrected.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Latest main integration preserves the accepted Branches behavior; full current regressions and both browser probes pass. Main supplies its deterministic midnight machine test; previous fixture-version mismatch corrected.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Latest main integration preserves the accepted Branches behavior; full current regressions and both browser probes pass. Main supplies its deterministic midnight machine test; previous fixture-version mismatch corrected.",
+      "next": "none"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "V1",
+      "action": "uv run pytest --ds=config.test_settings -q",
+      "context": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+      "observation": "170 passed in 111.87s. Includes branch, owner, authentication, Undo, role and sync regressions.",
+      "reference": "../update-main/pytest-final.txt"
+    },
+    {
+      "id": "V2",
+      "action": "Run branch browser and owner settings browser probes on combined source",
+      "context": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+      "observation": "Branch probe passes 28 viewport/theme checks and create/edit/reject/timed-refresh interactions. Settings probe passes at 390/768/1280 widths in both themes with no JS errors.",
+      "reference": "../evidence/update-main/results.json"
+    },
+    {
+      "id": "V3",
+      "action": "Django checks, migrations dry-run, JS syntax, whitespace and merge ancestry",
+      "context": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+      "observation": "All pass; origin/main 1b0fbcc is ancestor of branch, all conflict markers removed.",
+      "reference": "../update-main/checks.txt"
+    }
+  ],
+  "regression_risks": [
+    "Hosted CI is still running; physical devices are outside this scoped development acceptance."
+  ],
+  "blockers": [],
+  "next": "Push verification record and merge only after current-head hosted CI passes."
+}

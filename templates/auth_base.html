@@ -9,7 +9,7 @@
   <main class="auth-main">{% if owner %}<nav class="owner-tabs" aria-label="Owner navigation">
 {% with current=request.resolver_match.url_name %}
 <a class="btn small {% if current == 'owner_dashboard' %}ink{% endif %}" href="{% url 'owner_dashboard' %}" {% if current == 'owner_dashboard' %}aria-current="page"{% endif %}>Dashboard</a>
-<a class="btn small {% if current == 'owner_live' %}ink{% endif %}" href="{% url 'owner_live' %}" {% if current == 'owner_live' %}aria-current="page"{% endif %}>Live branches</a>
+<a class="btn small {% if current == 'owner_live' or current == 'owner_branches' or current == 'owner_branch_manage' or current == 'owner_branch_new' or current == 'owner_branch_edit' %}ink{% endif %}" href="{% url 'owner_branches' %}" {% if current == 'owner_live' or current == 'owner_branches' or current == 'owner_branch_manage' or current == 'owner_branch_new' or current == 'owner_branch_edit' %}aria-current="page"{% endif %}>Branches</a>
 <a class="btn small {% if current == 'owner_staff' %}ink{% endif %}" href="{% url 'owner_staff' %}" {% if current == 'owner_staff' %}aria-current="page"{% endif %}>Staff</a>
 <a class="btn small {% if current == 'owner_machines' %}ink{% endif %}" href="{% url 'owner_machines' %}" {% if current == 'owner_machines' %}aria-current="page"{% endif %}>Machines</a>
 <a class="btn small {% if current == 'owner_shop_settings' %}ink{% endif %}" href="{% url 'owner_shop_settings' %}" {% if current == 'owner_shop_settings' %}aria-current="page"{% endif %}>Settings</a>

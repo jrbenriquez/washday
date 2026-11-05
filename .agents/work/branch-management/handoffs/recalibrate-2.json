@@ -1,0 +1,37 @@
+{
+  "type": "recalibration",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-05"
+  ],
+  "status": "REIMPLEMENT",
+  "summary": "Branch workflow checkbox needs a readable mobile layout.",
+  "assessment": {
+    "category": "implementation",
+    "confidence": "SUPPORTED",
+    "cause": "Inherited owner-form checkbox flex row distributes width across label, long help text and checkbox.",
+    "evidence": [
+      "R1"
+    ],
+    "uncertainty": "Corrected layout still needs browser and visual confirmation."
+  },
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "Inspect checkbox CSS and mobile screenshot",
+      "context": "sha256:de107b38ea8697b43517ba565b8a31b306271bfc4fb519e267e40aa42a45ad06",
+      "observation": "owner-form direct checkbox parent uses flex; screenshot shows narrow label wrapping.",
+      "reference": "../evidence/verify-3/edit-360-dark.png"
+    }
+  ],
+  "adjustment": "Override branch-editor checkbox parent with two-column grid: checkbox beside label, help below. Scope CSS to branch editor.",
+  "diagnostics": [],
+  "preserve": [
+    "All application behavior, form labels, counter/audit logic and existing owner screens."
+  ],
+  "reverify": [
+    "AC-05 mobile/desktop light/dark screenshots and interaction matrix; all selected criteria on final workspace"
+  ],
+  "blockers": [],
+  "next": "Apply scoped CSS layout correction, then final independent verification."
+}

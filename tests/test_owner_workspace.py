@@ -334,7 +334,7 @@ def test_staff_management_only_appears_on_staff_page(own):
     assert s["staff"].name.encode() not in access.content
     assert b'action="/owner/devices/new/"' in access.content
     assert b'action="/owner/pin-rules/"' not in access.content
-    assert f'/owner/branches/{s["branch"].pk}/hours/'.encode() in access.content
+    assert b'name="opening_time"' not in access.content
 
     staff = c.get("/owner/staff/")
     assert staff.status_code == 200

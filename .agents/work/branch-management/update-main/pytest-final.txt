@@ -1,0 +1,16 @@
+........................................................................ [ 42%]
+........................................................................ [ 84%]
+..........................                                               [100%]
+=============================== warnings summary ===============================
+tests/test_authentication.py: 1 warning
+tests/test_branch_management.py: 14 warnings
+tests/test_intake.py: 1 warning
+tests/test_owner_workspace.py: 29 warnings
+tests/test_role_workflows.py: 2 warnings
+tests/test_sync.py: 2 warnings
+tests/test_undo.py: 1 warning
+  /workspace/washday/.venv/lib/python3.13/site-packages/django/core/handlers/base.py:62: UserWarning: No directory at: /workspace/washday/staticfiles/
+    mw_instance = middleware(adapted_handler)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+170 passed, 50 warnings in 111.87s (0:01:51)

@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "outcome_id": "branch-management",
+  "outcome": {
+    "reference": "assignment.md",
+    "fingerprint": "sha256:17fdab932da6ff8867d1b5636ac6b7ae9e9728252a64844ddffb83a8055df53c"
+  },
+  "phase": "complete",
+  "step": "ready",
+  "scope": [],
+  "implementation_attempts": {
+    "started": 3,
+    "maximum": 3
+  },
+  "workspace": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+  "criteria": [
+    {
+      "id": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+      "reason": "Fresh combined-workspace verification passes. Prior midnight-test failure fixed upstream; main conflict resolution and fixture-version adaptation verified."
+    },
+    {
+      "id": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+      "reason": "Fresh combined-workspace verification passes. Prior midnight-test failure fixed upstream; main conflict resolution and fixture-version adaptation verified."
+    },
+    {
+      "id": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+      "reason": "Fresh combined-workspace verification passes. Prior midnight-test failure fixed upstream; main conflict resolution and fixture-version adaptation verified."
+    },
+    {
+      "id": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+      "reason": "Fresh combined-workspace verification passes. Prior midnight-test failure fixed upstream; main conflict resolution and fixture-version adaptation verified."
+    },
+    {
+      "id": "AC-05",
+      "status": "PASS",
+      "evidence": [
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V1"
+        },
+        {
+          "handoff": "handoffs/verify-main-update.json",
+          "id": "V2"
+        }
+      ],
+      "verified_workspace": "sha256:dd9abed5ae6589dfcf3117fe3caa213bc59c24a3ea44f88ea1f7273cda62eba6",
+      "reason": "Fresh combined-workspace verification passes. Prior midnight-test failure fixed upstream; main conflict resolution and fixture-version adaptation verified."
+    }
+  ],
+  "latest_handoff": {
+    "type": "verification",
+    "reference": "handoffs/verify-main-update.json"
+  },
+  "latest_verification": "handoffs/verify-main-update.json",
+  "recalibrations": [
+    {
+      "reference": "handoffs/recalibrate-1.json",
+      "decision": "REIMPLEMENT"
+    },
+    {
+      "reference": "handoffs/recalibrate-2.json",
+      "decision": "REIMPLEMENT"
+    },
+    {
+      "reference": "handoffs/recalibrate-3.json",
+      "decision": "ESCALATE"
+    }
+  ],
+  "blockers": [],
+  "next": "Development acceptance complete; PR update pushed. Await current-head hosted CI before authorized merge.",
+  "main_update": {
+    "authorization": "User explicitly requested updating PR #9 from main and resolving conflicts; prior instruction authorizes merge after green tests.",
+    "main": "1b0fbcc",
+    "changes": [
+      "Combine BranchForm and NewPieceForm, Count/Max/Sum and JsonResponse imports, branch management and supply policy views, both CSS additions.",
+      "Retain main Settings catalog/minimum-kilos layout with Branches link in place of duplicate branch form.",
+      "Retain hub stale-state live view and newer audit/replication behavior.",
+      "Measure Settings.version after fixture branch creation because upstream catalog signals now increment it."
+    ],
+    "attempt_note": "Original workflow attempt history retained. Upstream integration is the newly requested PR maintenance; no budget reset or standalone midnight-test repair.",
+    "checks": "170 tests pass; both browser probes and static/migration checks pass."
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "type": "verification",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "status": "INCONCLUSIVE",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3"
+      ],
+      "reason": "Final browser matrix and mobile screenshots pass. Full regression suite has a pre-existing midnight-sensitive machine-test failure; merge gate remains unmet.",
+      "next": "Stabilize machine test clock and rerun full suite before merge."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "V1",
+      "action": "Browser create/edit/rejection flow, 28 viewport/theme checks and real timed refresh; visual mobile/desktop review",
+      "context": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "observation": "PASS; 360/1280 light/dark, no page overflow, readable corrected checkbox, no JS errors.",
+      "reference": "../evidence/verify-final/results.json"
+    },
+    {
+      "id": "V2",
+      "action": "Run focused owner/auth/branch tests, full pytest suite and unchanged machine test diagnostic",
+      "context": "Python/Django source identical to final snapshot; subsequent CSS-only checkbox correction cannot affect Python test outcomes.",
+      "observation": "66 focused pass; full suite 131 pass, 1 skipped, 1 pre-existing machine test fails. tests/test_machines.py and machines/views.py unchanged from origin/main. Test moves load 90 minutes before now and wrongly assumes same Manila date at 00:xx.",
+      "reference": "../verification-tests.txt"
+    },
+    {
+      "id": "V3",
+      "action": "Django checks, migrations dry run, JavaScript syntax and whitespace checks",
+      "context": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "observation": "No issues, no migrations, valid syntax and whitespace.",
+      "reference": "../checks.txt"
+    }
+  ],
+  "regression_risks": [
+    "Full suite needs midnight-independent machine-test fixture. PostgreSQL concurrency/physical devices not qualified."
+  ],
+  "blockers": [],
+  "next": "Recalibrate pre-existing test failure; do not merge before green tests."
+}

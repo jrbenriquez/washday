@@ -35,9 +35,11 @@ class OperationsForm(forms.ModelForm):
             if value is not None and (value < 0 or (field != "min_kg" and value == 0)):
                 self.add_error(
                     field,
-                    "Enter a positive value."
-                    if field != "min_kg"
-                    else "Enter zero or more.",
+                    (
+                        "Enter a positive value."
+                        if field != "min_kg"
+                        else "Enter zero or more."
+                    ),
                 )
         return data
 
@@ -196,6 +198,70 @@ EDITORS = {
 def editor_form(kind):
     model, fields, _ = EDITORS[kind]
     return forms.modelform_factory(model, form=EditorForm, fields=fields)
+
+
+class BranchForm(forms.ModelForm):
+    connection_mode = forms.ChoiceField(
+        label="Connection mode",
+        choices=[("direct", "Direct"), ("hub", "Hub")],
+        disabled=True,
+        help_text="Connection changes will be available after safe hub migration is supported.",
+    )
+
+    class Meta:
+        from core.models import Branch
+
+        model = Branch
+        fields = ["name", "code", "opening_time", "closing_time", "simple_mode"]
+        labels = {"simple_mode": "Use simple workflow"}
+        help_texts = {
+            "code": "A unique code for this branch within your shop.",
+            "simple_mode": "Show the simplified job board and hide machine tracking. Clear for full workflow.",
+            "closing_time": "New personal shifts end at the next closing time.",
+        }
+        widgets = {
+            "opening_time": forms.TimeInput(attrs={"type": "time"}, format="%H:%M"),
+            "closing_time": forms.TimeInput(attrs={"type": "time"}, format="%H:%M"),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["connection_mode"].initial = self.instance.mode
+
+    def clean_code(self):
+        from core.models import Branch
+
+        code = self.cleaned_data["code"]
+        if (
+            Branch.objects.filter(code__iexact=code)
+            .exclude(pk=self.instance.pk)
+            .exists()
+        ):
+            raise ValidationError(
+                "A branch with this code already exists in your shop."
+            )
+        return code
+
+    def clean(self):
+        data = super().clean()
+        # Reject forged mode fields as well as leaving the displayed mode read-only.
+        for key in ("mode", "connection_mode"):
+            if key in self.data and self.data[key] != self.instance.mode:
+                self.add_error(
+                    "connection_mode", "Connection changes are not available yet."
+                )
+        if data.get("simple_mode") and not self.instance._state.adding:
+            from machines.models import Load
+
+            if (
+                not self.instance.simple_mode
+                and Load.objects.filter(branch=self.instance, ended_at=None).exists()
+            ):
+                self.add_error(
+                    "simple_mode",
+                    "Unload running machines before switching to simple mode.",
+                )
+        return data
 
 
 class NewPieceForm(EditorForm):

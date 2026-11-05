@@ -1,0 +1,73 @@
+{
+  "type": "verification",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
+  "status": "FAIL",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Behavioral checks have run; final full-suite evidence pending.",
+      "next": "Complete final regression verdict."
+    },
+    {
+      "criterion": "AC-02",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Behavioral checks have run; final full-suite evidence pending.",
+      "next": "Complete final regression verdict."
+    },
+    {
+      "criterion": "AC-03",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Behavioral checks have run; final full-suite evidence pending.",
+      "next": "Complete final regression verdict."
+    },
+    {
+      "criterion": "AC-04",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "Behavioral checks have run; final full-suite evidence pending.",
+      "next": "Complete final regression verdict."
+    },
+    {
+      "criterion": "AC-05",
+      "status": "FAIL",
+      "evidence": [
+        "V1"
+      ],
+      "reason": "360px dark editor screenshot shows checkbox label squeezed into narrow lines by the inherited flex row.",
+      "next": "Correct checkbox layout and reverify."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "V1",
+      "action": "Visually inspect 1280px light manage screen and 360px dark branch editor screenshot",
+      "context": "sha256:de107b38ea8697b43517ba565b8a31b306271bfc4fb519e267e40aa42a45ad06",
+      "observation": "Manage screen readable. Checkbox help/label/input share a flex row at 360px; label wraps into five narrow lines. No horizontal overflow but reading/touch layout needs correction.",
+      "reference": "../evidence/verify-3/edit-360-dark.png"
+    }
+  ],
+  "regression_risks": [
+    "Responsive checkbox layout needs correction."
+  ],
+  "blockers": [],
+  "next": "Recalibrate AC-05 layout violation."
+}

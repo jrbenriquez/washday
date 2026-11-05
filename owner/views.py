@@ -226,9 +226,12 @@ def hours(request, branch_id):
     form = HoursForm(request.POST)
     if form.is_valid():
         branch = Branch.objects.select_for_update().get(pk=branch.pk)
+        config = Settings.objects.select_for_update().get(shop_id=own.shop_id)
         branch.opening_time = form.cleaned_data["opening_time"]
         branch.closing_time = form.cleaned_data["closing_time"]
         branch.save(update_fields=["opening_time", "closing_time"])
+        config.version += 1
+        config.save(update_fields=["version"])
         audit(
             branch,
             "branch_hours_updated",
@@ -238,7 +241,7 @@ def hours(request, branch_id):
         messages.success(
             request, "Branch hours saved. New shifts end at the next closing time."
         )
-        return redirect("owner_home")
+        return redirect("owner_branch_manage")
     return render(
         request,
         "owner/home.html",

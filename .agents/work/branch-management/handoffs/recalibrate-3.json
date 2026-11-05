@@ -1,0 +1,39 @@
+{
+  "type": "recalibration",
+  "outcome_id": "branch-management",
+  "criteria": [
+    "AC-05"
+  ],
+  "status": "ESCALATE",
+  "summary": "Pre-existing machine test fails within 90 minutes of Manila midnight.",
+  "assessment": {
+    "category": "verification coverage",
+    "confidence": "SUPPORTED",
+    "cause": "Test sets started_at=now-90min but unconditionally asserts 1 loads today; at current Manila time load started yesterday.",
+    "evidence": [
+      "R1"
+    ],
+    "uncertainty": "Full suite needs rerun after deterministic test clock repair."
+  },
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "Compare machine test to origin/main; isolate failed test and inspect date filter",
+      "context": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
+      "observation": "Test unchanged byte-for-byte from origin/main. Isolated test reproduces same failure; production tiles count started_at__date=timezone.localdate() correctly.",
+      "reference": "../midnight-diagnostic.txt"
+    }
+  ],
+  "adjustment": "Freeze this test at a fixed Manila noon so the 90-minute-old load is today and elapsed threshold remains deterministic; do not change application behavior.",
+  "diagnostics": [],
+  "preserve": [
+    "All product behavior and previous branch-management passes."
+  ],
+  "reverify": [
+    "AC-05 full pytest suite with existing midnight cases and branch/browser evidence retained by explicit impact assessment."
+  ],
+  "blockers": [
+    "Implementation budget is 3/3; async user approval requested for maximum 4."
+  ],
+  "next": "Wait for explicit budget increase, then fix test and finish PR/CI/merge."
+}

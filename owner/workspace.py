@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
-from django.db.models import Count, Sum
+from django.db.models import Count, Max, Sum
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -25,7 +25,7 @@ from people.models import Device, Shift, Staff
 from people.services import audit
 from supplies.models import StockCount, StockEntry, SupplyRequest
 
-from .admin_forms import EDITORS, OperationsForm, editor_form
+from .admin_forms import EDITORS, BranchForm, OperationsForm, editor_form
 from .forms import StaffForm
 from .views import owner, scoped_branch
 
@@ -181,11 +181,11 @@ def dashboard(request):
             {
                 "branch": b,
                 "full": full,
-                "kind": "good"
-                if age is not None and age <= 1
-                else "warn"
-                if age == 2
-                else "crit",
+                "kind": (
+                    "good"
+                    if age is not None and age <= 1
+                    else "warn" if age == 2 else "crit"
+                ),
             }
         )
         latest = (
@@ -527,6 +527,7 @@ def operations(request):
 def branch_mode(request, branch_id):
     own = owner(request)
     b = get_object_or_404(Branch.objects.select_for_update(), pk=branch_id)
+    config = Settings.objects.select_for_update().get(shop_id=own.shop_id)
     desired = request.POST.get("simple_mode") == "1"
     if desired and Load.objects.filter(branch=b, ended_at=None).exists():
         messages.error(
@@ -535,9 +536,11 @@ def branch_mode(request, branch_id):
     else:
         b.simple_mode = desired
         b.save(update_fields=["simple_mode"])
+        config.version += 1
+        config.save(update_fields=["version"])
         audit(b, "branch_mode_updated", "Branch workflow mode updated", owner=own.email)
         messages.success(request, "Branch workflow saved.")
-    return redirect("owner_shop_settings")
+    return redirect("owner_branch_manage")
 
 
 @require_GET
@@ -750,9 +753,11 @@ def edit(request, kind, record_id=None):
         except (ValidationError, IntegrityError) as e:
             form.add_error(
                 None,
-                " ".join(e.messages)
-                if isinstance(e, ValidationError)
-                else "A record with these values already exists.",
+                (
+                    " ".join(e.messages)
+                    if isinstance(e, ValidationError)
+                    else "A record with these values already exists."
+                ),
             )
     if form.errors and request.headers.get("Accept") == "application/json":
         return JsonResponse({"errors": form.errors}, status=422)
@@ -763,6 +768,82 @@ def edit(request, kind, record_id=None):
             "form": form,
             "heading": ("Edit " if record_id else "Add · ") + title,
             "back": back,
+        },
+        status=422 if form.errors else 200,
+    )
+
+
+@require_GET
+@never_cache
+def branches(request):
+    owner(request)
+    return render(
+        request,
+        "owner/branches.html",
+        {
+            "branches": Branch.objects.order_by("number"),
+        },
+    )
+
+
+@require_http_methods(["GET", "POST"])
+@never_cache
+def branch_edit(request, branch_id=None):
+    own = owner(request)
+    b = (
+        get_object_or_404(Branch, pk=branch_id)
+        if branch_id
+        else Branch(shop_id=own.shop_id)
+    )
+    form = BranchForm(request.POST if request.method == "POST" else None, instance=b)
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                # Match operation lock order; the settings row serializes branch-number allocation,
+                # including the first branch, when there are no branch rows to lock.
+                list(Branch.objects.select_for_update().order_by("pk"))
+                config = Settings.objects.select_for_update().get(shop_id=own.shop_id)
+                b = (
+                    get_object_or_404(Branch, pk=branch_id)
+                    if branch_id
+                    else Branch(shop_id=own.shop_id)
+                )
+                form = BranchForm(request.POST, instance=b)
+                if form.is_valid():
+                    b = form.save(commit=False)
+                    if not branch_id:
+                        b.number = (
+                            Branch.objects.aggregate(n=Max("number"))["n"] or 0
+                        ) + 1
+                    b.save()
+                    config.version += 1
+                    config.save(update_fields=["version"])
+                    audit(
+                        b,
+                        "branch_updated" if branch_id else "branch_created",
+                        "Branch details updated" if branch_id else "Branch created",
+                        owner=own.email,
+                    )
+                    messages.success(
+                        request,
+                        "Branch details saved." if branch_id else "Branch added.",
+                    )
+                    return redirect("owner_branch_manage")
+        except (ValidationError, IntegrityError) as e:
+            form.add_error(
+                None,
+                (
+                    " ".join(e.messages)
+                    if isinstance(e, ValidationError)
+                    else "A branch with these values already exists. Please try again."
+                ),
+            )
+    return render(
+        request,
+        "owner/branch_editor.html",
+        {
+            "form": form,
+            "editing_branch": b if branch_id else None,
         },
         status=422 if form.errors else 200,
     )

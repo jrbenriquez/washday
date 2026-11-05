@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "viewports": [
+    1280,
+    768,
+    390
+  ],
+  "themes": [
+    "light",
+    "dark"
+  ],
+  "javascript_errors": []
+}
