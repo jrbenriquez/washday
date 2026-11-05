@@ -446,3 +446,7 @@ a.btn{text-decoration:none}
 @media print{body:has(.app-dialog[open])>.shell,body:has(.app-dialog[open])>.auth-main{display:none!important}.app-dialog[open]{position:static;width:auto;max-height:none;overflow:visible;box-shadow:none}.app-dialog .dialog-close{display:none}.app-dialog .dialog-content{padding:0}}
 .machine-admin-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .machine-admin-row>span:first-child{flex:1;min-width:80px}.machine-admin-row small{display:block}.machine-admin-row .head-actions{flex-wrap:wrap}
+.toast:has([data-undo-until]){background:var(--ink);color:var(--surface);padding:8px 8px 8px 16px}
+.toast form{margin:0;flex:none}
+.live-note.stale{background:var(--warn-soft);color:var(--warn)}
+.live-note.stale .dot{background:var(--warn)}

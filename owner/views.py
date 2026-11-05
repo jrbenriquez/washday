@@ -161,6 +161,8 @@ def code_page(request, device, code, challenge):
     url = request.build_absolute_uri(
         reverse("device_start") + "?invite=" + str(device.id)
     )
+    if device.branch.mode == "hub" and device.branch.hub_url:
+        url = device.branch.hub_url.rstrip("/") + reverse("device_start") + "?invite=" + str(device.id)
     return render(
         request,
         "owner/code.html",
@@ -182,16 +184,6 @@ def device_new(request):
     branch = scoped_branch(request.POST.get("branch"))
     form = DeviceForm(request.POST)
     if form.is_valid():
-        if branch.mode != "direct":
-            return render(
-                request,
-                "owner/home.html",
-                dashboard_context(
-                    request,
-                    error="Hub enrolment will be available with the hub role. Use a direct branch locally.",
-                ),
-                status=422,
-            )
         Branch.objects.select_for_update().get(pk=branch.pk)
         device = Device.objects.create(
             shop_id=own.shop_id, branch=branch, **form.cleaned_data

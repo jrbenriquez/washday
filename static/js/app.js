@@ -35,7 +35,7 @@ updateClock();setInterval(updateClock,30000);
 function updateConnection(){
  document.querySelectorAll('[data-connection]').forEach(el=>{
   el.classList.toggle('off',!navigator.onLine);
-  el.querySelector('[data-connection-label]').textContent=navigator.onLine?'Online':'Offline';
+  el.querySelector('[data-connection-label]').textContent=el.dataset.servingHub==='true'?(navigator.onLine?'Connected to hub':'Disconnected'):(navigator.onLine?'Online':'Offline');
  });
 }
 updateConnection();window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);
@@ -111,3 +111,7 @@ document.addEventListener('input',e=>{
  output.textContent=valid?(difference>0?'+':'')+Number(difference.toFixed(3)):'—';
  output.className='pill '+(!valid||Math.abs(difference)<1?'plain':Math.abs(difference)>3?'crit':'warn');
 });
+
+// The server authorizes Undo; this timer only retires its short-lived control.
+function expireUndo(){document.querySelectorAll('[data-undo-until]').forEach(form=>{if(Date.now()>=Date.parse(form.dataset.undoUntil)){form.querySelector('button').disabled=true;form.hidden=true;}});}
+expireUndo();setInterval(expireUndo,250);

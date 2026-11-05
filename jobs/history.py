@@ -86,6 +86,14 @@ def project(branch):
                 )
             if event.type == "job_claimed":
                 row.update(claimed_at=event.occurred_at, status="Claimed")
+            if event.type == "action_undone" and p.get("job_state"):
+                from django.utils.dateparse import parse_datetime
+
+                state = p["job_state"]
+                row.update(**state)
+                for field in ("paid_at", "claimed_at"):
+                    row[field] = parse_datetime(state[field]) if state[field] else None
+                row["paid_amount"] = Decimal(state["paid_amount"])
     return list(rows.values()), events
 
 
@@ -110,6 +118,9 @@ def annotate(event):
         event.description = "Received · " + details
         if p.get("from_paper"):
             event.description += f" · Received on paper as {p.get('paper_ref')}, entered by {p.get('entered_by', 'Staff')} at {p.get('entered_at')}"
+    elif event.type == "payment_reversed":
+        event.kind = "override"
+        event.description = f"Payment reversed · ₱{p['amount']} · {p['method']}"
     elif event.type == "payment_recorded":
         event.description = (
             f"Paid · ₱{p['amount']} · {p['method']} · {p.get('context', '')}"
@@ -180,15 +191,18 @@ def listing(request):
         display_events = day_events
     summary = {
         "received": sum(e.type == "job_created" for e in day_events),
-        "released": sum(e.type == "job_claimed" for e in day_events),
+        "released": sum(e.type == "job_claimed" for e in day_events)
+        - sum(e.type == "claim_reversed" for e in day_events),
         "cash": Decimal("0.00"),
         "gcash": Decimal("0.00"),
     }
     for e in day_events:
-        if e.type in ("payment_recorded", "self_service_started"):
+        if e.type in ("payment_recorded", "self_service_started", "payment_reversed"):
             method = e.payload.get("method")
             if method in ("cash", "gcash"):
-                summary[method] += Decimal(e.payload["amount"])
+                summary[method] += Decimal(e.payload["amount"]) * (
+                    -1 if e.type == "payment_reversed" else 1
+                )
     summary["total"] = summary["cash"] + summary["gcash"]
     return render(
         request,

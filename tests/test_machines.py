@@ -216,7 +216,9 @@ def test_self_service_requires_active_load_service_and_snapshots(
     assert b"Paid self-service" not in scoped_client.get("/machines/").content
 
 
-def test_check_threshold_elapsed_today_and_no_countdown(machine_setup, scoped_client):
+def test_check_threshold_elapsed_today_and_no_countdown(machine_setup, scoped_client, monkeypatch):
+    noon = timezone.localtime().replace(hour=12, minute=0, second=0, microsecond=0)
+    monkeypatch.setattr(timezone, "now", lambda: noon)
     s = machine_setup
     j = job(s)
     l = start(s, j)

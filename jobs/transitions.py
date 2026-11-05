@@ -1,3 +1,4 @@
+from events.journal import recorded_action
 from django.db import transaction
 from django.db.models import Q
 from django.core.exceptions import ValidationError
@@ -26,9 +27,9 @@ def actual_name(job):
 
 
 def lock_job(branch, number, expected):
-    branch = Branch.objects.select_for_update().get(pk=branch.pk)
+    branch = Branch.objects.select_for_update(of=("self",)).get(pk=branch.pk)
     job = (
-        Job.objects.select_for_update()
+        Job.objects.select_for_update(of=("self",))
         .filter(branch=branch, number=number)
         .select_related("status")
         .first()
@@ -62,6 +63,7 @@ def set_stage(job, target, at, staff=None):
 
 
 @transaction.atomic
+@recorded_action
 def advance(branch, number, expected, staff=None, skip_reason="", paper_ready=False):
     branch, job = lock_job(branch, number, expected)
     target = (
@@ -104,6 +106,7 @@ def advance(branch, number, expected, staff=None, skip_reason="", paper_ready=Fa
 
 
 @transaction.atomic
+@recorded_action
 def override(branch, number, expected, target_id, reason="", staff=None):
     branch, job = lock_job(branch, number, expected)
     target = next((s for s in stages(branch) if str(s.id) == str(target_id)), None)
@@ -130,6 +133,7 @@ def override(branch, number, expected, target_id, reason="", staff=None):
 
 
 @transaction.atomic
+@recorded_action
 def claim(branch, number, expected, data, staff=None):
     branch, job = lock_job(branch, number, expected)
     if not job.status.is_last:

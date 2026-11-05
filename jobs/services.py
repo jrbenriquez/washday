@@ -1,3 +1,4 @@
+from events.journal import recorded_action
 from people.context import current_device, actor_name
 import re
 from datetime import datetime, timedelta
@@ -152,10 +153,11 @@ def sheet_time(date, time):
     return dt
 
 
+@transaction.atomic
 def append_event(branch, type, payload, occurred_at, staff):
     Branch.objects.filter(pk=branch.pk).update(event_seq=F("event_seq") + 1)
     branch.refresh_from_db(fields=["event_seq"])
-    return Event.objects.create(
+    event = Event.objects.create(
         shop_id=branch.shop_id,
         branch=branch,
         seq=branch.event_seq,
@@ -165,9 +167,14 @@ def append_event(branch, type, payload, occurred_at, staff):
         actor_staff=staff,
         device=current_device(),
     )
+    from events.journal import event_written
+
+    event_written(event)
+    return event
 
 
 @transaction.atomic
+@recorded_action
 def create_job(data, branch, staff=None):
     branch = Branch.objects.select_for_update().get(pk=branch.pk)
     now = timezone.now()

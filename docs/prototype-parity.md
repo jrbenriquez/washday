@@ -19,9 +19,9 @@ Compared against `reference/prototype/index.html`, starting from main `7e06b91`.
 
 Authentication still separates owners from enrolled branch devices. There is no unauthenticated role switch or arbitrary staff branch selector. Machine starts remain driven by the Jobs board, as recorded in the [accepted decision](../outcomes/washday-mvp/decisions/2026-11-03-machine-start.md).
 
-The prototype's offline switch and sample-data reset are simulations. Hub replication, queued writes and compensating Undo remain separate work. Device last contact is labelled as contact history; it is not presented as a successful sync. The Excel export contains daily collections, including self-service, and does not claim to implement a prescribed BIR template that was not supplied.
+The prototype's offline switch and sample-data reset are simulations. Hub replication, durable server-side queues and compensating Undo are now implemented; see [the operator guide](offline-and-undo.md). Direct device last contact remains labelled as contact history; authenticated hub sync is displayed separately. The Excel export contains daily collections, including self-service, and does not claim to implement a prescribed BIR template that was not supplied.
 
-PIN entry, machine pickers, device enrolment and one-time PIN/code display retain their existing secure page flows. Machine unload remains an explicit button. Staff receipt/request forms remain visible sections; catalog edits use dialogs instead of inline autosave. Stock-count history uses a paginated owner page. Customer creation retains the existing name/phone fields alongside search/selection/reset. Recipe uses are edited in a separate table rather than inline chips. Toasts do not offer Undo.
+PIN entry, machine pickers, device enrolment and one-time PIN/code display retain their existing secure page flows. Machine unload remains an explicit button. Staff receipt/request forms remain visible sections; catalog edits use dialogs instead of inline autosave. Stock-count history uses a paginated owner page. Customer creation retains the existing name/phone fields alongside search/selection/reset. Recipe uses are edited in a separate table rather than inline chips. Reversible-action toasts now offer a six-second, device-bound Undo.
 
 ## Verification
 

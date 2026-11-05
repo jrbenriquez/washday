@@ -41,6 +41,20 @@ def scope(request, single=False):
     return {"branches": branches, "selected_branch": branch, "chosen": chosen}
 
 
+def hub_status(branch):
+    from events.models import HubCredential
+
+    if branch.mode != "hub":
+        return None
+    credential = HubCredential.objects.filter(branch=branch).first()
+    last = credential.last_seen_at if credential else None
+    return {
+        "branch": branch,
+        "last": last,
+        "stale": last is None or timezone.now() - last > timedelta(minutes=30),
+    }
+
+
 @require_POST
 def theme(request):
     owner(request)
@@ -69,11 +83,13 @@ def collections(branches, day):
     for event in Event.objects.filter(
         branch__in=branches,
         occurred_at__date=day,
-        type__in=["payment_recorded", "self_service_started"],
+        type__in=["payment_recorded", "self_service_started", "payment_reversed"],
     ):
         method = event.payload.get("method")
         if method in amounts:
-            amounts[method] += Decimal(event.payload["amount"])
+            amounts[method] += Decimal(event.payload["amount"]) * (
+                -1 if event.type == "payment_reversed" else 1
+            )
     return {**amounts, "total": sum(amounts.values())}
 
 
@@ -88,7 +104,9 @@ def dashboard(request):
         branch__in=branches, archived_at=None, category__archived_at=None
     )
     counts = dict(
-        Load.objects.filter(branch__in=branches, started_at__date=day)
+        Load.objects.filter(
+            branch__in=branches, cancelled_at=None, started_at__date=day
+        )
         .values_list("machine_id")
         .annotate(n=Count("id"))
     )
@@ -101,7 +119,27 @@ def dashboard(request):
         .values("branch_id", "supply_type_id")
         .annotate(total=Sum("qty"))
     }
+    from events.undo import reversed_counts
+    from catalog.supply_identity import resolve
+
+    for (branch_id, supply_id), amount in list(balances.items()):
+        target = resolve(SupplyType.objects.get(pk=supply_id))
+        if target.pk != supply_id:
+            balances[(branch_id, target.pk)] = (
+                balances.get((branch_id, target.pk), 0) + amount
+            )
     for b in branches:
+        reversed_ids = reversed_counts(b)
+        status = hub_status(b)
+        if status and status["stale"]:
+            alerts.append(
+                {
+                    "kind": "info",
+                    "text": f"{b.name} has not synced for over 30 minutes."
+                    if status["last"]
+                    else f"{b.name} is waiting for its first hub sync.",
+                }
+            )
         bars.append(
             {
                 "branch": b,
@@ -127,7 +165,10 @@ def dashboard(request):
                     }
                 )
         full = (
-            StockCount.objects.filter(branch=b, partial=False).order_by("-at").first()
+            StockCount.objects.filter(branch=b, partial=False)
+            .exclude(pk__in=reversed_ids)
+            .order_by("-at")
+            .first()
         )
         age = (day - timezone.localdate(full.at)).days if full else None
         stock_counts.append(
@@ -141,7 +182,12 @@ def dashboard(request):
                 else "crit",
             }
         )
-        latest = StockCount.objects.filter(branch=b).order_by("-at").first()
+        latest = (
+            StockCount.objects.filter(branch=b)
+            .exclude(pk__in=reversed_ids)
+            .order_by("-at")
+            .first()
+        )
         if latest:
             for line in latest.lines.exclude(variance=0).select_related("supply_type"):
                 alerts.append(
@@ -159,6 +205,10 @@ def dashboard(request):
                 "text": f"Job #{j.number} at {j.branch.name} has been ready for over two days.",
             }
         )
+    ctx["supply_conflicts"] = SupplyType.objects.filter(
+        needs_merge=True, archived_at=None
+    )
+    ctx["hub_statuses"] = [status for b in branches if (status := hub_status(b))]
     ctx.update(
         sales=collections(branches, day),
         today=day,
@@ -175,7 +225,9 @@ def dashboard(request):
         requests=SupplyRequest.objects.filter(
             branch__in=branches, status="open"
         ).select_related("branch"),
-        devices=Device.objects.filter(branch__in=branches, revoked_at=None)
+        devices=Device.objects.filter(
+            branch__in=branches, branch__mode="direct", revoked_at=None
+        )
         .select_related("branch")
         .order_by("branch__number", "name"),
     )
@@ -190,7 +242,9 @@ def live(request):
 
     ctx = scope(request, single=True)
     b = ctx["selected_branch"]
-    ts = tiles(b) if b and not b.simple_mode else []
+    status = hub_status(b) if b else None
+    as_of = status["last"] if status and status["stale"] else None
+    ts = tiles(b, as_of=as_of) if b and not b.simple_mode else []
     jobs = Job.objects.filter(branch=b, claimed_at=None) if b else Job.objects.none()
     ctx.update(
         tiles=ts,
@@ -200,6 +254,7 @@ def live(request):
         progress=jobs.exclude(status__is_last=True).count(),
         ready=jobs.filter(status__is_last=True).count(),
         refreshed_at=timezone.now(),
+        hub_status=status,
     )
     return render(request, "owner/live.html", ctx)
 
@@ -217,12 +272,18 @@ def counts(request, branch_id):
         .prefetch_related("lines__supply_type")
         .order_by("-at")
     )
+    from events.undo import reversed_counts
+
+    reversed_ids = set(reversed_counts(b))
+    page = Paginator(rows, 20).get_page(request.GET.get("page"))
+    for count in page:
+        count.was_undone = str(count.pk) in reversed_ids
     return render(
         request,
         "owner/counts.html",
         {
             "count_branch": b,
-            "counts": Paginator(rows, 20).get_page(request.GET.get("page")),
+            "counts": page,
         },
     )
 
@@ -300,7 +361,8 @@ def settings_page(request):
     )
     # Retains the existing branding POST contract.
     if request.method == "POST" and branding.is_valid():
-        branding.save()
+        with transaction.atomic():
+            branding.save()
         messages.success(request, "Shop branding saved.")
         return redirect("owner_shop_settings")
     return render(
@@ -397,6 +459,13 @@ def machines(request):
 
 
 def archive(obj, kind):
+    if kind == "supply" and obj.archived_at:
+        from catalog.models import SupplyAlias
+
+        if SupplyAlias.objects.filter(source=obj).exists():
+            raise ValidationError(
+                "Merged supplies remain in history. Restore or edit the surviving supply type instead."
+            )
     if kind == "stage":
         if obj.is_first or obj.is_last:
             raise ValidationError("Keep the first and Ready stages.")
