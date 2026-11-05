@@ -1,0 +1,1 @@
+<div class="piece-acts"><a class="btn small" data-dialog href="{% url 'owner_record_new' 'size' %}?piece_item={{ item.id }}">+ Size</a><form method="post" action="{% url 'owner_record_edit' 'piece' item.id %}">{% csrf_token %}<input type="hidden" name="action" value="archive"><button class="btn small">Archive</button></form></div>

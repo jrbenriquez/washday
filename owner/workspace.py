@@ -5,13 +5,19 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Sum
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from catalog.models import SupplyType
+from catalog.models import (
+    AddOn,
+    PieceItem,
+    PieceVariant,
+    Service,
+    SupplyType,
+)
 from core.models import Branch, JobStage, Machine, Settings
 from jobs.models import Job
 from machines.models import Load
@@ -378,9 +384,11 @@ def settings_context(request, **extra):
 
     own = owner(request)
     config = Settings.objects.get(shop_id=own.shop_id)
+    operations_form = OperationsForm(instance=config)
+    operations_form.fields["min_kg"].widget.attrs["form"] = "operational-settings"
     return {
         "branding_form": ShopBrandingForm(instance=own.shop),
-        "operations_form": OperationsForm(instance=config),
+        "operations_form": operations_form,
         "policy_form": PolicyForm(
             initial={
                 "pin_enabled": config.pin_enabled,
@@ -388,10 +396,93 @@ def settings_context(request, **extra):
             }
         ),
         "branches": Branch.objects.order_by("number"),
-        "sections": sections(
-            ["stage", "service", "fee", "addon", "recipe", "supply", "piece", "size"]
-        ),
+        "sections": sections(["stage"]),
+        **catalog_context(),
         **extra,
+    }
+
+
+def catalog_context():
+    """Forms share the validated catalog endpoints; HTML form IDs allow table cells."""
+    groups = []
+    descriptions = {
+        "service": "What staff pick for weighed clothes. Rename, change the unit or price, add or remove. Existing jobs keep the price they were created with.",
+        "fee": "Extra charges staff can switch on for a job, such as Rush.",
+        "addon": "Optional extras charged once per job. Set which supplies each one uses so stock stays right.",
+        "supply": "One list for all branches. New supplies start at 0 until a branch receives stock.",
+    }
+    singular = {
+        "service": "service",
+        "fee": "fee",
+        "addon": "add-on",
+        "supply": "supply type",
+    }
+    for kind in ("service", "fee", "addon", "supply"):
+        model, _, title = EDITORS[kind]
+        rows = []
+        objects = model.objects.order_by("name")
+        if kind == "addon":
+            objects = objects.prefetch_related("addonuse_set__supply_type")
+        for obj in objects.filter(archived_at=None):
+            form_id = f"catalog-{obj.pk}"
+            form = editor_form(kind)(instance=obj, auto_id=f"{form_id}-%s")
+            for name, field in form.fields.items():
+                field.widget.attrs.update(
+                    {
+                        "form": form_id,
+                        "aria-label": f"{field.label} for {obj.name}",
+                        "class": "count-in"
+                        if name
+                        in (
+                            "price",
+                            "amount",
+                            "low_level",
+                            "per_washer_load",
+                            "per_packed_job",
+                        )
+                        else "cell-in",
+                    }
+                )
+                if kind == "supply" and name in ("name", "unit"):
+                    from django.forms import HiddenInput
+
+                    field.widget = HiddenInput(attrs={"form": form_id})
+            rows.append(
+                {
+                    "object": obj,
+                    "form": form,
+                    "form_id": form_id,
+                    "uses": [
+                        u
+                        for u in obj.addonuse_set.all()
+                        if not u.supply_type.archived_at
+                    ]
+                    if kind == "addon"
+                    else [],
+                }
+            )
+        groups.append(
+            {
+                "kind": kind,
+                "title": title,
+                "singular": singular[kind],
+                "description": descriptions[kind],
+                "rows": rows,
+                "removed": objects.exclude(archived_at=None),
+            }
+        )
+    pieces = list(
+        PieceItem.objects.filter(archived_at=None)
+        .order_by("name")
+        .prefetch_related("piecevariant_set")
+    )
+    for piece in pieces:
+        piece.sizes = [v for v in piece.piecevariant_set.all() if v.active]
+        piece.removed_sizes = [v for v in piece.piecevariant_set.all() if not v.active]
+    return {
+        "catalog_groups": groups,
+        "pieces": pieces,
+        "removed_pieces": PieceItem.objects.exclude(archived_at=None).order_by("name"),
     }
 
 
@@ -404,13 +495,21 @@ def operations(request):
     form = OperationsForm(request.POST, instance=config)
     if form.is_valid():
         config.version += 1
+        if "staff_can_add_supply" not in request.POST:
+            config.staff_can_add_supply = Settings.objects.get(
+                pk=config.pk
+            ).staff_can_add_supply
         form.save()
         for b in Branch.objects.all():
             audit(
                 b, "settings_updated", "Operational settings updated", owner=own.email
             )
+        if request.headers.get("Accept") == "application/json":
+            return JsonResponse({"saved": True})
         messages.success(request, "Operational settings saved.")
         return redirect("owner_shop_settings")
+    if request.headers.get("Accept") == "application/json":
+        return JsonResponse({"errors": form.errors}, status=422)
     return render(
         request,
         "owner/editor.html",
@@ -459,6 +558,21 @@ def machines(request):
 
 
 def archive(obj, kind):
+    if (
+        kind == "service"
+        and not obj.archived_at
+        and Service.objects.filter(archived_at=None).count() < 2
+    ):
+        raise ValidationError("Keep at least one service.")
+    if (
+        kind == "size"
+        and obj.active
+        and PieceVariant.objects.filter(piece_item=obj.piece_item, active=True).count()
+        < 2
+    ):
+        raise ValidationError(
+            "Keep at least one size for this item. Archive the item to remove it."
+        )
     if kind == "supply" and obj.archived_at:
         from catalog.models import SupplyAlias
 
@@ -556,11 +670,29 @@ def edit(request, kind, record_id=None):
     if kind == "stage" and not record_id:
         last = JobStage.objects.filter(is_last=True, archived_at=None).first()
         initial["sort_order"] = last.sort_order if last else 1
-    form = editor_form(kind)(
+    parent_field = {"size": "piece_item", "recipe": "addon"}.get(kind)
+    parent = None
+    if parent_field and request.GET.get(parent_field):
+        parent_model = PieceItem if kind == "size" else AddOn
+        try:
+            parent = get_object_or_404(
+                parent_model, pk=request.GET[parent_field], archived_at=None
+            )
+        except (ValidationError, ValueError):
+            raise Http404()
+        initial[parent_field] = parent
+    form_class = editor_form(kind)
+    if kind == "piece" and not record_id:
+        from .admin_forms import NewPieceForm
+
+        form_class = NewPieceForm
+    form = form_class(
         request.POST if request.method == "POST" else None,
         instance=obj,
         initial=initial,
     )
+    if parent:
+        form.fields[parent_field].disabled = True
     if request.method == "POST":
         try:
             with transaction.atomic():
@@ -577,7 +709,9 @@ def edit(request, kind, record_id=None):
                     obj = get_object_or_404(
                         model.objects.select_for_update(), pk=record_id
                     )
-                    form = editor_form(kind)(request.POST, instance=obj)
+                    form = form_class(request.POST, instance=obj)
+                    if parent:
+                        form.fields[parent_field].disabled = True
                 if request.POST.get("action") == "archive" and record_id:
                     archive(obj, kind)
                     if kind == "stage" and not obj.archived_at:
@@ -586,11 +720,17 @@ def edit(request, kind, record_id=None):
                     if kind == "stage":
                         save_stage(form.save(commit=False))
                     else:
-                        form.save()
+                        saved = form.save()
+                        if kind == "size" and not record_id:
+                            PieceVariant.objects.filter(
+                                piece_item=saved.piece_item, label="Each"
+                            ).exclude(pk=saved.pk).update(label="Regular")
                     if source:
                         source.status = "fulfilled"
                         source.save(update_fields=["status"])
                 else:
+                    if request.headers.get("Accept") == "application/json":
+                        return JsonResponse({"errors": form.errors}, status=422)
                     return render(
                         request,
                         "owner/editor.html",
@@ -603,6 +743,8 @@ def edit(request, kind, record_id=None):
                     audit(
                         b, "configuration_updated", f"{title} updated", owner=own.email
                     )
+            if request.headers.get("Accept") == "application/json":
+                return JsonResponse({"saved": True})
             messages.success(request, f"{title} saved.")
             return redirect(back)
         except (ValidationError, IntegrityError) as e:
@@ -612,6 +754,8 @@ def edit(request, kind, record_id=None):
                 if isinstance(e, ValidationError)
                 else "A record with these values already exists.",
             )
+    if form.errors and request.headers.get("Accept") == "application/json":
+        return JsonResponse({"errors": form.errors}, status=422)
     return render(
         request,
         "owner/editor.html",
@@ -622,3 +766,23 @@ def edit(request, kind, record_id=None):
         },
         status=422 if form.errors else 200,
     )
+
+
+@require_POST
+@transaction.atomic
+def supply_policy(request):
+    own = owner(request)
+    branches = list(Branch.objects.select_for_update().order_by("pk"))
+    config = Settings.objects.select_for_update().get(shop_id=own.shop_id)
+    config.staff_can_add_supply = request.POST.get("enabled") == "1"
+    config.version += 1
+    config.save(update_fields=["staff_can_add_supply", "version"])
+    for branch in branches:
+        audit(
+            branch,
+            "settings_updated",
+            "Staff supply permission updated",
+            owner=own.email,
+        )
+    messages.success(request, "Staff supply permission saved.")
+    return redirect("owner_shop_settings")

@@ -446,6 +446,22 @@ a.btn{text-decoration:none}
 @media print{body:has(.app-dialog[open])>.shell,body:has(.app-dialog[open])>.auth-main{display:none!important}.app-dialog[open]{position:static;width:auto;max-height:none;overflow:visible;box-shadow:none}.app-dialog .dialog-close{display:none}.app-dialog .dialog-content{padding:0}}
 .machine-admin-row{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
 .machine-admin-row>span:first-child{flex:1;min-width:80px}.machine-admin-row small{display:block}.machine-admin-row .head-actions{flex-wrap:wrap}
+
+/* Owner catalog mirrors the prototype's inline editors and grouped pieces. */
+.settings-section .screen-head{margin-bottom:6px}
+.settings-section .catalog-actions{justify-content:flex-end;flex-wrap:nowrap}
+.catalog-status{display:block;font-size:12px;color:var(--muted);max-width:220px;white-space:normal}
+.removed-items{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.piece-name{vertical-align:top;min-width:160px}
+.piece-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.use-chip a{color:inherit;text-decoration:none}
+.settings-section .uses{min-width:180px}
+.settings-section .count-in{width:96px}
+.settings-catalog .branding-settings{max-width:none}
+@media(max-width:760px){.settings-section .edit-table tr{grid-template-columns:minmax(0,1fr) auto auto}.settings-section .catalog-actions{gap:4px}}
+.settings-section{min-width:0}
+.settings-section .table-wrap{position:relative}
+.set-grid .owner-editor-section{grid-column:1/-1}
 .toast:has([data-undo-until]){background:var(--ink);color:var(--surface);padding:8px 8px 8px 16px}
 .toast form{margin:0;flex:none}
 .live-note.stale{background:var(--warn-soft);color:var(--warn)}

@@ -3,11 +3,12 @@
 {% block content %}
 <div class="screen-head"><div><h2>Settings</h2><p>Shared catalog and workflow settings apply to every branch. Existing jobs keep their saved prices.</p></div></div>
 <div class="set-grid">
-<section class="card stack"><h3>Operations</h3><form method="post" action="{% url 'owner_operations' %}" class="stack owner-form">{% csrf_token %}{{ operations_form.as_div }}<button class="btn">Save operational settings</button></form></section>
+<section class="card stack"><div class="form-row"><label for="id_min_kg"><b>Minimum kilos</b><br><small class="muted">Clothes under this weight are charged as this weight.</small></label>{{ operations_form.min_kg }}{{ operations_form.min_kg.errors }}</div><button class="btn small" form="operational-settings">Save minimum kilos</button><h3>Shared-device PIN rules</h3><form method="post" action="{% url 'owner_pin_rules' %}" class="stack owner-form">{% csrf_token %}{{ policy_form.as_div }}<button class="btn">Save PIN rules</button></form><p class="muted">Personal phones use the signed-in shift; these prompts apply to shared devices.</p></section>
 <section class="card stack"><h3>Branches</h3><p class="muted">Simple mode uses the selected stages and hides machine tracking.</p>{% for b in branches %}<form class="form-row" method="post" action="{% url 'owner_branch_mode' b.id %}">{% csrf_token %}<label class="check"><input type="checkbox" name="simple_mode" value="1" {% if b.simple_mode %}checked{% endif %}>{{ b.name }} · Simple mode</label><button class="btn small">Save branch</button></form>{% endfor %}<a class="button-link" href="{% url 'owner_home' %}">Set branch hours</a></section>
-<section class="card stack"><h3>Shared-device PIN rules</h3><form method="post" action="{% url 'owner_pin_rules' %}" class="stack owner-form">{% csrf_token %}{{ policy_form.as_div }}<button class="btn">Save PIN rules</button></form><p class="muted">Personal phones use the signed-in shift; these prompts apply to shared devices.</p></section>
-<section class="card stack"><h3>Display</h3><form method="post" action="{% url 'owner_theme' %}">{% csrf_token %}<input name="next" type="hidden" value="{% url 'owner_shop_settings' %}"><input name="theme" type="hidden" value="{% if app_theme == 'dark' %}light{% else %}dark{% endif %}"><button class="toggle" role="switch" aria-checked="{% if app_theme == 'dark' %}true{% else %}false{% endif %}"><span><b>Dark theme</b><br><small class="muted">Saved on this device only.</small></span><span class="switch" aria-hidden="true"></span></button></form></section>
-<section class="card stack branding-settings">
+<section class="card stack"><h3>Machines and display</h3><form id="operational-settings" data-catalog-save method="post" action="{% url 'owner_operations' %}" class="stack owner-form">{% csrf_token %}<div class="form-row">{{ operations_form.check_after_min.label_tag }}{{ operations_form.check_after_min }}</div><div class="form-row">{{ operations_form.kg_per_load.label_tag }}{{ operations_form.kg_per_load }}</div><button class="btn">Save operational settings</button><span class="catalog-status" role="status" aria-live="polite"></span></form><form method="post" action="{% url 'owner_theme' %}">{% csrf_token %}<input name="next" type="hidden" value="{% url 'owner_shop_settings' %}"><input name="theme" type="hidden" value="{% if app_theme == 'dark' %}light{% else %}dark{% endif %}"><button class="toggle" role="switch" aria-checked="{% if app_theme == 'dark' %}true{% else %}false{% endif %}"><span><b>Dark theme</b><br><small class="muted">Saved on this device only.</small></span><span class="switch" aria-hidden="true"></span></button></form></section>
+{% include 'owner/catalog_sections.html' %}
+
+</div><div class="stack settings-catalog">{% include 'owner/settings_catalog.html' %}<section class="card stack branding-settings">
   <h3>Shop branding</h3>
   {% if shop.logo_url %}<img class="shop-logo-preview" src="{{ shop.logo_url }}" alt="Current shop logo">{% endif %}
   <form method="post" action="{% url 'owner_shop_settings' %}" enctype="multipart/form-data" class="stack">
@@ -17,6 +18,5 @@
     <div class="field">{{ branding_form.logo.label_tag }}{{ branding_form.logo }}<small class="muted">{{ branding_form.logo.help_text }}</small>{{ branding_form.logo.errors }}</div>
     <button class="btn primary">Save shop branding</button>
   </form>
-</section>
-</div><div class="stack settings-catalog">{% include 'owner/catalog_sections.html' %}</div>
+</section></div>
 {% endblock %}

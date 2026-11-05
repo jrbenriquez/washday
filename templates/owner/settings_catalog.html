@@ -1,0 +1,41 @@
+{% for group in catalog_groups %}
+<section class="card stack settings-section" id="{{ group.kind }}">
+  <div class="screen-head"><div><h3>{{ group.title }}</h3><p>{{ group.description }}</p></div><a class="btn primary small" data-dialog href="{% url 'owner_record_new' group.kind %}">+ Add {{ group.singular }}</a></div>
+  {% if group.kind == 'supply' %}
+  <form method="post" action="{% url 'owner_supply_policy' %}">{% csrf_token %}<input type="hidden" name="enabled" value="{% if operations_form.instance.staff_can_add_supply %}0{% else %}1{% endif %}"><button class="toggle" role="switch" aria-checked="{{ operations_form.instance.staff_can_add_supply|yesno:'true,false' }}"><span><b>Let staff add supply types</b><br><small class="muted">Off: staff can only send you a request. On: staff can add from the Supplies screen.</small></span><span class="switch" aria-hidden="true"></span></button></form>
+  {% endif %}
+  <div class="table-wrap"><table {% if group.kind != 'supply' %}class="edit-table"{% endif %}>
+    <thead><tr><th>{% if group.kind == 'supply' %}Supply{% else %}Name{% endif %}</th>
+      {% if group.kind == 'service' %}<th>Unit</th>{% elif group.kind == 'fee' %}<th>Note for staff</th>{% elif group.kind == 'addon' %}<th>Uses supplies</th>{% else %}<th>Unit</th><th class="r">Low at</th><th class="r">Per washer load</th>{% endif %}
+      <th class="r">{% if group.kind == 'fee' %}Amount (₱){% elif group.kind == 'supply' %}Per packed job{% else %}Price (₱){% endif %}</th><th><span class="sr">Actions</span></th>
+    </tr></thead><tbody>
+    {% for row in group.rows %}
+    <tr>
+      <td>{% if group.kind == 'supply' %}<b>{{ row.object.name }}</b>{{ row.form.name }}{% else %}{{ row.form.name }}{% endif %}</td>
+      {% if group.kind == 'service' %}<td>{{ row.form.mode }}</td>{% elif group.kind == 'fee' %}<td>{{ row.form.note }}</td>{% elif group.kind == 'addon' %}
+      <td><div class="uses">{% for use in row.uses %}<span class="use-chip"><a data-dialog href="{% url 'owner_record_edit' 'recipe' use.id %}">{{ use.supply_type.name }} · {{ use.qty|floatformat:'-3' }} {{ use.supply_type.unit }}</a><form method="post" action="{% url 'owner_record_edit' 'recipe' use.id %}">{% csrf_token %}<input type="hidden" name="action" value="archive"><button aria-label="Stop using {{ use.supply_type.name }} for {{ row.object.name }}">×</button></form></span>{% endfor %}<a class="btn small" data-dialog href="{% url 'owner_record_new' 'recipe' %}?addon={{ row.object.id }}">+ Supply</a></div></td>
+      {% else %}<td>{{ row.object.unit }}{{ row.form.unit }}</td><td class="r">{{ row.form.low_level }}</td><td class="r">{{ row.form.per_washer_load }}</td>{% endif %}
+      <td class="r">{% if group.kind == 'fee' %}{{ row.form.amount }}{% elif group.kind == 'supply' %}{{ row.form.per_packed_job }}{% else %}{{ row.form.price }}{% endif %}</td>
+      <td class="r"><div class="head-actions catalog-actions"><form id="{{ row.form_id }}" method="post" action="{% url 'owner_record_edit' group.kind row.object.id %}" data-catalog-save>{% csrf_token %}<button class="btn small">Save</button><span class="catalog-status" role="status" aria-live="polite"></span></form><form method="post" action="{% url 'owner_record_edit' group.kind row.object.id %}">{% csrf_token %}<input type="hidden" name="action" value="archive"><button class="{% if group.kind == 'supply' %}btn small{% else %}x{% endif %}" aria-label="{% if group.kind == 'supply' %}Archive{% else %}Remove{% endif %} {{ row.object.name }}">{% if group.kind == 'supply' %}Archive{% else %}×{% endif %}</button></form></div></td>
+    </tr>
+    {% empty %}<tr><td colspan="6" class="muted">{% if group.kind == 'fee' %}No fees. Add one if staff need to charge extra, for example Rush.{% else %}None configured yet.{% endif %}</td></tr>{% endfor %}
+    </tbody></table></div>
+    {% if group.removed %}<div class="sample-note removed-items">{% if group.kind == 'supply' %}Archived (kept for old counts and reports):{% else %}Removed:{% endif %}{% for item in group.removed %}<form method="post" action="{% url 'owner_record_edit' group.kind item.id %}">{% csrf_token %}<input type="hidden" name="action" value="archive">{{ item.name }} <button class="btn small">Restore</button></form>{% endfor %}</div>{% endif %}
+    {% if group.kind == 'service' %}<p class="sample-note">Per load uses “Kilos per load” ({{ operations_form.instance.kg_per_load|floatformat:'-2' }} kg) to count loads.</p>{% endif %}
+</section>
+{% endfor %}
+<section class="card stack settings-section" id="piece">
+  <div class="screen-head"><div><h3>Piece items</h3><p>Fixed price per piece, not weighed. Add sizes when the price depends on size, for example a king comforter.</p></div><a class="btn primary small" data-dialog href="{% url 'owner_record_new' 'piece' %}">+ Add piece item</a></div>
+  <div class="table-wrap"><table><thead><tr><th>Item</th><th>Size</th><th class="r">Price (₱)</th><th><span class="sr">Actions</span></th></tr></thead><tbody>
+    {% for item in pieces %}
+      {% for size in item.sizes %}<tr>
+        {% if forloop.first %}<td rowspan="{{ item.sizes|length }}" class="piece-name"><b>{{ item.name }}</b>{% include 'owner/piece_actions.html' %}</td>{% endif %}
+        <td>{{ size.label }}</td><td class="r"><input class="count-in" type="number" min="0" step="0.01" name="price" value="{{ size.price }}" form="size-{{ size.id }}" aria-label="Price for {{ item.name }} {{ size.label }}"></td>
+        <td class="r"><div class="head-actions catalog-actions"><form id="size-{{ size.id }}" method="post" action="{% url 'owner_record_edit' 'size' size.id %}" data-catalog-save>{% csrf_token %}<input type="hidden" name="piece_item" value="{{ item.id }}"><input type="hidden" name="label" value="{{ size.label }}"><button class="btn small">Save</button><span class="catalog-status" role="status" aria-live="polite"></span></form>{% if item.sizes|length > 1 %}<form method="post" action="{% url 'owner_record_edit' 'size' size.id %}">{% csrf_token %}<input type="hidden" name="action" value="archive"><button class="x" aria-label="Remove size {{ size.label }} for {{ item.name }}">×</button></form>{% endif %}</div></td>
+      </tr>{% empty %}<tr><td class="piece-name"><b>{{ item.name }}</b>{% include 'owner/piece_actions.html' %}</td><td colspan="3" class="muted">Add a size and price to offer this item.</td></tr>{% endfor %}
+      {% if item.removed_sizes %}<tr><td colspan="4"><div class="sample-note removed-items">Removed sizes for {{ item.name }}:{% for size in item.removed_sizes %}<form method="post" action="{% url 'owner_record_edit' 'size' size.id %}">{% csrf_token %}<input type="hidden" name="action" value="archive">{{ size.label }} <button class="btn small">Restore</button></form>{% endfor %}</div></td></tr>{% endif %}
+    {% empty %}<tr><td colspan="4" class="muted">No piece items. Add an item with its first size and price.</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% if removed_pieces %}<div class="sample-note removed-items">Archived:{% for item in removed_pieces %}<form method="post" action="{% url 'owner_record_edit' 'piece' item.id %}">{% csrf_token %}<input type="hidden" name="action" value="archive">{{ item.name }} <button class="btn small">Restore</button></form>{% endfor %}</div>{% endif %}
+  <p class="sample-note">Pieces don't count toward the minimum kilos. Existing jobs keep the price they were created with.</p>
+</section>
