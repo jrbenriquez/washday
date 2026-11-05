@@ -35,7 +35,7 @@ updateClock();setInterval(updateClock,30000);
 function updateConnection(){
  document.querySelectorAll('[data-connection]').forEach(el=>{
   el.classList.toggle('off',!navigator.onLine);
-  el.querySelector('[data-connection-label]').textContent=navigator.onLine?'Online':'Offline';
+  el.querySelector('[data-connection-label]').textContent=el.dataset.servingHub==='true'?(navigator.onLine?'Connected to hub':'Disconnected'):(navigator.onLine?'Online':'Offline');
  });
 }
 updateConnection();window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);
@@ -111,3 +111,32 @@ document.addEventListener('input',e=>{
  output.textContent=valid?(difference>0?'+':'')+Number(difference.toFixed(3)):'—';
  output.className='pill '+(!valid||Math.abs(difference)<1?'plain':Math.abs(difference)>3?'crit':'warn');
 });
+
+// Inline catalog edits keep ordinary Save buttons as a no-JavaScript fallback.
+document.addEventListener('change',e=>{
+ const form=e.target.form;
+ if(form?.matches('[data-catalog-save]'))form.requestSubmit();
+});
+document.addEventListener('submit',async e=>{
+ const form=e.target;
+ if(!form.matches('[data-catalog-save]'))return;
+ e.preventDefault();
+ if(!form.reportValidity())return;
+ if(form.dataset.saving){form.dataset.pending='1';return;}
+ form.dataset.saving='1';
+ const status=form.querySelector('[role="status"]');status.textContent='Saving…';
+ try{
+  const response=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
+  if(response.redirected)throw new Error('Your session changed. Reload the page before saving.');
+  const result=await response.json();
+  if(!response.ok)throw new Error(Object.values(result.errors||{}).flat().join(' ')||'Could not save. Try again.');
+  status.textContent='Saved';
+ }catch(error){status.textContent=error.message||'Could not save. Try again.';}
+ finally{
+  delete form.dataset.saving;
+  if(form.dataset.pending){delete form.dataset.pending;form.requestSubmit();}
+ }
+});
+// The server authorizes Undo; this timer only retires its short-lived control.
+function expireUndo(){document.querySelectorAll('[data-undo-until]').forEach(form=>{if(Date.now()>=Date.parse(form.dataset.undoUntil)){form.querySelector('button').disabled=true;form.hidden=true;}});}
+expireUndo();setInterval(expireUndo,250);

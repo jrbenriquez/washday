@@ -1,3 +1,6 @@
+from events.journal import recorded_action
+from django.conf import settings
+from django.db.models import F
 import hashlib
 import re
 import secrets
@@ -31,10 +34,11 @@ def authenticate_device(token):
             key_hash=token_digest(token),
             kind__in=["shared", "personal"],
             revoked_at=None,
-            branch__mode="direct",
+            branch__mode="hub" if settings.APP_ROLE == "hub" else "direct",
+            enrol_epoch=F("branch__writer_epoch"),
             shop__archived_at=None,
         )
-        .first()
+        .filter(**({"branch_id": settings.HUB_BRANCH_ID} if settings.APP_ROLE == "hub" else {})).first()
     )
 
 
@@ -43,12 +47,19 @@ def lock_branch(device):
 
 
 def audit(branch, kind, description, staff=None, **payload):
+    if settings.APP_ROLE == "cloud" and branch.mode == "hub":
+        from events.models import ConfigurationAudit
+        return ConfigurationAudit.objects.create(shop_id=branch.shop_id,branch=branch,kind=kind,
+            payload={"description":description,**payload},at=timezone.now())
     return append_event(
         branch, kind, {"description": description, **payload}, timezone.now(), staff
     )
 
 
 def _close_shift(shift, at, reason):
+    if settings.APP_ROLE == "cloud" and shift.device.branch.mode == "hub":
+        # The hub observes the access change on pull and closes its own shift.
+        return
     shift.ended_at = at
     shift.ended_by = reason
     shift.save(update_fields=["ended_at", "ended_by"])
@@ -121,7 +132,8 @@ def issue_code(device, owner_email=""):
     )
     device.setup_failures = 0
     device.setup_locked_until = None
-    device.save(update_fields=["setup_failures", "setup_locked_until"])
+    device.config_revision += 1
+    device.save(update_fields=["setup_failures", "setup_locked_until", "config_revision"])
     audit(
         branch,
         "device_code_issued",
@@ -132,12 +144,16 @@ def issue_code(device, owner_email=""):
     return code, result
 
 
+@recorded_action
 def enroll(public_device, code):
     with shop_context(public_device.shop_id), transaction.atomic():
         branch = lock_branch(public_device)
         device = Device.objects.select_for_update().get(pk=public_device.pk)
         now = timezone.now()
-        if device.branch.mode != "direct":
+        from events.sync.authority import assert_writer
+        try:
+            assert_writer(branch)
+        except ValidationError:
             return (
                 None,
                 None,
@@ -163,6 +179,8 @@ def enroll(public_device, code):
         close_device_shifts(device, now, "reenrolled")
         token = secrets.token_urlsafe(32)
         device.key_hash = token_digest(token)
+        device.enrol_epoch = branch.writer_epoch
+        device.key_revision = device.config_revision
         device.revoked_at = None
         device.last_seen_at = now
         device.setup_failures = 0
@@ -170,6 +188,8 @@ def enroll(public_device, code):
         device.save(
             update_fields=[
                 "key_hash",
+                "enrol_epoch",
+                "key_revision",
                 "revoked_at",
                 "last_seen_at",
                 "setup_failures",
@@ -219,6 +239,7 @@ def verify_pin(device, pin, staff_id=None):
     return staff, ""
 
 
+@recorded_action
 def current_shift(device):
     shift = (
         Shift.objects.filter(device=device, ended_at=None)
@@ -252,6 +273,7 @@ def current_shift(device):
 
 
 @transaction.atomic
+@recorded_action
 def begin_shift(device, staff):
     branch = lock_branch(device)
     device = Device.objects.select_for_update().get(pk=device.pk)
@@ -285,6 +307,7 @@ def begin_shift(device, staff):
 
 
 @transaction.atomic
+@recorded_action
 def end_shift(device):
     lock_branch(device)
     close_device_shifts(device, timezone.now(), "staff")
@@ -297,7 +320,8 @@ def revoke_device(device, owner_email=""):
     now = timezone.now()
     device.revoked_at = now
     device.key_hash = None
-    device.save(update_fields=["revoked_at", "key_hash"])
+    device.config_revision += 1
+    device.save(update_fields=["revoked_at", "key_hash", "config_revision"])
     DeviceSetupCode.objects.filter(device=device, used_at=None).update(used_at=now)
     close_device_shifts(device, now, "revoked")
     audit(

@@ -5,9 +5,15 @@
     "reference": "assignment.md",
     "fingerprint": "sha256:17fdab932da6ff8867d1b5636ac6b7ae9e9728252a64844ddffb83a8055df53c"
   },
-  "phase": "blocked",
-  "step": "ready",
-  "scope": [],
+  "phase": "verify",
+  "step": "running",
+  "scope": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05"
+  ],
   "implementation_attempts": {
     "started": 3,
     "maximum": 3
@@ -16,7 +22,7 @@
   "criteria": [
     {
       "id": "AC-01",
-      "status": "PASS",
+      "status": "INCONCLUSIVE",
       "evidence": [
         {
           "handoff": "handoffs/verify-3.json",
@@ -27,12 +33,12 @@
           "id": "V2"
         }
       ],
-      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
-      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback."
+      "verified_workspace": null,
+      "reason": "Main integration invalidates previous workspace evidence; fresh browser/full-suite observations required."
     },
     {
       "id": "AC-02",
-      "status": "PASS",
+      "status": "INCONCLUSIVE",
       "evidence": [
         {
           "handoff": "handoffs/verify-3.json",
@@ -43,12 +49,12 @@
           "id": "V2"
         }
       ],
-      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
-      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback."
+      "verified_workspace": null,
+      "reason": "Main integration invalidates previous workspace evidence; fresh browser/full-suite observations required."
     },
     {
       "id": "AC-03",
-      "status": "PASS",
+      "status": "INCONCLUSIVE",
       "evidence": [
         {
           "handoff": "handoffs/verify-3.json",
@@ -59,12 +65,12 @@
           "id": "V2"
         }
       ],
-      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
-      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback."
+      "verified_workspace": null,
+      "reason": "Main integration invalidates previous workspace evidence; fresh browser/full-suite observations required."
     },
     {
       "id": "AC-04",
-      "status": "PASS",
+      "status": "INCONCLUSIVE",
       "evidence": [
         {
           "handoff": "handoffs/verify-3.json",
@@ -75,8 +81,8 @@
           "id": "V2"
         }
       ],
-      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
-      "reason": "Independent review plus focused and full-suite observations establish navigation, branch editing/defaults, central settings home, validation, ownership and atomic rollback."
+      "verified_workspace": null,
+      "reason": "Main integration invalidates previous workspace evidence; fresh browser/full-suite observations required."
     },
     {
       "id": "AC-05",
@@ -91,8 +97,8 @@
           "id": "V2"
         }
       ],
-      "verified_workspace": "sha256:ffe7a42e69b1b3352ea39a121133e42844bdb2198e59fc44af4ffe7acddf7124",
-      "reason": "Final browser matrix and mobile screenshots pass. Full regression suite has a pre-existing midnight-sensitive machine-test failure; merge gate remains unmet."
+      "verified_workspace": null,
+      "reason": "Main integration invalidates previous workspace evidence; fresh browser/full-suite observations required."
     }
   ],
   "latest_handoff": {
@@ -114,12 +120,18 @@
       "decision": "ESCALATE"
     }
   ],
-  "blockers": [
-    {
-      "code": "attempt_limit",
-      "reason": "3 of 3 implementation attempts used. Pre-existing test clock needs correction.",
-      "next": "User approval requested to raise maximum to 4."
-    }
-  ],
-  "next": "Await budget decision; feature complete but merge gate is pending green full suite."
+  "blockers": [],
+  "next": "Verify merge with main 1b0fbcc; prior midnight-test blocker is fixed upstream. Full tests rerunning after settings-version fixture baseline correction.",
+  "main_update": {
+    "authorization": "User explicitly requested updating PR #9 from main and resolving conflicts; prior instruction authorizes merge after green tests.",
+    "main": "1b0fbcc",
+    "changes": [
+      "Combine BranchForm and NewPieceForm, Count/Max/Sum and JsonResponse imports, branch management and supply policy views, both CSS additions.",
+      "Retain main Settings catalog/minimum-kilos layout with Branches link in place of duplicate branch form.",
+      "Retain hub stale-state live view and newer audit/replication behavior.",
+      "Measure Settings.version after fixture branch creation because upstream catalog signals now increment it."
+    ],
+    "attempt_note": "Original workflow attempt history retained. Upstream integration is the newly requested PR maintenance; no budget reset or standalone midnight-test repair.",
+    "checks": "Both browser suites passed; full regression rerunning."
+  }
 }

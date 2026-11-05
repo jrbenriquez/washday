@@ -11,6 +11,7 @@ ALLOWED_HOSTS = os.environ.get(
     "DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1,[::1],testserver"
 ).split(",")
 INSTALLED_APPS = [
+    "rest_framework",
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "django.contrib.sessions",
@@ -32,6 +33,7 @@ INSTALLED_APPS = [
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -82,7 +84,8 @@ STATIC_URL = "/static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media")))
+WHITENOISE_USE_FINDERS = DEBUG
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DEV_BRANCH_ID = os.environ.get("DEV_BRANCH_ID", "") if DEBUG else ""
 DEV_STAFF_ID = os.environ.get("DEV_STAFF_ID", "") if DEBUG else ""
@@ -129,3 +132,20 @@ DEVICE_SETUP_ALLOW_BROWSER = (
 ENABLE_DEV_BRANCH_SCOPE = (
     DEBUG and os.environ.get("ENABLE_DEV_BRANCH_SCOPE", "0") == "1"
 )
+
+APP_ROLE = os.environ.get('APP_ROLE', 'cloud')
+if APP_ROLE not in ('cloud', 'hub'):
+    raise ImproperlyConfigured('APP_ROLE must be cloud or hub')
+HUB_BRANCH_ID = os.environ.get('HUB_BRANCH_ID', '')
+HUB_CLOUD_URL = os.environ.get('HUB_CLOUD_URL', '')
+HUB_KEY = os.environ.get('HUB_KEY', '')
+if APP_ROLE == 'hub':
+    import uuid
+    try:
+        uuid.UUID(HUB_BRANCH_ID)
+    except (ValueError, TypeError):
+        raise ImproperlyConfigured('Set HUB_BRANCH_ID to the assigned branch UUID')
+    if DATABASES['default']['ENGINE'] != 'django.db.backends.sqlite3':
+        raise ImproperlyConfigured('Hub role requires local SQLite storage')
+if not DEBUG and APP_ROLE == 'cloud' and DATABASES['default']['ENGINE'] != 'django.db.backends.postgresql':
+    raise ImproperlyConfigured('Cloud production role requires PostgreSQL')

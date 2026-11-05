@@ -38,6 +38,7 @@ class PieceVariant(TenantModel):
 
 
 class SupplyType(CatalogModel):
+    needs_merge = models.BooleanField(default=False)
     unit = models.CharField(max_length=30)
     low_level = models.DecimalField(max_digits=12, decimal_places=3, default=0)
     per_washer_load = models.DecimalField(max_digits=12, decimal_places=3, default=0)
@@ -48,7 +49,7 @@ class SupplyType(CatalogModel):
             models.UniqueConstraint(
                 models.functions.Lower("name"),
                 "shop",
-                condition=models.Q(archived_at=None),
+                condition=models.Q(archived_at=None, needs_merge=False),
                 name="active_supply_name_ci",
             )
         ]
@@ -65,3 +66,8 @@ class AddOnUse(TenantModel):
                 fields=["addon", "supply_type"], name="addon_supply_recipe"
             )
         ]
+
+
+class SupplyAlias(TenantModel):
+    source = models.OneToOneField(SupplyType, on_delete=models.PROTECT, related_name="alias_source")
+    target = models.ForeignKey(SupplyType, on_delete=models.PROTECT, related_name="alias_targets")

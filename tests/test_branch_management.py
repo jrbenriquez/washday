@@ -56,12 +56,13 @@ def test_navigation_live_and_single_settings_home(own):
 
 def test_add_defaults_allocation_version_and_event(own):
     c, s = own
-    version = Settings.objects.get().version
     r = c.get("/owner/branches/new/")
     assert r.context["form"]["simple_mode"].value() is True
     assert r.context["form"]["connection_mode"].value() == "direct"
     # Sparse numbering is preserved; no existing counter is overwritten.
     Branch.objects.create(shop=s["shop"], name="Sparse", code="SPARSE", number=7)
+    # Catalog signals now advance the version for fixture configuration changes too.
+    version = Settings.objects.get().version
     r = c.post("/owner/branches/new/", details(number="1", shop="forged", job_seq="99"))
     assert r.status_code == 302 and r.url == "/owner/branches/manage/"
     b = Branch.objects.get(code="NORTH")

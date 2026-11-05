@@ -1,0 +1,46 @@
+{
+  "type": "implementation",
+  "outcome_id": "washday-mvp-sync",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "READY_FOR_VERIFICATION",
+  "changes": [
+    {
+      "target": "events/sync, core/runtime, role/auth services, Dockerfile",
+      "summary": "Authenticated bounded replication, ordered inbox/outbox, versioned configuration, local WAL, role fencing and mode migration."
+    },
+    {
+      "target": "catalog/supply_identity.py, owner/supply_merge.py",
+      "summary": "Explicit supply identity conflicts and owner merge preserving immutable history."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "I1",
+      "action": "Exploratory pytest, two-process HTTP/Cypress, capacity and image build checks",
+      "context": "sha256:4bb5a82aef33759cc7d252111650b83cf036e19f9558854f7c6c5eff5e895aeb",
+      "observation": "Implementation checks exercised core paths; final independent integrated checks are now running.",
+      "reference": ".agents/work/undo-offline/evidence/"
+    }
+  ],
+  "assumptions": [
+    "One operational hub database per branch; one supervised sync worker.",
+    "Physical rollout remains separate from local code implementation."
+  ],
+  "gaps": [
+    "Four-hour physical router outage and full-day multi-device home dry run unavailable.",
+    "Wi-Fi timing/hardware evidence unavailable.",
+    "Native arm64 image test requires CI."
+  ],
+  "blockers": [],
+  "next": "Independently inspect frozen implementation and gather integrated regressions, visual comparisons and native CI."
+}

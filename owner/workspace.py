@@ -5,13 +5,19 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Max, Sum
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from catalog.models import SupplyType
+from catalog.models import (
+    AddOn,
+    PieceItem,
+    PieceVariant,
+    Service,
+    SupplyType,
+)
 from core.models import Branch, JobStage, Machine, Settings
 from jobs.models import Job
 from machines.models import Load
@@ -39,6 +45,20 @@ def scope(request, single=False):
         )
         chosen = [branch] if branch else []
     return {"branches": branches, "selected_branch": branch, "chosen": chosen}
+
+
+def hub_status(branch):
+    from events.models import HubCredential
+
+    if branch.mode != "hub":
+        return None
+    credential = HubCredential.objects.filter(branch=branch).first()
+    last = credential.last_seen_at if credential else None
+    return {
+        "branch": branch,
+        "last": last,
+        "stale": last is None or timezone.now() - last > timedelta(minutes=30),
+    }
 
 
 @require_POST
@@ -69,11 +89,13 @@ def collections(branches, day):
     for event in Event.objects.filter(
         branch__in=branches,
         occurred_at__date=day,
-        type__in=["payment_recorded", "self_service_started"],
+        type__in=["payment_recorded", "self_service_started", "payment_reversed"],
     ):
         method = event.payload.get("method")
         if method in amounts:
-            amounts[method] += Decimal(event.payload["amount"])
+            amounts[method] += Decimal(event.payload["amount"]) * (
+                -1 if event.type == "payment_reversed" else 1
+            )
     return {**amounts, "total": sum(amounts.values())}
 
 
@@ -88,7 +110,9 @@ def dashboard(request):
         branch__in=branches, archived_at=None, category__archived_at=None
     )
     counts = dict(
-        Load.objects.filter(branch__in=branches, started_at__date=day)
+        Load.objects.filter(
+            branch__in=branches, cancelled_at=None, started_at__date=day
+        )
         .values_list("machine_id")
         .annotate(n=Count("id"))
     )
@@ -101,7 +125,27 @@ def dashboard(request):
         .values("branch_id", "supply_type_id")
         .annotate(total=Sum("qty"))
     }
+    from events.undo import reversed_counts
+    from catalog.supply_identity import resolve
+
+    for (branch_id, supply_id), amount in list(balances.items()):
+        target = resolve(SupplyType.objects.get(pk=supply_id))
+        if target.pk != supply_id:
+            balances[(branch_id, target.pk)] = (
+                balances.get((branch_id, target.pk), 0) + amount
+            )
     for b in branches:
+        reversed_ids = reversed_counts(b)
+        status = hub_status(b)
+        if status and status["stale"]:
+            alerts.append(
+                {
+                    "kind": "info",
+                    "text": f"{b.name} has not synced for over 30 minutes."
+                    if status["last"]
+                    else f"{b.name} is waiting for its first hub sync.",
+                }
+            )
         bars.append(
             {
                 "branch": b,
@@ -127,7 +171,10 @@ def dashboard(request):
                     }
                 )
         full = (
-            StockCount.objects.filter(branch=b, partial=False).order_by("-at").first()
+            StockCount.objects.filter(branch=b, partial=False)
+            .exclude(pk__in=reversed_ids)
+            .order_by("-at")
+            .first()
         )
         age = (day - timezone.localdate(full.at)).days if full else None
         stock_counts.append(
@@ -141,7 +188,12 @@ def dashboard(request):
                 ),
             }
         )
-        latest = StockCount.objects.filter(branch=b).order_by("-at").first()
+        latest = (
+            StockCount.objects.filter(branch=b)
+            .exclude(pk__in=reversed_ids)
+            .order_by("-at")
+            .first()
+        )
         if latest:
             for line in latest.lines.exclude(variance=0).select_related("supply_type"):
                 alerts.append(
@@ -159,6 +211,10 @@ def dashboard(request):
                 "text": f"Job #{j.number} at {j.branch.name} has been ready for over two days.",
             }
         )
+    ctx["supply_conflicts"] = SupplyType.objects.filter(
+        needs_merge=True, archived_at=None
+    )
+    ctx["hub_statuses"] = [status for b in branches if (status := hub_status(b))]
     ctx.update(
         sales=collections(branches, day),
         today=day,
@@ -175,7 +231,9 @@ def dashboard(request):
         requests=SupplyRequest.objects.filter(
             branch__in=branches, status="open"
         ).select_related("branch"),
-        devices=Device.objects.filter(branch__in=branches, revoked_at=None)
+        devices=Device.objects.filter(
+            branch__in=branches, branch__mode="direct", revoked_at=None
+        )
         .select_related("branch")
         .order_by("branch__number", "name"),
     )
@@ -190,7 +248,9 @@ def live(request):
 
     ctx = scope(request, single=True)
     b = ctx["selected_branch"]
-    ts = tiles(b) if b and not b.simple_mode else []
+    status = hub_status(b) if b else None
+    as_of = status["last"] if status and status["stale"] else None
+    ts = tiles(b, as_of=as_of) if b and not b.simple_mode else []
     jobs = Job.objects.filter(branch=b, claimed_at=None) if b else Job.objects.none()
     ctx.update(
         tiles=ts,
@@ -200,6 +260,7 @@ def live(request):
         progress=jobs.exclude(status__is_last=True).count(),
         ready=jobs.filter(status__is_last=True).count(),
         refreshed_at=timezone.now(),
+        hub_status=status,
     )
     return render(request, "owner/live.html", ctx)
 
@@ -217,12 +278,18 @@ def counts(request, branch_id):
         .prefetch_related("lines__supply_type")
         .order_by("-at")
     )
+    from events.undo import reversed_counts
+
+    reversed_ids = set(reversed_counts(b))
+    page = Paginator(rows, 20).get_page(request.GET.get("page"))
+    for count in page:
+        count.was_undone = str(count.pk) in reversed_ids
     return render(
         request,
         "owner/counts.html",
         {
             "count_branch": b,
-            "counts": Paginator(rows, 20).get_page(request.GET.get("page")),
+            "counts": page,
         },
     )
 
@@ -300,7 +367,8 @@ def settings_page(request):
     )
     # Retains the existing branding POST contract.
     if request.method == "POST" and branding.is_valid():
-        branding.save()
+        with transaction.atomic():
+            branding.save()
         messages.success(request, "Shop branding saved.")
         return redirect("owner_shop_settings")
     return render(
@@ -316,9 +384,11 @@ def settings_context(request, **extra):
 
     own = owner(request)
     config = Settings.objects.get(shop_id=own.shop_id)
+    operations_form = OperationsForm(instance=config)
+    operations_form.fields["min_kg"].widget.attrs["form"] = "operational-settings"
     return {
         "branding_form": ShopBrandingForm(instance=own.shop),
-        "operations_form": OperationsForm(instance=config),
+        "operations_form": operations_form,
         "policy_form": PolicyForm(
             initial={
                 "pin_enabled": config.pin_enabled,
@@ -326,10 +396,93 @@ def settings_context(request, **extra):
             }
         ),
         "branches": Branch.objects.order_by("number"),
-        "sections": sections(
-            ["stage", "service", "fee", "addon", "recipe", "supply", "piece", "size"]
-        ),
+        "sections": sections(["stage"]),
+        **catalog_context(),
         **extra,
+    }
+
+
+def catalog_context():
+    """Forms share the validated catalog endpoints; HTML form IDs allow table cells."""
+    groups = []
+    descriptions = {
+        "service": "What staff pick for weighed clothes. Rename, change the unit or price, add or remove. Existing jobs keep the price they were created with.",
+        "fee": "Extra charges staff can switch on for a job, such as Rush.",
+        "addon": "Optional extras charged once per job. Set which supplies each one uses so stock stays right.",
+        "supply": "One list for all branches. New supplies start at 0 until a branch receives stock.",
+    }
+    singular = {
+        "service": "service",
+        "fee": "fee",
+        "addon": "add-on",
+        "supply": "supply type",
+    }
+    for kind in ("service", "fee", "addon", "supply"):
+        model, _, title = EDITORS[kind]
+        rows = []
+        objects = model.objects.order_by("name")
+        if kind == "addon":
+            objects = objects.prefetch_related("addonuse_set__supply_type")
+        for obj in objects.filter(archived_at=None):
+            form_id = f"catalog-{obj.pk}"
+            form = editor_form(kind)(instance=obj, auto_id=f"{form_id}-%s")
+            for name, field in form.fields.items():
+                field.widget.attrs.update(
+                    {
+                        "form": form_id,
+                        "aria-label": f"{field.label} for {obj.name}",
+                        "class": "count-in"
+                        if name
+                        in (
+                            "price",
+                            "amount",
+                            "low_level",
+                            "per_washer_load",
+                            "per_packed_job",
+                        )
+                        else "cell-in",
+                    }
+                )
+                if kind == "supply" and name in ("name", "unit"):
+                    from django.forms import HiddenInput
+
+                    field.widget = HiddenInput(attrs={"form": form_id})
+            rows.append(
+                {
+                    "object": obj,
+                    "form": form,
+                    "form_id": form_id,
+                    "uses": [
+                        u
+                        for u in obj.addonuse_set.all()
+                        if not u.supply_type.archived_at
+                    ]
+                    if kind == "addon"
+                    else [],
+                }
+            )
+        groups.append(
+            {
+                "kind": kind,
+                "title": title,
+                "singular": singular[kind],
+                "description": descriptions[kind],
+                "rows": rows,
+                "removed": objects.exclude(archived_at=None),
+            }
+        )
+    pieces = list(
+        PieceItem.objects.filter(archived_at=None)
+        .order_by("name")
+        .prefetch_related("piecevariant_set")
+    )
+    for piece in pieces:
+        piece.sizes = [v for v in piece.piecevariant_set.all() if v.active]
+        piece.removed_sizes = [v for v in piece.piecevariant_set.all() if not v.active]
+    return {
+        "catalog_groups": groups,
+        "pieces": pieces,
+        "removed_pieces": PieceItem.objects.exclude(archived_at=None).order_by("name"),
     }
 
 
@@ -342,13 +495,21 @@ def operations(request):
     form = OperationsForm(request.POST, instance=config)
     if form.is_valid():
         config.version += 1
+        if "staff_can_add_supply" not in request.POST:
+            config.staff_can_add_supply = Settings.objects.get(
+                pk=config.pk
+            ).staff_can_add_supply
         form.save()
         for b in Branch.objects.all():
             audit(
                 b, "settings_updated", "Operational settings updated", owner=own.email
             )
+        if request.headers.get("Accept") == "application/json":
+            return JsonResponse({"saved": True})
         messages.success(request, "Operational settings saved.")
         return redirect("owner_shop_settings")
+    if request.headers.get("Accept") == "application/json":
+        return JsonResponse({"errors": form.errors}, status=422)
     return render(
         request,
         "owner/editor.html",
@@ -400,6 +561,28 @@ def machines(request):
 
 
 def archive(obj, kind):
+    if (
+        kind == "service"
+        and not obj.archived_at
+        and Service.objects.filter(archived_at=None).count() < 2
+    ):
+        raise ValidationError("Keep at least one service.")
+    if (
+        kind == "size"
+        and obj.active
+        and PieceVariant.objects.filter(piece_item=obj.piece_item, active=True).count()
+        < 2
+    ):
+        raise ValidationError(
+            "Keep at least one size for this item. Archive the item to remove it."
+        )
+    if kind == "supply" and obj.archived_at:
+        from catalog.models import SupplyAlias
+
+        if SupplyAlias.objects.filter(source=obj).exists():
+            raise ValidationError(
+                "Merged supplies remain in history. Restore or edit the surviving supply type instead."
+            )
     if kind == "stage":
         if obj.is_first or obj.is_last:
             raise ValidationError("Keep the first and Ready stages.")
@@ -490,11 +673,29 @@ def edit(request, kind, record_id=None):
     if kind == "stage" and not record_id:
         last = JobStage.objects.filter(is_last=True, archived_at=None).first()
         initial["sort_order"] = last.sort_order if last else 1
-    form = editor_form(kind)(
+    parent_field = {"size": "piece_item", "recipe": "addon"}.get(kind)
+    parent = None
+    if parent_field and request.GET.get(parent_field):
+        parent_model = PieceItem if kind == "size" else AddOn
+        try:
+            parent = get_object_or_404(
+                parent_model, pk=request.GET[parent_field], archived_at=None
+            )
+        except (ValidationError, ValueError):
+            raise Http404()
+        initial[parent_field] = parent
+    form_class = editor_form(kind)
+    if kind == "piece" and not record_id:
+        from .admin_forms import NewPieceForm
+
+        form_class = NewPieceForm
+    form = form_class(
         request.POST if request.method == "POST" else None,
         instance=obj,
         initial=initial,
     )
+    if parent:
+        form.fields[parent_field].disabled = True
     if request.method == "POST":
         try:
             with transaction.atomic():
@@ -511,7 +712,9 @@ def edit(request, kind, record_id=None):
                     obj = get_object_or_404(
                         model.objects.select_for_update(), pk=record_id
                     )
-                    form = editor_form(kind)(request.POST, instance=obj)
+                    form = form_class(request.POST, instance=obj)
+                    if parent:
+                        form.fields[parent_field].disabled = True
                 if request.POST.get("action") == "archive" and record_id:
                     archive(obj, kind)
                     if kind == "stage" and not obj.archived_at:
@@ -520,11 +723,17 @@ def edit(request, kind, record_id=None):
                     if kind == "stage":
                         save_stage(form.save(commit=False))
                     else:
-                        form.save()
+                        saved = form.save()
+                        if kind == "size" and not record_id:
+                            PieceVariant.objects.filter(
+                                piece_item=saved.piece_item, label="Each"
+                            ).exclude(pk=saved.pk).update(label="Regular")
                     if source:
                         source.status = "fulfilled"
                         source.save(update_fields=["status"])
                 else:
+                    if request.headers.get("Accept") == "application/json":
+                        return JsonResponse({"errors": form.errors}, status=422)
                     return render(
                         request,
                         "owner/editor.html",
@@ -537,6 +746,8 @@ def edit(request, kind, record_id=None):
                     audit(
                         b, "configuration_updated", f"{title} updated", owner=own.email
                     )
+            if request.headers.get("Accept") == "application/json":
+                return JsonResponse({"saved": True})
             messages.success(request, f"{title} saved.")
             return redirect(back)
         except (ValidationError, IntegrityError) as e:
@@ -548,6 +759,8 @@ def edit(request, kind, record_id=None):
                     else "A record with these values already exists."
                 ),
             )
+    if form.errors and request.headers.get("Accept") == "application/json":
+        return JsonResponse({"errors": form.errors}, status=422)
     return render(
         request,
         "owner/editor.html",
@@ -634,3 +847,23 @@ def branch_edit(request, branch_id=None):
         },
         status=422 if form.errors else 200,
     )
+
+
+@require_POST
+@transaction.atomic
+def supply_policy(request):
+    own = owner(request)
+    branches = list(Branch.objects.select_for_update().order_by("pk"))
+    config = Settings.objects.select_for_update().get(shop_id=own.shop_id)
+    config.staff_can_add_supply = request.POST.get("enabled") == "1"
+    config.version += 1
+    config.save(update_fields=["staff_can_add_supply", "version"])
+    for branch in branches:
+        audit(
+            branch,
+            "settings_updated",
+            "Staff supply permission updated",
+            owner=own.email,
+        )
+    messages.success(request, "Staff supply permission saved.")
+    return redirect("owner_shop_settings")

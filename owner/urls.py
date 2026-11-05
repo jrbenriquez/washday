@@ -1,8 +1,9 @@
 from django.urls import path
-from . import views
+from . import views, supply_merge
 from . import workspace, reports
 
 urlpatterns = [
+    path("supplies/<uuid:source_id>/merge/", supply_merge.edit, name="owner_supply_merge"),
     path("", views.home, name="owner_home"),
     path("dashboard/", workspace.dashboard, name="owner_dashboard"),
     path("theme/", workspace.theme, name="owner_theme"),
@@ -19,6 +20,7 @@ urlpatterns = [
     path("machines/", workspace.machines, name="owner_machines"),
     path("reports/sales.xlsx", reports.sales, name="owner_sales_export"),
     path("counts/<uuid:branch_id>/", workspace.counts, name="owner_counts"),
+    path("supply-policy/", workspace.supply_policy, name="owner_supply_policy"),
     path("operations/", workspace.operations, name="owner_operations"),
     path(
         "branches/<uuid:branch_id>/mode/",

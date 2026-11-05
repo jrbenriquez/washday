@@ -142,6 +142,21 @@ class EditorForm(forms.ModelForm):
                     raise ValidationError(
                         "Unload this stage's machines before editing it."
                     )
+        if (
+            isinstance(self.instance, PieceVariant)
+            and data.get("piece_item")
+            and data.get("label")
+        ):
+            if (
+                PieceVariant.objects.filter(
+                    piece_item=data["piece_item"], label__iexact=data["label"]
+                )
+                .exclude(pk=self.instance.pk)
+                .exists()
+            ):
+                self.add_error(
+                    "label", "This size already exists. Restore it if removed."
+                )
         if isinstance(self.instance, AddOnUse) and data.get("qty") == 0:
             self.add_error("qty", "Enter a quantity greater than zero.")
         return data
@@ -247,3 +262,33 @@ class BranchForm(forms.ModelForm):
                     "Unload running machines before switching to simple mode.",
                 )
         return data
+
+
+class NewPieceForm(EditorForm):
+    label = forms.CharField(label="Size (optional)", max_length=80, required=False)
+    price = forms.DecimalField(
+        label="Price (₱)", max_digits=10, decimal_places=2, min_value=Decimal("0.01")
+    )
+
+    class Meta:
+        model = PieceItem
+        fields = ["name"]
+
+    def clean_name(self):
+        name = self.cleaned_data["name"]
+        if PieceItem.objects.filter(name__iexact=name).exists():
+            raise ValidationError(
+                "This piece item already exists. Restore it if archived."
+            )
+        return name
+
+    def save(self, commit=True):
+        item = super().save(commit=commit)
+        if commit:
+            PieceVariant.objects.create(
+                shop_id=item.shop_id,
+                piece_item=item,
+                label=self.cleaned_data["label"] or "Each",
+                price=self.cleaned_data["price"],
+            )
+        return item

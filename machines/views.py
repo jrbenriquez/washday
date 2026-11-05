@@ -1,3 +1,4 @@
+from events.feedback import success as reversible_success
 from people.guards import pin_guard
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
@@ -21,7 +22,7 @@ def full_branch(request):
     return b
 
 
-def tiles(branch, target=None):
+def tiles(branch, target=None, as_of=None):
     rows = []
     limit = Settings.objects.get(shop_id=branch.shop_id).check_after_min
     machines = (
@@ -40,12 +41,17 @@ def tiles(branch, target=None):
             .first()
         )
         last = (
-            Load.objects.filter(machine=m, ended_at__isnull=False)
+            Load.objects.filter(machine=m, ended_at__isnull=False, cancelled_at=None)
             .order_by("-ended_at")
             .first()
         )
         elapsed = (
-            max(0, int((timezone.now() - load.started_at).total_seconds() // 60))
+            max(
+                0,
+                int(
+                    ((as_of or timezone.now()) - load.started_at).total_seconds() // 60
+                ),
+            )
             if load
             else 0
         )
@@ -63,7 +69,7 @@ def tiles(branch, target=None):
                 else None,
                 "available": not load and not m.out_of_service,
                 "loads_today": Load.objects.filter(
-                    machine=m, started_at__date=timezone.localdate()
+                    machine=m, cancelled_at=None, started_at__date=timezone.localdate()
                 ).count(),
             }
         )
@@ -79,7 +85,7 @@ def grid(request):
         {
             "tiles": tiles(branch),
             "loads_today": Load.objects.filter(
-                branch=branch, started_at__date=timezone.localdate()
+                branch=branch, cancelled_at=None, started_at__date=timezone.localdate()
             ).count(),
             "check_minutes": Settings.objects.get(
                 shop_id=branch.shop_id
@@ -123,7 +129,9 @@ def picker(request, number):
                 request.POST.get("machine"),
                 request.staff,
             )
-            messages.success(request, f"Job #{number} started in {load.machine.label}.")
+            reversible_success(
+                request, f"Job #{number} started in {load.machine.label}."
+            )
             return redirect("board")
         except StaleAction as e:
             messages.error(request, " ".join(e.messages))
@@ -176,7 +184,7 @@ def start_self(request, machine_id):
                 request.POST.get("pay_method"),
                 request.staff,
             )
-            messages.success(request, f"Self-service started in {machine.label}.")
+            reversible_success(request, f"Self-service started in {machine.label}.")
             return redirect("machines")
         except ValidationError as e:
             error = " ".join(e.messages)
@@ -196,7 +204,7 @@ def finish(request, machine_id):
             branch, machine_id, request.POST.get("expected_load"), request.staff
         )
         minutes = max(0, int((load.ended_at - load.started_at).total_seconds() // 60))
-        messages.success(
+        reversible_success(
             request, f"{load.machine.label}: Unloaded after {minutes} min."
         )
     except ValidationError as e:

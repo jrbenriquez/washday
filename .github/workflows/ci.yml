@@ -14,7 +14,31 @@ concurrency:
 
 jobs:
   tests:
-    name: Django tests and validation
+    name: Django tests (${{ matrix.database }})
+    strategy:
+      fail-fast: false
+      matrix:
+        database: [sqlite, postgres]
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: washday
+          POSTGRES_PASSWORD: fixture-only
+          POSTGRES_DB: washday
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U washday"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGDATABASE: ${{ matrix.database == 'postgres' && 'washday' || '' }}
+      PGUSER: washday
+      PGPASSWORD: fixture-only
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -31,8 +55,52 @@ jobs:
           uv run python manage.py check
           uv run python manage.py makemigrations --check --dry-run
       - name: Run tests
-        run: uv run pytest -q
+        run: uv run pytest --ds=config.test_settings -q
+      - name: Check 30-day unsent event capacity
+        if: matrix.database == 'sqlite'
+        run: uv run python scripts/check_sync_capacity.py
       - name: Validate JavaScript syntax
         run: node --check static/js/app.js
       - name: Check whitespace
         run: git diff --check HEAD^ HEAD
+
+  browser:
+    name: Direct and hub browser workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: uv sync --locked --python 3.13
+      - run: npm ci
+      - name: Exercise cloud/hub HTTP recovery and Cypress workflows
+        env:
+          RUN_CYPRESS: '1'
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: uv run python scripts/check_replication.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replication-browser-evidence
+          path: .agents/work/undo-offline/evidence/
+
+  image:
+    name: Image tests (${{ matrix.runner }})
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the shared hub/cloud image and test stage
+        run: docker build --target test -t washday-test .
+      - name: Run suite inside the native architecture image
+        run: docker run --rm washday-test

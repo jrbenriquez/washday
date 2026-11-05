@@ -1,0 +1,46 @@
+{
+  "type": "recalibration",
+  "outcome_id": "washday-mvp-sync",
+  "criteria": [
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "ESCALATE",
+  "summary": "Software checks pass; original acceptance still needs native CI and physical evidence.",
+  "assessment": {
+    "category": "evidence",
+    "confidence": "SUPPORTED",
+    "cause": "Current environment is amd64 loopback with no router control or actual release phones.",
+    "evidence": [
+      "R1"
+    ],
+    "uncertainty": "Physical Wi-Fi timing, four-hour outage, full-day device behavior and native arm64 result not established locally."
+  },
+  "evidence": [
+    {
+      "id": "R1",
+      "action": "Review available execution capabilities and integrated verification",
+      "context": "final-source-manifest.json",
+      "observation": "Actual SQLite/PostgreSQL, browser and two-process tests passed. Physical acceptance cannot be simulated into a pass.",
+      "reference": "verification.md"
+    }
+  ],
+  "adjustment": "none",
+  "diagnostics": [],
+  "preserve": [
+    "All passing software protocol, compensation and security behavior.",
+    "People 2/3 and sync 1/3 implementation budgets."
+  ],
+  "reverify": [
+    "AC-06 native image CI",
+    "AC-07 four-hour router outage",
+    "AC-08 local Wi-Fi timings",
+    "AC-09 full-day physical device trial"
+  ],
+  "blockers": [
+    "External hardware/device acceptance evidence unavailable."
+  ],
+  "next": "Open software PR as authorized, inspect native CI and retain physical gates for rollout."
+}

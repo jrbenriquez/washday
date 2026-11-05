@@ -66,14 +66,14 @@ def sales(request):
     for e in Event.objects.filter(
         branch__in=ctx["chosen"],
         occurred_at__date__range=(start, end),
-        type__in=["payment_recorded", "self_service_started"],
+        type__in=["payment_recorded", "self_service_started", "payment_reversed"],
     ).select_related("branch"):
         method = e.payload.get("method")
         if method not in ("cash", "gcash"):
             continue
         key = (timezone.localdate(e.occurred_at), e.branch.number, e.branch.name)
         row = totals.setdefault(key, {"cash": Decimal("0"), "gcash": Decimal("0")})
-        row[method] += Decimal(e.payload["amount"])
+        row[method] += Decimal(e.payload["amount"]) * (-1 if e.type == "payment_reversed" else 1)
     rows = [
         [
             "Date (Asia/Manila)",

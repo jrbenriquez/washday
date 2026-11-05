@@ -1,0 +1,198 @@
+{
+  "type": "verification",
+  "outcome_id": "washday-mvp-sync",
+  "criteria": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-08",
+    "AC-09"
+  ],
+  "status": "INCONCLUSIVE",
+  "results": [
+    {
+      "criterion": "AC-01",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-02",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-03",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-04",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-05",
+      "status": "PASS",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Protocol behavior and failure boundaries verified by integrated tests.",
+      "next": "none"
+    },
+    {
+      "criterion": "AC-06",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Local regressions passed; native arm64 must be checked in PR CI.",
+      "next": "Collect the specific external/CI evidence recorded in verification.md."
+    },
+    {
+      "criterion": "AC-07",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Capacity and protocol reconnect passed; physical four-hour router outage unavailable.",
+      "next": "Collect the specific external/CI evidence recorded in verification.md."
+    },
+    {
+      "criterion": "AC-08",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Owner stale/as-of and reconnect passed; physical Wi-Fi latency and exhaustive new merge-form visual coverage remain.",
+      "next": "Collect the specific external/CI evidence recorded in verification.md."
+    },
+    {
+      "criterion": "AC-09",
+      "status": "INCONCLUSIVE",
+      "evidence": [
+        "V1",
+        "V2",
+        "V3",
+        "V4",
+        "V5",
+        "V6"
+      ],
+      "reason": "Full-day personal/shared-device home dry run unavailable.",
+      "next": "Collect the specific external/CI evidence recorded in verification.md."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "V1",
+      "action": "Full SQLite suite",
+      "context": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "observation": "136 passed",
+      "reference": "evidence/pytest-sqlite.txt"
+    },
+    {
+      "id": "V2",
+      "action": "Full PostgreSQL 17 suite",
+      "context": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "observation": "136 passed",
+      "reference": "evidence/pytest-postgres.txt"
+    },
+    {
+      "id": "V3",
+      "action": "Two-role Cypress and HTTP outage/reconnect",
+      "context": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "observation": "Both roles 3 specs passed; offline Undo, collections and fenced roundtrip passed",
+      "reference": "evidence/replication.json"
+    },
+    {
+      "id": "V4",
+      "action": "Capacity/retention fixture",
+      "context": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "observation": "18000 unsent envelopes retained",
+      "reference": "evidence/capacity.json"
+    },
+    {
+      "id": "V5",
+      "action": "Django, migration, JS and whitespace checks",
+      "context": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "observation": "Passed",
+      "reference": "verification.md"
+    },
+    {
+      "id": "V6",
+      "action": "Opened and inspected paired prototype/app images",
+      "context": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+      "observation": "Changed components follow prototype; limits documented",
+      "reference": "visual-comparison.md"
+    }
+  ],
+  "regression_risks": [
+    "Physical rollout qualification not run.",
+    "Native arm64 awaits PR CI."
+  ],
+  "blockers": [
+    "External router, Wi-Fi and physical device acceptance evidence unavailable."
+  ],
+  "next": "Review PR CI; retain external rollout gates.",
+  "workspace": "sha256:cf4b3ad029c3b436952264f8809871bce8a0df613ea73295b4c23bd91d4a1337",
+  "visual_comparison": "visual-comparison.md"
+}

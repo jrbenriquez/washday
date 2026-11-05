@@ -11,6 +11,7 @@ class Load(TenantModel):
     stage = models.ForeignKey("core.JobStage", null=True, on_delete=models.PROTECT)
     started_at = models.DateTimeField()
     ended_at = models.DateTimeField(null=True)
+    cancelled_at = models.DateTimeField(null=True)
     started_by = models.ForeignKey(
         "people.Staff", null=True, on_delete=models.PROTECT, related_name="+"
     )
