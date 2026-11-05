@@ -1,4 +1,5 @@
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
+from zoneinfo import ZoneInfo
 from unittest.mock import patch
 from decimal import Decimal
 import pytest
@@ -216,7 +217,13 @@ def test_self_service_requires_active_load_service_and_snapshots(
     assert b"Paid self-service" not in scoped_client.get("/machines/").content
 
 
-def test_check_threshold_elapsed_today_and_no_countdown(machine_setup, scoped_client):
+@pytest.mark.parametrize("local_hour, loads_today", [(0, 0), (12, 1)])
+def test_check_threshold_elapsed_today_and_no_countdown(
+    machine_setup, scoped_client, monkeypatch, local_hour, loads_today
+):
+    # At 00:30 Manila, a load started 90 minutes ago belongs to yesterday.
+    now = datetime(2026, 11, 5, local_hour, 30, tzinfo=ZoneInfo("Asia/Manila")).astimezone(UTC)
+    monkeypatch.setattr(timezone, "now", lambda: now)
     s = machine_setup
     j = job(s)
     l = start(s, j)
@@ -227,7 +234,7 @@ def test_check_threshold_elapsed_today_and_no_countdown(machine_setup, scoped_cl
     assert (
         b"Check it" in r.content
         and b"In use" in r.content
-        and b"1 loads today" in r.content
+        and f"{loads_today} loads today".encode() in r.content
     )
     assert b"countdown" not in r.content
     unload(s["branch"], s["w1"].id, l.id)
