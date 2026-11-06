@@ -14,6 +14,7 @@ New branches start with Direct connection and Simple workflow. Internal numberin
 
 ## Contents
 
+- [UI audit and before/after screenshots](docs/ui-audit/README.md)
 - [Core features](#core-features)
 - [Direct, hub, simple, and full modes](#direct-hub-simple-and-full-modes)
 - [Local development](#local-development)

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Washday UI audit — Before and after</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 24px; background: #f4f6fa; color: #202c45; font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 1600px; margin: auto; }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  p { margin: 0 0 20px; color: #5b6780; }
+  nav { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; }
+  label { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+  select { min-height: 44px; padding: 8px 12px; border: 1px solid #dae1ec; border-radius: 8px; background: white; color: inherit; font: inherit; }
+  :focus-visible { outline: 3px solid #344ac4; outline-offset: 3px; }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  figure { margin: 0; min-width: 0; }
+  figcaption { font-weight: 700; margin-bottom: 12px; }
+  img { display: block; width: 100%; height: auto; border: 1px solid #dae1ec; border-radius: 12px; }
+  .phone img { max-width: 390px; margin: auto; }
+  @media (max-width: 700px) { body { padding: 16px; } .comparison { grid-template-columns: 1fr; } }
+</style>
+<main>
+  <h1>Washday UI audit</h1>
+  <p>Choose a screen to compare. Select an image to open it at full resolution. The screenshots use labeled demo data.</p>
+  <nav aria-label="Screenshot comparison controls">
+    <label>Screen
+      <select id="screen">
+        <option value="dashboard">Dashboard</option>
+        <option value="intake">New job</option>
+        <option value="board" selected>Jobs board</option>
+        <option value="settings">Settings</option>
+        <option value="supplies">Supplies</option>
+        <option value="branches">Branches</option>
+        <option value="staff">Staff</option>
+        <option value="machines">Machines</option>
+        <option value="access">Access and devices</option>
+        <option value="login">Owner login</option>
+        <option value="stage-dialog">Stage dialog</option>
+      </select>
+    </label>
+    <label>Viewport and theme
+      <select id="size">
+        <option value="1280-light">Desktop · 1280 px · Light</option>
+        <option value="390-dark">Phone · 390 px · Dark</option>
+      </select>
+    </label>
+  </nav>
+  <div class="comparison" aria-live="polite">
+    <figure><figcaption>Before</figcaption><a id="before-link" href="before/board-1280-light.png"><img id="before" src="before/board-1280-light.png" alt="Jobs board before the UI audit"></a></figure>
+    <figure><figcaption>After</figcaption><a id="after-link" href="after/board-1280-light.png"><img id="after" src="after/board-1280-light.png" alt="Jobs board after the UI audit"></a></figure>
+  </div>
+</main>
+<script>
+  const screen = document.querySelector('#screen');
+  const size = document.querySelector('#size');
+  function update() {
+    document.querySelector('.comparison').classList.toggle('phone', size.value === '390-dark');
+    for (const phase of ['before', 'after']) {
+      const path = `${phase}/${screen.value}-${size.value}.png`;
+      document.getElementById(phase).src = path;
+      document.getElementById(phase).alt = `${screen.selectedOptions[0].text} ${phase} the UI audit, ${size.selectedOptions[0].text}`;
+      document.getElementById(`${phase}-link`).href = path;
+    }
+  }
+  screen.addEventListener('change', update);
+  size.addEventListener('change', update);
+</script>
+</html>

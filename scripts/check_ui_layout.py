@@ -213,19 +213,45 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
                         page.evaluate("document.fonts.ready")
                         assert not page.evaluate("document.documentElement.scrollWidth > innerWidth"), (name, width, theme)
                         assert page.locator("html").get_attribute("data-app-theme") == theme
+                        if args.phase == "after" and name == "settings" and width < 760:
+                            # Responsive catalog cells must not collide, even when their
+                            # table wrapper would otherwise conceal the overflow.
+                            assert page.locator(".settings-section .edit-table tr").evaluate_all("""rows => rows.every(row => {
+                                const rects = [...row.children].map(e => e.getBoundingClientRect());
+                                return rects.every((a, i) => rects.slice(i + 1).every(b =>
+                                    Math.min(a.right,b.right)-Math.max(a.left,b.left) < 1 ||
+                                    Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top) < 1));
+                            })"""), (name, width, theme, "overlapping catalog cells")
+                        if args.phase == "after" and name == "board" and width == 1280:
+                            assert page.locator(".board").evaluate("e => e.scrollWidth <= e.clientWidth"), "Five stages should fit on desktop"
                         if name in pictured and (width, theme) in [(1280, "light"), (390, "dark")]:
                             page.screenshot(path=str(OUT / f"{name}-{width}-{theme}.png"), full_page=True)
                         results.append({"page": name, "width": width, "theme": theme, "overflow": False})
                 print(name + " checked", flush=True)
             # Native dialog opening, keyboard dismissal and focus restoration.
+            ctx.add_cookies([{"name": "app_theme", "value": "light", "url": base}])
             page.goto(base + "/jobs/")
             trigger = page.locator('a[data-dialog][href$="/stage/"]').first
             trigger.click()
             page.locator("dialog[open]").wait_for()
             page.screenshot(path=str(OUT / "stage-dialog-1280-light.png"), full_page=True)
+            page.set_viewport_size({"width": 390, "height": 900})
+            page.evaluate("document.documentElement.dataset.appTheme = 'dark'")
+            page.screenshot(path=str(OUT / "stage-dialog-390-dark.png"), full_page=True)
             page.keyboard.press("Escape")
             assert page.locator("dialog[open]").count() == 0
             assert trigger.evaluate("e => e === document.activeElement")
+            signed_out = browser.new_context()
+            login = signed_out.new_page()
+            for width, theme in [(1280, "light"), (390, "dark")]:
+                login.set_viewport_size({"width": width, "height": 900})
+                signed_out.add_cookies([{"name": "app_theme", "value": theme, "url": base}])
+                assert login.goto(base + "/owner/login/").status == 200
+                login.evaluate("document.fonts.ready")
+                assert not login.evaluate("document.documentElement.scrollWidth > innerWidth")
+                login.screenshot(path=str(OUT / f"login-{width}-{theme}.png"), full_page=True)
+                results.append({"page": "login", "width": width, "theme": theme, "overflow": False})
+            signed_out.close()
             assert not errors, errors
             assert not responses, responses
             (OUT / "checks.json").write_text(json.dumps({"layouts": results, "errors": errors, "failed_responses": responses, "dialog_focus": "PASS"}, indent=2) + "\n")

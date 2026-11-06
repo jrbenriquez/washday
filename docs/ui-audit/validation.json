@@ -1,0 +1,237 @@
+{
+  "baseline_commit": "2ce71d3f19b22edb2ccd04bfd30661c8d889c303",
+  "django_tests": {
+    "command": "uv run pytest --ds=config.test_settings -q",
+    "passed": 170
+  },
+  "layouts": {
+    "routes": 19,
+    "widths": [
+      360,
+      390,
+      768,
+      1280
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "cases_per_phase": 154,
+    "screenshots_per_phase": 22,
+    "dialog_focus": "PASS",
+    "gallery_images_loaded": 44
+  },
+  "catalog_browser": {
+    "passed": true,
+    "viewports": [
+      1280,
+      768,
+      390
+    ],
+    "themes": [
+      "light",
+      "dark"
+    ],
+    "javascript_errors": []
+  },
+  "branch_browser": {
+    "status": "PASS",
+    "pages": [
+      {
+        "page": "manage",
+        "width": 360,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "manage",
+        "width": 360,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "manage",
+        "width": 1280,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "manage",
+        "width": 1280,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "new",
+        "width": 360,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "new",
+        "width": 360,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "new",
+        "width": 1280,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "new",
+        "width": 1280,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "edit",
+        "width": 360,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "edit",
+        "width": 360,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "edit",
+        "width": 1280,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "edit",
+        "width": 1280,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "live",
+        "width": 360,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "live",
+        "width": 360,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "live",
+        "width": 1280,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "live",
+        "width": 1280,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "live-legacy",
+        "width": 360,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "live-legacy",
+        "width": 360,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "live-legacy",
+        "width": 1280,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "live-legacy",
+        "width": 1280,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "settings",
+        "width": 360,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "settings",
+        "width": 360,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "settings",
+        "width": 1280,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "settings",
+        "width": 1280,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "access",
+        "width": 360,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "access",
+        "width": 360,
+        "theme": "dark",
+        "overflow": false
+      },
+      {
+        "page": "access",
+        "width": 1280,
+        "theme": "light",
+        "overflow": false
+      },
+      {
+        "page": "access",
+        "width": 1280,
+        "theme": "dark",
+        "overflow": false
+      }
+    ],
+    "interactions": [
+      "navigation",
+      "create",
+      "edit",
+      "live shortcut",
+      "duplicate validation",
+      "read-only board",
+      "20-second refresh"
+    ],
+    "page_errors": []
+  },
+  "workflow_browser": {
+    "command": "EVIDENCE_RUN=ui-audit-final-2 uv run python scripts/check_prototype_parity.py",
+    "interactions": "PASS",
+    "layout_cases": 90,
+    "errors": [],
+    "failed_responses": []
+  },
+  "configuration_checks": [
+    "Django system check: PASS",
+    "No migration changes",
+    "JavaScript syntax: PASS",
+    "git diff --check: PASS"
+  ],
+  "legacy_probe_notes": [
+    "check_auth_browser.py expects the /hours/ form that branch management moved out of Access and devices.",
+    "check_intake_browser.py counts the hidden Walk-in / reset button as a visible touch target and assumes the earlier intake flow. Current modal workflows were verified with check_prototype_parity.py."
+  ]
+}
