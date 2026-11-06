@@ -324,7 +324,8 @@ with tempfile.TemporaryDirectory(prefix="washday-replication-") as temp:
                 page.locator("[name=customer_name]").fill("TEST offline " + str(i))
                 page.locator("[name=pay_method][value=cash]").check()
                 page.locator("[data-create]").click()
-                page.wait_for_url("**/jobs/*/")
+                page.locator("dialog[open] article.stub").wait_for()
+                assert page.url == hub_url + "/jobs/new/"
                 totals.append(
                     page.locator("article .total b").inner_text()
                     if page.locator("article .total b").count()

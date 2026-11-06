@@ -170,7 +170,7 @@ Catalog edit URLs use `/owner/edit/{kind}/{record_id}/`; creation omits `{record
 
 | ID | Prototype UI | Source anchor | Current equivalent | Mapping |
 |---|---|---|---|---|
-| X-01 | PIN modal: staff selection, dots, numeric pad, failure feedback | `withPin()` | Protected POST response → `templates/people/pin.html`; `people/guards.py` | Partial. Action-bound page, not overlay; no standalone PIN route. |
+| X-01 | PIN modal: staff selection, dots, numeric pad, failure feedback | `withPin()` | Protected POST response → `templates/people/pin.html`; `people/guards.py` | Dialog with a numeric keypad over the originating screen; retains action-bound server verification and standalone no-JavaScript response. |
 | X-02 | Modal overlay / close / Escape / return focus | `openModal()`, `closeModal()` | Most equivalent flows are standalone pages listed above | Section. Native `<dialog>` enhancement provides close, Escape, focus restoration and ordinary POST forms. Direct routes remain available. |
 | X-03 | Success/error toast | `toast()` | Django messages in `base.html` / `auth_base.html` | Implemented for reversible actions; six-second Undo expires in the browser and is enforced on the server. |
 | X-04 | Undo action in toast | `act()`, `toast()` | `events/undo.py`, `base.html` | Implemented with device-bound compensating events and stale-state checks. |

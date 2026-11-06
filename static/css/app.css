@@ -279,7 +279,8 @@ td.r,th.r{text-align:right}
 .pick{display:grid;gap:8px}
 .pick button{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:56px;padding:8px 12px;border:1.5px solid var(--line);border-radius:12px;text-align:left}
 .pick button:hover{border-color:var(--accent)}
-.pin-dots{display:flex;justify-content:center;gap:14px;margin:8px 0 14px}
+.pin-dots{display:none}
+.app-dialog .pin-dots{display:flex;justify-content:center;gap:14px;margin:8px 0 14px}
 .pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted)}
 .pin-dots i.on{background:var(--ink);border-color:var(--ink)}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:300px;margin:0 auto}
@@ -481,3 +482,43 @@ a.btn{text-decoration:none}
 .toast form{margin:0;flex:none}
 .live-note.stale{background:var(--warn-soft);color:var(--warn)}
 .live-note.stale .dot{background:var(--warn)}
+
+/* Claim and PIN follow the prototype's compact modal composition. */
+.app-dialog{width:min(520px,calc(100% - 32px))}
+.app-dialog .dialog-content{padding:20px}
+.app-dialog .dialog-content>div:first-child,.app-dialog .dialog-content>h2{padding-right:36px}
+.app-dialog .dialog-content>p{margin:0}
+.app-dialog .dialog-content .payment-section{margin:0}
+.claim-content .payment{display:flex;width:100%}
+.claim-content .total{margin:0;padding:12px 0}
+.paper-release-toggle{display:flex;align-items:center;gap:10px;min-height:44px;color:var(--muted);font-size:14px}
+.paper-release-fields{border:0;padding:0;margin:0;min-width:0}
+form:not(:has([name=paper_release]:checked)) .paper-release-fields{display:none}
+.paper-release-fields p{margin:0}
+.pin-help{text-align:center}
+.pin-entry{max-width:240px;margin:auto}
+.pin-entry input{text-align:center;letter-spacing:14px;padding-left:26px;font-family:var(--f-mono);font-size:28px;background:var(--surface-2)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;max-width:300px;margin:0 auto}
+.pin-pad button{min-height:60px;border-radius:12px;background:var(--surface-2);border:1px solid var(--line);font-family:var(--f-mono);font-size:22px;font-weight:700}
+.pin-pad button:active{background:var(--accent-soft)}
+.pin-err{color:var(--crit);text-align:center;min-height:22px;margin:0;font-size:14px;font-weight:600}
+body:has(.app-dialog[open]){overflow:hidden}
+/* Match card spacing and keep intake header actions together. */
+.ocard .open{padding:0}
+.screen-head>.head-actions{align-items:center}
+.app-dialog .dialog-content .total b{font-size:30px}
+.app-dialog .dialog-content h2{line-height:1.15}
+.summary-identity{display:grid;gap:6px}
+.summary .total b{font-size:32px}
+.summary .primary{min-height:48px!important}
+.payment label{min-height:38px;padding:0 14px}
+.pin-entry{position:relative;width:240px;max-width:100%;min-height:44px}
+.app-dialog .pin-entry input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:text}
+.pin-entry:has(:focus-visible){outline:3px solid var(--accent);outline-offset:3px;border-radius:10px}
+.pin-dots{display:none}
+.app-dialog .pin-dots{display:flex;justify-content:center;align-items:center;gap:14px;min-height:44px;pointer-events:none}
+.pin-dots i{width:16px;height:16px;border-radius:50%;border:2px solid var(--muted)}
+.pin-dots i.on{background:var(--ink);border-color:var(--ink)}
+.app-dialog .pin-content button[type=submit],.app-dialog .pin-content form>button:not([type]){display:none}
+.pin-content>div>p{margin:6px 0 0}
+@media(max-width:760px){.top .identity{order:3;flex-basis:100%;max-width:none;font-size:12px;color:var(--muted)}}

@@ -120,6 +120,25 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
             name="DEMO Laundry sanitizer",
             note="Labelled browser fixture",
         )
+    from core.models import Settings
+    from people.models import Device
+    from people.services import issue_code, enroll, save_staff
+    from jobs.transitions import override
+    with shop_context(shop):
+        policy = Settings.objects.get(shop=shop)
+        policy.pin_enabled = True
+        policy.pin_actions = ["create", "claim", "payment", "override"]
+        policy.save()
+        pin_staff, _ = save_staff(branch, "DEMO modal PIN staff", "7392")
+        device = Device.objects.create(shop=shop, branch=branch, name="DEMO modal tablet", kind="shared")
+        code, _ = issue_code(device)
+        _, device_token, error = enroll(device, code)
+        assert not error
+        modal_jobs = []
+        for method in ["", "cash"]:
+            fixture, _ = create_job({"service": str(service.id), "kg": "3", "pay_method": method}, branch, staff)
+            override(branch, fixture.number, str(fixture.status_id), job.status_id, "Modal fixture", staff)
+            modal_jobs.append(fixture)
     os.environ["ENABLE_DEV_BRANCH_SCOPE"] = "1"
     os.environ["DEV_BRANCH_ID"] = str(branch.id)
     os.environ["DEV_STAFF_ID"] = str(staff.id)
@@ -197,6 +216,9 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
                 lambda route: route.fulfill(content_type="text/html", body=prototype),
             )
             reference.goto(base + "/__prototype__")
+            for width in [390, 1280]:
+                reference.set_viewport_size({"width": width, "height": 900})
+                reference.screenshot(path=str(OUT / f"reference-intake-{width}.png"), full_page=True)
             reference.locator("[data-view=owner]").click()
             for width in [360, 1280]:
                 reference.set_viewport_size({"width": width, "height": 900})
@@ -221,7 +243,7 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
                 "machines": "/machines/",
                 "supplies": "/supplies/",
             }
-            for name, path in paths.items():
+            for name, path in ({} if os.environ.get("INTERACTIONS_ONLY") else paths).items():
                 for width in [360, 390, 1280]:
                     for theme in ["light", "dark"]:
                         page.set_viewport_size({"width": width, "height": 900})
@@ -286,8 +308,8 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
             page.locator("dialog [name=mode]").select_option("kg")
             page.locator("dialog [name=price]").fill("75")
             page.locator("dialog").get_by_role("button", name="Save changes").click()
-            page.wait_for_url("**/owner/settings/")
-            assert "DEMO dialog owner service" in page.locator("#service").inner_text()
+            page.locator("dialog[open]").wait_for(state="hidden")
+            assert page.locator('#service input[value="DEMO dialog owner service"]').count() == 1
             page.goto(base + "/jobs/")
             stage_link = page.locator('a[data-dialog][href$="/stage/"]').first
             stage_link.click()
@@ -307,13 +329,14 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
                 "Labelled modal fixture"
             )
             page.locator("dialog").get_by_role("button", name="Save stage").click()
-            page.wait_for_url("**/jobs/")
+            page.locator("dialog[open]").wait_for(state="hidden")
             page.get_by_role("link", name="Claim & pay", exact=True).first.click()
             page.locator("dialog[open]").wait_for()
-            page.locator("dialog").get_by_label("Payment method").select_option("cash")
-            page.locator("dialog").get_by_role("button", name="Confirm claim").click()
-            page.wait_for_url(re.compile(r".*/jobs/\d+/"))
-            assert "Claimed" in page.locator("article").inner_text()
+            page.locator("dialog").get_by_role("radio", name="Cash", exact=True).check()
+            page.locator("dialog").get_by_role("button", name=re.compile("Received.*Release")).click()
+            page.locator("dialog[open]").wait_for(state="hidden")
+            assert page.url == base + "/jobs/"
+            assert "claimed." in page.locator("main .toast").inner_text()
             # Real edits through the forms, including browser validation and CSRF.
             page.goto(base + "/owner/edit/service/")
             page.locator("#id_name").fill("DEMO browser owner service")
@@ -321,13 +344,11 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
             page.locator("#id_price").fill("123.45")
             page.get_by_role("button", name="Save changes").click()
             page.wait_for_url("**/owner/settings/")
-            assert "DEMO browser owner service" in page.locator("#service").inner_text()
-            row = page.locator("#service tr").filter(
-                has_text="DEMO browser owner service"
-            )
-            row.get_by_role("button", name="Remove", exact=True).click()
+            assert page.locator('#service input[value="DEMO browser owner service"]').count() == 1
+            row = page.locator("#service tr").filter(has=page.locator('input[value="DEMO browser owner service"]'))
+            row.get_by_role("button", name="Remove DEMO browser owner service", exact=True).click()
             page.wait_for_url("**/owner/settings/")
-            page.locator("#service tr").filter(
+            page.locator("#service .removed-items form").filter(
                 has_text="DEMO browser owner service"
             ).get_by_role("button", name="Restore").click()
             page.wait_for_url("**/owner/settings/")
@@ -343,6 +364,61 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
             page.get_by_role("switch", name="Dark theme").click()
             page.wait_for_load_state("networkidle")
             assert page.locator("html").get_attribute("data-app-theme") == "light"
+            # Real enrolled shared device: payment -> PIN -> same board.
+            pinctx = browser.new_context()
+            pinctx.add_cookies([{"name": settings.DEVICE_COOKIE_NAME, "value": device_token, "url": base}])
+            pinpage = pinctx.new_page()
+            pinpage.on("pageerror", lambda e: errors.append(str(e)))
+            for fixture in modal_jobs:
+                pinpage.goto(base + "/jobs/?view=board")
+                card = pinpage.locator(f'[data-job="{fixture.number}"]')
+                card.get_by_role("link", name=re.compile("^Claim")).click()
+                dialog = pinpage.locator("dialog[open]")
+                assert not dialog.get_by_label("Release sheet date").is_visible()
+                dialog.get_by_label("Released on paper").check()
+                assert dialog.get_by_label("Release sheet date").is_visible()
+                dialog.get_by_label("Released on paper").uncheck()
+                if not fixture.paid_at:
+                    dialog.get_by_role("radio", name="GCash", exact=True).check()
+                    dialog.get_by_label("GCash reference (optional)").fill("DEMO-modal-ref")
+                dialog.get_by_role("button", name=re.compile("Confirm claim|Received.*Release")).click()
+                dialog.locator('[data-pin-form]').wait_for()
+                assert pinpage.url == base + "/jobs/?view=board"
+                for width in [360, 390, 1280]:
+                    for theme in ["light", "dark"]:
+                        pinpage.set_viewport_size({"width": width, "height": 900})
+                        pinpage.evaluate("theme => document.documentElement.dataset.appTheme=theme", theme)
+                        assert not pinpage.evaluate("document.documentElement.scrollWidth>innerWidth")
+                        pinpage.screenshot(path=str(OUT / f"pin-{fixture.number}-{width}-{theme}.png"))
+                # Cancel preserves the board and performs no write.
+                pinpage.keyboard.press("Escape")
+                assert card.count() == 1
+                card.get_by_role("link", name=re.compile("^Claim")).click()
+                if not fixture.paid_at:
+                    dialog.get_by_role("radio", name="GCash", exact=True).check()
+                    dialog.get_by_label("GCash reference (optional)").fill("DEMO-modal-ref")
+                dialog.get_by_role("button", name=re.compile("Confirm claim|Received.*Release")).click()
+                dialog.locator('[data-pin-form]').wait_for()
+                for digit in "0000":
+                    dialog.locator(f'[data-pin="{digit}"]').click()
+                dialog.locator('[role="alert"]').filter(has_text=re.compile(".+")).wait_for()
+                assert pinpage.url == base + "/jobs/?view=board"
+                for digit in "7392":
+                    dialog.locator(f'[data-pin="{digit}"]').click()
+                dialog.wait_for(state="hidden")
+                assert pinpage.url == base + "/jobs/?view=board"
+                assert pinpage.locator(f'[data-job="{fixture.number}"]').count() == 0
+            pinpage.goto(base + "/jobs/new/")
+            pinpage.locator("#kg").fill("3")
+            pinpage.locator('[data-create]').click()
+            pinpage.locator('dialog [data-pin-form]').wait_for()
+            for digit in "7392":
+                pinpage.locator(f'dialog [data-pin="{digit}"]').click()
+            pinpage.locator('dialog .stub').wait_for()
+            assert pinpage.url == base + "/jobs/new/"
+            pinpage.keyboard.press("Escape")
+            assert pinpage.locator("#kg").input_value() == "0"
+            pinctx.close()
             assert not errors, errors
             assert not responses, responses
             (OUT / "browser.json").write_text(
@@ -357,6 +433,14 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
                 )
             )
             browser.close()
+        with shop_context(shop):
+            for fixture in modal_jobs:
+                fixture.refresh_from_db()
+                assert fixture.claimed_at and fixture.paid_at
+                from events.models import Event
+                assert Event.objects.get(type="job_claimed", payload__job_id=str(fixture.id)).actor_staff_id == pin_staff.id
+                if fixture.pay_method == "gcash":
+                    assert fixture.pay_ref == "DEMO-modal-ref"
     finally:
         server.terminate()
         server.wait(timeout=10)

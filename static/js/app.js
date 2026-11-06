@@ -14,14 +14,14 @@ document.addEventListener('click', e => {
   }
  }
  const step=e.target.closest('[data-step]');if(step){const input=step.parentElement.querySelector('input');input.value=Math.max(0,Math.min(9999,Number(input.value)+Number(step.dataset.step)));input.dispatchEvent(new Event('change',{bubbles:true}));}
- if(e.target.closest('[data-print]')){document.querySelector('#print-status').textContent='Opening print dialog…';window.print();}
+ if(e.target.closest('[data-print]')){e.target.closest('.stub-wrap').querySelector('[role=status]').textContent='Opening print dialog…';window.print();}
 });
 document.addEventListener('input',e=>{if(e.target.id==='kg')delete e.target.dataset.keypadValue;});
 // HTMX prices only; final creation is a normal POST with the same server rules.
 document.addEventListener('submit',e=>{if(e.target.id==='intake'){e.stopPropagation();}},true);
 document.addEventListener('htmx:configRequest',e=>{const token=document.querySelector('[name=csrfmiddlewaretoken]');if(token)e.detail.headers['X-CSRFToken']=token.value;});
 
-document.addEventListener('click',e=>{const create=e.target.closest('[data-create]');if(create){e.preventDefault();const f=create.form;if(f.reportValidity())HTMLFormElement.prototype.submit.call(f);}});
+document.addEventListener('click',e=>{const create=e.target.closest('[data-create]');if(create){e.preventDefault();const f=create.form;if(f.reportValidity())f.requestSubmit();}});
 
 // Contextual clock and actual browser connectivity; no simulated replication state.
 function updateClock(){
@@ -67,40 +67,115 @@ document.addEventListener('click',e=>{
  }
 });
 
-// Progressive enhancement: dialogs keep ordinary links and server-validated forms.
-let appDialog,dialogTrigger,dialogRequest=0;
-function closeAppDialog(){if(appDialog?.open)appDialog.close();}
+// Dialog actions use the same server forms, validation, CSRF and action-bound PIN guard.
+let appDialog,dialogTrigger,dialogRequest=0,actionPending=false;
+function closeAppDialog(){if(!actionPending&&appDialog?.open)appDialog.close();}
+function showAppDialog(doc,url,trigger){
+ const content=doc.querySelector('main .stub-wrap,main .auth-card');
+ if(!content)return false;
+ if(!appDialog){
+  appDialog=document.createElement('dialog');appDialog.className='app-dialog';
+  const close=document.createElement('button');close.className='x dialog-close';close.type='button';close.setAttribute('aria-label','Close dialog');close.textContent='×';close.addEventListener('click',closeAppDialog);
+  appDialog.append(close);document.body.append(appDialog);
+  appDialog.addEventListener('cancel',event=>{if(actionPending)event.preventDefault();});
+  appDialog.addEventListener('click',event=>{if(event.target===appDialog){const box=appDialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)closeAppDialog();}});
+  appDialog.addEventListener('close',()=>{if(appDialog.open)return;++dialogRequest;appDialog.querySelector('.dialog-content')?.remove();if(dialogTrigger?.isConnected)dialogTrigger.focus();});
+ }
+ appDialog.querySelector('.dialog-content')?.remove();
+ content.classList.add('dialog-content');
+ content.querySelectorAll('form:not([action])').forEach(form=>form.action=url);
+ const ids=new Map();
+ content.querySelectorAll('[id]').forEach(el=>{const old=el.id;el.id='dialog-'+old;ids.set(old,el.id);});
+ content.querySelectorAll('[for],[aria-controls],[aria-labelledby]').forEach(el=>['for','aria-controls','aria-labelledby'].forEach(attr=>{if(el.hasAttribute(attr))el.setAttribute(attr,el.getAttribute(attr).split(' ').map(id=>ids.get(id)||id).join(' '));}));
+ const heading=content.querySelector('h2');
+ if(heading){heading.id='app-dialog-title';appDialog.setAttribute('aria-labelledby',heading.id);}
+ appDialog.append(content);if(trigger)dialogTrigger=trigger;
+ if(!appDialog.open)appDialog.showModal();
+ (content.querySelector('[autofocus]')||appDialog.querySelector('.dialog-close')).focus();
+ return true;
+}
+function parsePage(html){return new DOMParser().parseFromString(html,'text/html');}
 document.addEventListener('click',async e=>{
+ if(e.target.closest('[data-dialog-cancel]')?.closest('dialog')){e.preventDefault();closeAppDialog();return;}
  const link=e.target.closest('a[data-dialog]');
- if(!link||e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+ if(!link||e.defaultPrevented||e.button!==0||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||actionPending)return;
  const url=new URL(link.href,location.href);if(url.origin!==location.origin)return;
  e.preventDefault();const sequence=++dialogRequest;
  try{
   const response=await fetch(url,{headers:{'X-Requested-With':'XMLHttpRequest'}});
-  if(!response.ok||response.redirected){location.assign(response.url||url);return;}
-  const doc=new DOMParser().parseFromString(await response.text(),'text/html');
-  const content=doc.querySelector('main .stub-wrap,main .auth-card');
-  if(!content){location.assign(url);return;}
+  const doc=parsePage(await response.text());
   if(sequence!==dialogRequest)return;
-  if(!appDialog){
-   appDialog=document.createElement('dialog');appDialog.className='app-dialog';
-   const close=document.createElement('button');close.className='x dialog-close';close.type='button';close.setAttribute('aria-label','Close dialog');close.textContent='×';close.addEventListener('click',closeAppDialog);
-   appDialog.append(close);document.body.append(appDialog);
-   appDialog.addEventListener('click',event=>{if(event.target===appDialog){const box=appDialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)closeAppDialog();}});
-   appDialog.addEventListener('close',()=>{appDialog.querySelector('.dialog-content')?.remove();if(dialogTrigger?.isConnected)dialogTrigger.focus();});
-  }
-  appDialog.querySelector('.dialog-content')?.remove();
-  content.classList.add('dialog-content');
-  content.querySelectorAll('form:not([action])').forEach(form=>form.action=response.url);
-  content.querySelectorAll('[id]').forEach(el=>el.id='dialog-'+el.id);
-  content.querySelectorAll('label[for]').forEach(el=>el.htmlFor='dialog-'+el.htmlFor);
-  const heading=content.querySelector('h2');
-  if(heading){heading.id='app-dialog-title';appDialog.setAttribute('aria-labelledby',heading.id);}
-  appDialog.append(content);dialogTrigger=link;
-  if(!appDialog.open)appDialog.showModal();
-  appDialog.querySelector('.dialog-close').focus();
+  if(!response.ok||response.redirected||!showAppDialog(doc,response.url,link))location.assign(response.url||url);
  }catch(error){location.assign(url);}
 });
+function refreshMain(doc){
+ const main=doc.querySelector('main'),current=document.querySelector('main');
+ if(!main||!current)throw new Error('Could not refresh this screen.');
+ const focusHref=dialogTrigger?.getAttribute('href');
+ current.replaceChildren(...main.childNodes);
+ const rail=doc.querySelector('.rail'),currentRail=document.querySelector('.rail');
+ if(rail&&currentRail)currentRail.replaceChildren(...rail.childNodes);
+ window.htmx?.process(current);updateIntake();updateClock();
+ if(dialogTrigger&&!dialogTrigger.isConnected){
+  dialogTrigger=[...current.querySelectorAll('a[href]')].find(link=>link.getAttribute('href')===focusHref)||current.querySelector('[data-create],h2');
+  if(dialogTrigger?.matches('h2'))dialogTrigger.tabIndex=-1;
+  dialogTrigger?.focus({preventScroll:true});
+ }
+}
+document.addEventListener('submit',async e=>{
+ const form=e.target;
+ if(!form.matches('[data-action-dialog]')&&!form.closest('.app-dialog'))return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(actionPending||!form.reportValidity())return;
+ actionPending=true;
+ const data=new FormData(form);if(e.submitter?.name)data.append(e.submitter.name,e.submitter.value);
+ const buttons=[...form.querySelectorAll('button')];buttons.forEach(b=>b.disabled=true);
+ const trigger=appDialog?.open?null:e.submitter;
+ try{
+  const response=await fetch(form.action,{method:'POST',body:data,headers:{'X-Requested-With':'XMLHttpRequest'}});
+  const doc=parsePage(await response.text());
+  if(!response.redirected){
+   if(!showAppDialog(doc,response.url,trigger)){
+    if(doc.querySelector('#intake')){appDialog?.close();refreshMain(doc);}
+    else throw new Error('Could not complete the action. Please try again.');
+   }
+  }else{
+   // Refresh the original screen without changing its URL, filters or scroll position.
+   const screen=await fetch(location.href,{headers:{'X-Requested-With':'XMLHttpRequest'}});
+   if(!screen.ok||screen.redirected){location.assign(screen.url);return;}
+   const updated=parsePage(await screen.text());
+   // Redirects consume Django messages, so keep the action's feedback and Undo.
+   updated.querySelectorAll('main .toast').forEach(el=>el.remove());
+   doc.querySelectorAll('main .toast').forEach(el=>updated.querySelector('main').prepend(el));
+   appDialog?.close();refreshMain(updated);
+   if(form.id==='intake'||(form.matches('[data-pin-form]')&&document.querySelector('#intake'))){showAppDialog(doc,response.url,document.querySelector('[data-create]'));}
+  }
+ }catch(error){
+  let status=form.querySelector('[data-action-error]');
+  if(!status){status=document.createElement('p');status.className='error';status.dataset.actionError='';status.setAttribute('role','alert');form.append(status);}
+  status.textContent='The action could not be confirmed. Check the current screen before trying again.';
+ }finally{actionPending=false;buttons.forEach(b=>b.disabled=false);}
+},true);
+document.addEventListener('click',e=>{
+ const key=e.target.closest('[data-pin]');if(!key)return;
+ const form=key.closest('form'),input=form.querySelector('[name=pin]');
+ if(actionPending)return;
+ if(key.dataset.pin==='clear')input.value='';
+ else if(key.dataset.pin==='back')input.value=input.value.slice(0,-1);
+ else if(input.value.length<4)input.value+=key.dataset.pin;
+ input.dispatchEvent(new Event('input',{bubbles:true}));input.focus();
+});
+document.addEventListener('input',e=>{
+ if(!e.target.matches('[data-pin-form] [name=pin]'))return;
+ e.target.value=e.target.value.replace(/\D/g,'').slice(0,4);
+ e.target.closest('label').querySelectorAll('.pin-dots i').forEach((dot,i)=>dot.classList.toggle('on',i<e.target.value.length));
+ if(e.target.value.length===4&&!actionPending)e.target.form.requestSubmit();
+});
+document.addEventListener('change',e=>{
+ if(e.target.name==='paper_release')e.target.setAttribute('aria-expanded',String(e.target.checked));
+});
+// Keep auto-refresh from replacing an action's focus target while a dialog is open.
+document.addEventListener('htmx:beforeRequest',e=>{if(appDialog?.open&&e.detail.elt.matches('#board,#machine-grid'))e.preventDefault();});
 
 // Preview stock-count variance; the server recomputes it when the count is saved.
 document.addEventListener('input',e=>{
