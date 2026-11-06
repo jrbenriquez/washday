@@ -9,7 +9,7 @@ button{cursor:pointer;border:0;background:none}
 .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
 .num{font-variant-numeric:tabular-nums}
 h1,h2,h3{margin:0;font-family:var(--f-display);font-weight:800;letter-spacing:-.01em;text-wrap:balance}
-h2{font-size:26px;text-transform:uppercase;letter-spacing:.01em;color:var(--accent)} h3{font-size:16px;font-weight:600}
+h2{font-family:var(--f-body);font-size:26px;font-weight:700;letter-spacing:-.03em;color:var(--ink)} h3{font-family:var(--f-body);font-size:16px;font-weight:700;letter-spacing:-.01em}
 .eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .muted{color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -522,3 +522,113 @@ body:has(.app-dialog[open]){overflow:hidden}
 .app-dialog .pin-content button[type=submit],.app-dialog .pin-content form>button:not([type]){display:none}
 .pin-content>div>p{margin:6px 0 0}
 @media(max-width:760px){.top .identity{order:3;flex-basis:100%;max-width:none;font-size:12px;color:var(--muted)}}
+
+/* UI audit: shared rhythm, quieter surfaces and responsive control groups. */
+@media screen {
+  .top{padding-inline:max(24px,env(safe-area-inset-left,0px)) max(24px,env(safe-area-inset-right,0px))}
+  .top form{margin:0}
+  .brand{gap:12px}
+  .brand b{font-size:21px}
+  .iconbtn{border-radius:12px}
+  .sync{border:0;background:var(--surface-2);padding-inline:12px}
+  .shell main{padding:24px 24px 40px}
+  .auth-main{padding:24px 24px 48px}
+  .screen-head{align-items:center;gap:16px;margin-bottom:20px}
+  .screen-head>div:first-child{min-width:0;flex:1 1 320px}
+  .screen-head p{margin-top:6px;max-width:70ch;line-height:1.5}
+  .head-actions{gap:10px}
+  .card{padding:20px}
+  .card.stack>p{margin:0}
+  .stack{gap:16px}
+  .card .screen-head{gap:12px}
+  .btn,.chip,.toggle{border-radius:10px}
+  .btn.primary.small{min-height:44px!important}
+  .btn:not(:disabled):hover,.rail a:hover{background:var(--surface-2);border-color:var(--muted)}
+  .btn.primary:not(:disabled):hover,.btn.ink:not(:disabled):hover{filter:brightness(1.1);background:var(--accent);color:var(--accent-ink);border-color:transparent}
+  .field input,.field select,.field textarea,.input,.cell-in,.form-row input{border-width:1px}
+  .field{font-size:14px;font-weight:500;gap:8px}
+  .field input,.field select,.field textarea{font-size:15px;font-weight:400}
+  .field-label{margin-bottom:12px}
+  .rail{gap:8px;padding-top:20px}
+  .rail a[aria-current="page"]{color:var(--accent)}
+  .owner-tabs{width:100%;gap:4px;padding:0 0 12px;margin-bottom:24px;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+  .owner-tabs .btn{border-radius:8px;padding-inline:16px}
+  .owner-tabs .btn[aria-current=page]{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 -2px var(--accent)}
+  .branch-tabs{gap:4px;margin-bottom:20px}
+  .branch-tabs .btn{min-height:44px;border:0;background:transparent;color:var(--muted);padding-inline:14px}
+  .branch-tabs .btn[aria-current=page]{background:var(--accent-soft);color:var(--accent)}
+  .branch-filters .chip{min-height:44px;padding:8px 12px;border-width:1px;font-size:14px}
+  .branch-card .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .branch-actions{border-top:1px solid var(--line);padding-top:16px}
+  .kpis{gap:16px;margin-bottom:20px}
+  .kpi{min-width:0}
+  .kpi .v{margin-top:10px}
+  .kpi .s{line-height:1.5;margin-top:8px}
+  .dashboard-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:20px;align-items:start}
+  .sales-report{grid-column:1/-1}
+  .report-form{grid-template-columns:minmax(0,1fr) auto;align-items:end}
+  .report-form .btn{padding-inline:24px}
+  .alert{background:transparent;border-bottom:1px solid var(--line);padding:12px 0;border-radius:0}
+  .alert:last-child{border-bottom:0}
+  .alerts{gap:0}
+  .alert .btn{margin-top:8px}
+  .counter{grid-template-columns:minmax(0,1.6fr) minmax(320px,1fr);gap:20px}
+  .counter .grid2{gap:10px}
+  .counter .stepper,.choice-chips .chip{border-width:1px}
+  .summary .title-row{padding-bottom:12px}
+  .summary .lines{border-block-style:solid;padding-block:16px;margin-block:14px}
+  .section-label{margin-top:20px}
+  .board{grid-auto-columns:minmax(210px,1fr)}
+  .col{background:var(--surface-2);border-color:transparent;padding:8px;gap:12px}
+  .col-head{padding:4px}
+  .col-head h3{font-size:14px}
+  .ocard{box-shadow:var(--shadow)}
+  .ocard .open{padding:4px;gap:10px}
+  .ocard .meta{line-height:1.5}
+  .card-acts{gap:8px}
+  .stock-row .button-link{justify-content:flex-start}
+  .settings-section .screen-head{align-items:start}
+  .settings-section .catalog-status:empty{display:none}
+  .owner-editor-section .head-actions{flex-wrap:nowrap}
+  .owner-editor-section .btn{white-space:nowrap}
+  .settings-section .use-chip{max-width:100%}
+  .use-chip a{overflow-wrap:anywhere;min-width:0}
+  .use-chip button{flex:none}
+  .auth-card{padding:28px}
+  .app-dialog .dialog-content{padding:24px}
+  #stock-count{scroll-margin-top:110px}
+  @media(max-width:1100px){.staff-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:900px){
+    .counter,.dashboard-grid{grid-template-columns:minmax(0,1fr)}
+    .report-form{grid-template-columns:minmax(0,1fr)}
+  }
+  @media(max-width:760px){
+    .top{padding:10px 16px;gap:8px}
+    .brand{gap:8px}
+    .brand b{font-size:19px}
+    .auth-main{padding:16px 16px 32px}
+    .shell main{padding:20px 16px calc(100px + env(safe-area-inset-bottom,0px))}
+    .screen-head{gap:12px}
+    h2{font-size:24px}
+    .card{padding:16px}
+    .rail{padding-top:6px;gap:4px}
+    .rail a{border-radius:10px}
+    .owner-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding-bottom:12px;margin-bottom:20px}
+    .owner-tabs .btn{font-size:13px;white-space:normal;padding:6px;line-height:1.25;text-align:center}
+    .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .kpi{padding:14px}
+    .kpi .eyebrow{font-size:10.5px;letter-spacing:.04em}
+    .kpi .v{font-size:22px}
+    .kpi .s{font-size:12px}
+    .settings-section .edit-table tr{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-block:14px}
+    .settings-section .edit-table td:first-child,.settings-section .edit-table td:last-child{grid-column:1/-1}
+    .settings-section .edit-table .cell-in{min-width:0}
+    .settings-section .catalog-actions{justify-content:flex-end;gap:8px}
+    #addon .edit-table td:nth-child(2){grid-column:1/-1}
+    .settings-section .uses{min-width:0}
+    .owner-editor-section .table-wrap table{min-width:640px}
+    .auth-card{padding:20px}
+    .app-dialog .dialog-content{padding:20px}
+  }
+  @media(max-width:520px){.staff-grid{grid-template-columns:minmax(0,1fr)}}
+}
