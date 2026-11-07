@@ -509,7 +509,6 @@ body:has(.app-dialog[open]){overflow:hidden}
 .app-dialog .dialog-content .total b{font-size:30px}
 .app-dialog .dialog-content h2{line-height:1.15}
 .summary-identity{display:grid;gap:6px}
-.summary-identity .tag{justify-self:start}
 .summary .total b{font-size:32px}
 .summary .primary{min-height:48px!important}
 .payment label{min-height:38px;padding:0 14px}
