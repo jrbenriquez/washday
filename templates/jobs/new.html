@@ -1,7 +1,7 @@
 {% extends 'base.html' %}{% load intake %}{% block content %}
 <div class="screen-head">
   <div><h2>New drop-off job</h2><p>Weigh the clothes and tap the service, or add pieces only. Customer is optional.</p></div>
-  <div class="head-actions"><span class="tag">Next #{{ next_number }}</span><a class="btn small" href="{% if paper %}{% url 'new' %}{% else %}{% url 'new' %}?paper=1{% endif %}">{% if paper %}Regular intake{% else %}From paper sheet{% endif %}</a></div>
+  <div class="head-actions"><a class="btn small" href="{% if paper %}{% url 'new' %}{% else %}{% url 'new' %}?paper=1{% endif %}">{% if paper %}Regular intake{% else %}From paper sheet{% endif %}</a></div>
 </div>
 {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
 <form data-action-dialog method="post" id="intake" hx-post="{% url 'price' %}" hx-trigger="change, input delay:300ms" hx-target="#summary" hx-sync="this:replace">
@@ -34,7 +34,7 @@
   </section>
 </div>
 <aside class="card summary">
-  <div class="summary-identity"><h3 class="eyebrow">Job #{{ next_number }}</h3><b data-summary-customer>Walk-in</b></div><div id="summary" aria-live="polite">{% include 'jobs/summary.html' %}</div>
+  <div class="summary-identity"><h3 class="tag">Job #{{ next_number }}</h3><b data-summary-customer>Walk-in</b></div><div id="summary" aria-live="polite">{% include 'jobs/summary.html' %}</div>
   <section class="stack payment-section">
     <h3 class="eyebrow" id="payment-label">Payment</h3>
     <div class="seg payment" role="radiogroup" aria-labelledby="payment-label">
