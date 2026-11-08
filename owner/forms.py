@@ -65,10 +65,12 @@ class DeviceForm(forms.Form):
 class HoursForm(forms.Form):
     opening_time = forms.TimeField(
         label="Opening time",
+        help_text="Job creation and updates require operating hours. Matching times mean open 24 hours.",
         widget=forms.TimeInput(attrs={"type": "time"}, format="%H:%M"),
     )
     closing_time = forms.TimeField(
         label="Closing time",
+        help_text="Job writes stop at closing. Overnight hours are supported (Asia/Manila).",
         widget=forms.TimeInput(attrs={"type": "time"}, format="%H:%M"),
     )
 

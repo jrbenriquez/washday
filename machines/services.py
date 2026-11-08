@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.utils import timezone
 from core.models import Branch, Machine, JobStage
+from core.operating_hours import require_job_operating_hours
 from catalog.models import Service
 from jobs.services import append_event, get_active, money
 from jobs.transitions import lock_job, next_stage, set_stage
@@ -184,6 +185,8 @@ def unload(branch, machine_id, expected_load, staff=None):
         raise ValidationError(
             "This load has already changed. Refreshed to the current machine state."
         )
+    if load.job_id:
+        require_job_operating_hours(branch)
     at = timezone.now()
     end_load(branch, load, staff, at)
     job = load.job

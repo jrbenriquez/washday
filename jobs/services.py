@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.utils import timezone
 from core.models import Branch, Settings, JobStage
+from core.operating_hours import require_job_operating_hours
 from customers.models import Customer
 from catalog.models import Service, AddOn, Fee, PieceVariant
 from events.models import Event
@@ -177,6 +178,7 @@ def append_event(branch, type, payload, occurred_at, staff):
 @recorded_action
 def create_job(data, branch, staff=None):
     branch = Branch.objects.select_for_update().get(pk=branch.pk)
+    require_job_operating_hours(branch)
     now = timezone.now()
     received = now
     paid = None

@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.utils import timezone
 from core.models import Branch, JobStage
+from core.operating_hours import require_job_operating_hours
 from .models import Job
 from .services import append_event, sheet_time
 
@@ -28,6 +29,7 @@ def actual_name(job):
 
 def lock_job(branch, number, expected):
     branch = Branch.objects.select_for_update(of=("self",)).get(pk=branch.pk)
+    require_job_operating_hours(branch)
     job = (
         Job.objects.select_for_update(of=("self",))
         .filter(branch=branch, number=number)

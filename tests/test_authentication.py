@@ -43,14 +43,17 @@ def auth(setup_shop, settings):
     personal = Device.objects.create(
         shop=s["shop"], branch=b, name="TEST personal phone", kind="personal"
     )
-    return {
-        **s,
-        "auth_staff": staff,
-        "owner": own,
-        "user": user,
-        "shared": shared,
-        "personal": personal,
-    }
+    # Authentication scenarios run during trading hours regardless of wall clock.
+    now = timezone.localtime().replace(hour=12, minute=0, second=0, microsecond=0)
+    with patch("django.utils.timezone.now", return_value=now):
+        yield {
+            **s,
+            "auth_staff": staff,
+            "owner": own,
+            "user": user,
+            "shared": shared,
+            "personal": personal,
+        }
 
 
 def owner_client(a):
