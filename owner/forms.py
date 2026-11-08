@@ -1,5 +1,6 @@
 from django import forms
 from core.models import Shop
+from people.models import Staff
 
 
 class ShopBrandingForm(forms.ModelForm):
@@ -47,10 +48,39 @@ class StaffForm(forms.Form):
     )
 
 
-class DeviceForm(forms.Form):
+class StaffChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return f"{obj.name} · {obj.branch.name}"
+
+
+class DeviceAssignmentForm(forms.Form):
+    assigned_staff = StaffChoiceField(
+        queryset=Staff.objects.none(), required=True, label="Assigned staff",
+    )
+
+    def __init__(self, *args, branch=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["assigned_staff"].queryset = Staff.objects.filter(
+            active=True, **({"branch": branch} if branch else {})
+        ).select_related("branch").order_by("branch__name", "name")
+
+
+class DeviceForm(DeviceAssignmentForm):
+    field_order = ["name", "kind", "assigned_staff"]
+
     def __init__(self, *args, **kwargs):
         kwargs.setdefault("auto_id", "device_%s")
         super().__init__(*args, **kwargs)
+        self.fields["assigned_staff"].required = False
+
+    def clean(self):
+        data = super().clean()
+        staff = data.get("assigned_staff")
+        if data.get("kind") == "personal" and not staff:
+            self.add_error("assigned_staff", "Choose the staff member who owns this phone.")
+        if data.get("kind") == "shared":
+            data["assigned_staff"] = None
+        return data
 
     name = forms.CharField(max_length=120, label="Device name")
     kind = forms.ChoiceField(

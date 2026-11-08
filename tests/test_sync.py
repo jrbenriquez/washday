@@ -472,3 +472,48 @@ def test_http_push_validates_and_applies_the_wire_envelope(hub):
         HTTP_AUTHORIZATION="Bearer " + s["token"],
     )
     assert response.status_code == 400
+
+
+def test_personal_device_assignment_is_cloud_owned_and_enforced_on_hub(hub, settings):
+    from events.records import row
+    from events.sync.schema import apply_record
+    from people.models import Device
+    from people.services import save_staff, verify_pin
+
+    s = hub
+    first, _ = save_staff(s['branch'], 'First', '1234')
+    second, _ = save_staff(s['branch'], 'Second', '5678')
+    device = Device.objects.create(
+        shop=s['shop'], branch=s['branch'], name='Assigned phone',
+        kind='personal', assigned_staff=first,
+    )
+    record = row(device)
+    record['fields']['assigned_staff_id'] = str(second.pk)
+    apply_record(record, s['branch'], upward=True)
+    device.refresh_from_db()
+    assert device.assigned_staff == first
+    apply_record(record, s['branch'], upward=False)
+    device.refresh_from_db()
+    assert device.assigned_staff == second
+    settings.APP_ROLE = 'hub'
+    settings.HUB_BRANCH_ID = str(s['branch'].pk)
+    assert verify_pin(device, '1234')[0] is None
+    assert verify_pin(device, '5678')[0] == second
+
+
+def test_staff_transfer_clears_old_phone_assignment_from_configuration(setup_shop):
+    from people.models import Device
+    from people.services import save_staff
+
+    s = setup_shop
+    staff, _ = save_staff(s['branch'], 'Transferred staff', '1234')
+    device = Device.objects.create(
+        shop=s['shop'], branch=s['branch'], name='Old phone',
+        kind='personal', assigned_staff=staff,
+    )
+    other = Branch.objects.create(shop=s['shop'], name='Other', code='O', number=2)
+    save_staff(other, staff.name, '5678', staff=staff)
+    device.refresh_from_db()
+    assert device.assigned_staff_id is None and device.revoked_at
+    exported = next(r for r in configuration(s['branch'])['records'] if r['model'] == 'people.device')
+    assert exported['fields']['assigned_staff_id'] is None

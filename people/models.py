@@ -19,6 +19,10 @@ class Device(TenantModel):
         choices=[("shared", "Shared counter"), ("personal", "Personal phone")],
     )
     name = models.CharField(max_length=120)
+    assigned_staff = models.ForeignKey(
+        Staff, on_delete=models.PROTECT, null=True, blank=True,
+        related_name="personal_devices",
+    )
     key_hash = models.CharField(max_length=64, unique=True, null=True, blank=True)
     enrol_epoch = models.PositiveIntegerField(default=0)
     config_revision = models.PositiveIntegerField(default=0)

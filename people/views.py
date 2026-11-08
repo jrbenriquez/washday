@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.views.decorators.cache import never_cache
 from django.core.exceptions import ValidationError
-from .models import Device, Staff
+from .models import Device
 from .services import enroll, verify_pin, begin_shift, end_shift, authenticate_device
 
 
@@ -131,17 +131,13 @@ def shift(request):
         return redirect("board")
     error = ""
     if request.method == "POST":
-        value = request.POST.get("staff", "")
-        try:
-            staff, error = verify_pin(
-                request.device,
-                request.POST.get("pin", ""),
-                value if value else "00000000-0000-0000-0000-000000000000",
-            )
-        except (ValidationError, ValueError):
-            staff, error = verify_pin(
-                request.device, "", "00000000-0000-0000-0000-000000000000"
-            )
+        # Identity comes from the enrolled device, never a name supplied by the phone.
+        # Reject stale/tampered identity fields while allowing PIN-only sign-in.
+        value = request.POST.get("staff")
+        pin = request.POST.get("pin", "")
+        if value is not None and value != str(request.device.assigned_staff_id):
+            pin = ""
+        staff, error = verify_pin(request.device, pin)
         if staff:
             try:
                 begin_shift(request.device, staff)
@@ -152,8 +148,11 @@ def shift(request):
         request,
         "people/shift.html",
         {
-            "people": Staff.objects.filter(branch=request.branch, active=True).order_by(
-                "name"
+            "assigned_staff": request.device.assigned_staff,
+            "assignment_valid": bool(
+                request.device.assigned_staff_id
+                and request.device.assigned_staff.active
+                and request.device.assigned_staff.branch_id == request.branch.pk
             ),
             "error": error,
         },

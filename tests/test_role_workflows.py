@@ -26,7 +26,7 @@ def test_staff_lifecycle_pin_and_undo_in_each_role(setup_shop, settings, role):
     b.save(update_fields=["simple_mode", "closing_time"])
     staff, _ = save_staff(b, "Role staff", "1234")
     personal = Device.objects.create(
-        shop=s["shop"], branch=b, kind="personal", name="Role phone"
+        shop=s["shop"], branch=b, kind="personal", name="Role phone", assigned_staff=staff
     )
     shared = Device.objects.create(
         shop=s["shop"], branch=b, kind="shared", name="Role tablet"
