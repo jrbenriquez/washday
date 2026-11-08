@@ -80,6 +80,7 @@ if os.environ.get("PGDATABASE"):
             "PORT": os.environ.get("PGPORT", "5432"),
             "USER": os.environ.get("PGUSER", "washday"),
             "PASSWORD": os.environ.get("PGPASSWORD", ""),
+            "OPTIONS": {"connect_timeout": 5},
         }
     }
 LANGUAGE_CODE = "en"

@@ -104,3 +104,7 @@ jobs:
         run: docker build --target test -t washday-test .
       - name: Run suite inside the native architecture image
         run: docker run --rm washday-test
+      - name: Verify startup with a delayed database network
+        run: |
+          docker build --target runtime -t washday-runtime .
+          python3 scripts/check_database_startup.py --image washday-runtime

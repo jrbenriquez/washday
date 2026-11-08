@@ -128,7 +128,30 @@ uv run --env-file .env python manage.py runserver localhost:8000
 
 Open [http://localhost:8000/owner/login/](http://localhost:8000/owner/login/) and choose **Continue with Google**. Only the verified Google email you allow-listed can sign in. The bootstrap command adds permission for an existing shop; it does not create a password or bypass Google authentication. Owner sessions last 14 days and the allow-list is checked on every owner request.
 
-To set up branch access:
+### Provision a production shop
+
+After configuring the production environment and running `migrate`, create a shop without development fixtures:
+
+```sh
+uv run --env-file .env python manage.py create_shop
+```
+
+In a terminal, the command asks for the Shop code, name, minimum billable kilos, kilos per load, timezone (press Enter for `Asia/Manila`), and an optional owner Google email. Required answers cannot be blank. Cancelling a prompt saves nothing.
+
+You can also supply flags, or mix flags with prompts for missing details:
+
+```sh
+uv run --env-file .env python manage.py create_shop \
+  --shop-code MY-SHOP --name "My Laundry" --min-kg 3 --kg-per-load 7
+```
+
+Replace the example code, name and weight settings with the shop's actual values. `--shop-code` identifies the **Shop**, not a branch. The timezone defaults to `Asia/Manila`; set `--timezone` to another IANA timezone if needed. The command creates settings, Washer/Dryer categories and the Received → Washing → Drying → Folding → Ready workflow. It does not create demo prices, staff, stock or branches, and refuses to overwrite an existing shop (including an archived one).
+
+At the end of setup, an interactive terminal prompts for the owner's Google email. Enter it to approve owner sign-in in the same command, or leave it blank to skip. For automation, supply all four shop flags shown above and add `--owner-email owner@example.com --noinput`; omit `--owner-email` to provision without an owner. Non-terminal runs never prompt, and missing required flags produce an error. Invalid input or an email already assigned to another shop rolls back the entire setup. If you skip the owner email, use `allow_owner EMAIL --shop-code MY-SHOP` later. Google OAuth still needs to be configured; this command creates no password or login session.
+
+Sign in at `/owner/login/`, then use **Branches → Manage Branches** to add the first branch and its hours. Configure prices, machines, staff, devices and operational settings in the owner workspace before taking jobs. `seed_demo` remains development-only.
+
+### Configure branch access
 
 Open **Settings → Shop branding** in the owner workspace to edit the shop name and upload or clear a logo (PNG, JPEG or WebP, up to 2 MB). Shop branding appears on owner/staff headers and claim stubs once a shop is in context. Signed-out screens use WashDay and its generic icon. Uploaded files live in the Git-ignored `media/` directory; include this directory in backups and serve `/media/` through the web server when deploying. Django serves these files during local DEBUG development.
 
