@@ -126,7 +126,10 @@ def test_enrolled_devices_cannot_post_closed_jobs(operating_shop, settings, kind
     s, b = operating_shop, operating_shop["branch"]
     settings.ENABLE_DEV_BRANCH_SCOPE = False
     staff, _ = save_staff(b, "Staff", "1234")
-    device = Device.objects.create(shop=s["shop"], branch=b, kind=kind, name="Device")
+    device = Device.objects.create(
+        shop=s["shop"], branch=b, kind=kind, name="Device",
+        assigned_staff=staff if kind == "personal" else None,
+    )
     code, _ = issue_code(device)
     _, key, error = enroll(device, code)
     assert not error

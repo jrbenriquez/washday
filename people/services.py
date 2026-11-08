@@ -219,6 +219,10 @@ def verify_pin(device, pin, staff_id=None):
     if _locked(device, "pin", now):
         return None, "Too many attempts. Try again in one minute."
     people = Staff.objects.filter(branch_id=device.branch_id, active=True)
+    if device.kind == "personal":
+        if not device.assigned_staff_id:
+            return None, "Ask the owner to assign this phone to a staff member."
+        people = people.filter(pk=device.assigned_staff_id)
     if staff_id:
         people = people.filter(pk=staff_id)
     staff = next(
@@ -252,6 +256,7 @@ def current_shift(device):
         shift.ends_at > timezone.now()
         and shift.staff.active
         and shift.staff.branch_id == device.branch_id
+        and shift.staff_id == device.assigned_staff_id
     ):
         return shift
     with transaction.atomic():
@@ -279,6 +284,9 @@ def begin_shift(device, staff):
     device = Device.objects.select_for_update().get(pk=device.pk)
     if device.kind != "personal" or device.revoked_at:
         raise ValidationError("A personal enrolled device is required.")
+    staff = Staff.objects.get(pk=staff.pk)
+    if device.assigned_staff_id != staff.pk:
+        raise ValidationError("This phone is assigned to a different staff member.")
     if not staff.active or staff.branch_id != branch.id:
         raise ValidationError("Choose an active staff member at this branch.")
     if Shift.objects.filter(device=device, ended_at=None).exists():
@@ -378,6 +386,12 @@ def save_staff(branch, name, pin="", staff=None, active=True, owner_email=""):
     if pin:
         staff.pin_hash = make_password(pin)
     staff.save()
+    if moving:
+        # A transferred staff member cannot remain the identity of an old-branch phone.
+        for device in Device.objects.filter(assigned_staff=staff):
+            revoke_device(device, owner_email)
+            device.assigned_staff = None
+            device.save(update_fields=["assigned_staff"])
     if pin or not active:
         for shift in (
             Shift.objects.select_for_update()
@@ -395,3 +409,26 @@ def save_staff(branch, name, pin="", staff=None, active=True, owner_email=""):
         owner=owner_email,
     )
     return staff, pin
+
+
+@transaction.atomic
+def assign_device_staff(device, staff, owner_email=""):
+    branch = lock_branch(device)
+    device = Device.objects.select_for_update().get(pk=device.pk)
+    staff = Staff.objects.get(pk=staff.pk)
+    if device.kind != "personal":
+        raise ValidationError("Only personal phones can be assigned to staff.")
+    if not staff.active or staff.branch_id != branch.pk:
+        raise ValidationError("Choose an active staff member at this branch.")
+    if device.assigned_staff_id == staff.pk:
+        return device
+    revoke_device(device, owner_email)
+    device.refresh_from_db()
+    device.assigned_staff = staff
+    device.save(update_fields=["assigned_staff"])
+    audit(
+        branch, "device_staff_assigned",
+        f"Phone assigned · {device.name} · {staff.name}",
+        device_id=str(device.pk), staff_id=str(staff.pk), owner=owner_email,
+    )
+    return device
