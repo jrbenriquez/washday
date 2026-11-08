@@ -8,6 +8,9 @@ class Staff(TenantModel):
     pin_hash = models.CharField(max_length=256)
     active = models.BooleanField(default=True)
 
+    class Meta(TenantModel.Meta):
+        verbose_name_plural = "staff"
+
 
 class Device(TenantModel):
     branch = models.ForeignKey("core.Branch", on_delete=models.PROTECT)

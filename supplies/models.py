@@ -17,6 +17,7 @@ class StockEntry(ImmutableModel):
     by = models.ForeignKey("people.Staff", null=True, on_delete=models.PROTECT)
 
     class Meta(ImmutableModel.Meta):
+        verbose_name_plural = "stock entries"
         constraints = [
             models.UniqueConstraint(
                 fields=["job", "supply_type", "reason"],

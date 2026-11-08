@@ -73,6 +73,10 @@ class Outbox(TenantModel):
     frame = models.JSONField()
     sent_at = models.DateTimeField(null=True)
 
+    class Meta(TenantModel.Meta):
+        verbose_name = "outbox entry"
+        verbose_name_plural = "outbox entries"
+
 
 class HubCredential(TenantModel):
     branch = models.OneToOneField("core.Branch", on_delete=models.PROTECT)
@@ -113,6 +117,8 @@ class Inbox(TenantModel):
     applied_at = models.DateTimeField(null=True)
 
     class Meta(TenantModel.Meta):
+        verbose_name = "inbox entry"
+        verbose_name_plural = "inbox entries"
         constraints = [
             models.UniqueConstraint(fields=["branch", "seq"], name="inbox_branch_seq")
         ]
