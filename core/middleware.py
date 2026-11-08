@@ -22,7 +22,7 @@ class ShopMiddleware:
         request.owner = None
         request.dev_scope = False
         if settings.APP_ROLE == "hub" and request.path.startswith(
-            ("/owner/", "/accounts/")
+            ("/owner/", "/accounts/", "/admin/", "/hijack/")
         ):
             return HttpResponseNotFound()
         request.sensitive_post_parameters = ("pin", "code")
@@ -46,6 +46,8 @@ class ShopMiddleware:
         if request.path.startswith(
             (
                 "/accounts/",
+                "/admin/",
+                "/hijack/",
                 "/sync/",
                 "/health/",
                 "/device/start/",

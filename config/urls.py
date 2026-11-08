@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
@@ -12,6 +13,8 @@ from .health import health
 from .media import logo
 
 urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("hijack/", include("hijack.urls")),
     path("health/", health),
     path("media/<path:name>", logo),
     path("sync/push/", Push.as_view()),
