@@ -168,7 +168,7 @@ Application records cannot be added, edited or deleted through admin. Use the ow
 
 Open **Settings → Shop branding** in the owner workspace to edit the shop name and upload or clear a logo (PNG, JPEG or WebP, up to 2 MB). Shop branding appears on owner/staff headers and claim stubs once a shop is in context. Signed-out screens use WashDay and its generic icon. Uploaded files live in the Git-ignored `media/` directory; include this directory in backups and serve `/media/` through the web server when deploying. Django serves these files during local DEBUG development.
 
-1. In **Access and devices**, set the DEMO branch's opening/closing times. Staff sessions last 24 hours from sign-in, independently of branch hours.
+1. In branch settings, set the branch's opening/closing times. Job creation and updates require the current server time to be within these hours (Asia/Manila), including on shared devices. Opening is inclusive; closing is exclusive. Overnight hours are supported; matching times mean open 24 hours. Missing hours block job writes. Staff sessions last 24 hours from sign-in, independently of branch hours.
 2. In **Staff**, choose a branch, add a staff member and enter a four-digit PIN, or leave it blank to generate one. The PIN is shown once and stored hashed. PINs are unique among active staff in a branch.
 3. In **Access and devices**, create a **shared counter tablet** or **personal staff phone**. You receive an installation QR/link and a separate six-digit code. The code is shown once, expires after 15 minutes, and can be used once.
 4. Open the installation link in another browser profile/private context to simulate a different device. On a phone, add it to the Home Screen, open the icon, and enter the code there. The explicit `DEVICE_SETUP_ALLOW_BROWSER=1` option in the local example also permits the setup form in a normal desktop browser; it is disabled outside DEBUG.
@@ -284,7 +284,7 @@ Settings are read from the **process environment**. A `.env` file is Git-ignored
 Run the Python suite and Django checks without a running server:
 
 ```sh
-uv run pytest -q
+uv run pytest --ds=config.test_settings -q
 uv run python manage.py check
 uv run python manage.py makemigrations --check --dry-run
 ```

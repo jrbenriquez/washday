@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from datetime import time
 from django.conf import settings
 from django.db import transaction
 from django.contrib.auth.hashers import make_password
@@ -31,6 +32,8 @@ class Command(BaseCommand):
                     "shop": shop,
                     "name": "DEMO branch · not operating data",
                     "number": 1,
+                    "opening_time": time(0),
+                    "closing_time": time(0),
                 },
             )
             Settings.objects.get_or_create(

@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import time, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 import pytest
@@ -62,7 +62,10 @@ def test_empty_does_not_consume_number_or_customer(setup_shop):
     assert not Customer.objects.exists()
     job, _ = create_job(data(s), s["branch"])
     assert job.number == 1001
-    b = Branch.objects.create(shop=s["shop"], name="TEST branch2", number=2, code="T2")
+    b = Branch.objects.create(
+        shop=s["shop"], name="TEST branch2", number=2, code="T2",
+        opening_time=time(0), closing_time=time(0),
+    )
     assert create_job(data(s), b)[0].number == 2001
 
 

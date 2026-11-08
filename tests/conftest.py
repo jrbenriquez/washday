@@ -1,3 +1,5 @@
+from datetime import time
+
 import pytest
 from core.models import Shop, Branch, Settings, JobStage
 from core.tenancy import shop_context
@@ -10,7 +12,8 @@ def setup_shop(db):
     shop = Shop.objects.create(name="TEST ONLY Ivan & Ivy Laundry", code="TEST")
     with shop_context(shop):
         branch = Branch.objects.create(
-            shop=shop, name="TEST branch", number=1, code="TEST"
+            shop=shop, name="TEST branch", number=1, code="TEST",
+            opening_time=time(0), closing_time=time(0),
         )
         Settings.objects.create(shop=shop, min_kg="3.0", kg_per_load="7.0")
         for i, name in enumerate(["Received", "Washing", "Drying", "Folding", "Ready"]):

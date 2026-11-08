@@ -8,6 +8,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from core.models import Branch
+from core.operating_hours import require_job_operating_hours
 
 from .journal import recorded_action
 from .models import Action, Event
@@ -68,6 +69,8 @@ def compensate(branch, event_id, device, staff=None, now=None):
     )
     if latest.pk != action.pk:
         raise ValidationError("Only your last reversible action can be undone.")
+    if any(change["model"] == "jobs.job" for change in action.changes):
+        require_job_operating_hours(branch)
     restores = []
     stocks = []
     count_ids = []

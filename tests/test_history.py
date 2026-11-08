@@ -153,7 +153,10 @@ def test_nonjob_events_and_selfservice_summary(setup_shop, scoped_client):
 def test_branch_isolation_same_numbers_and_404(setup_shop, scoped_client):
     s = setup_shop
     create(s)
-    b = Branch.objects.create(shop=s["shop"], name="SECRET BRANCH", code="B2", number=2)
+    b = Branch.objects.create(
+        shop=s["shop"], name="SECRET BRANCH", code="B2", number=2,
+        opening_time=s["branch"].opening_time, closing_time=s["branch"].closing_time,
+    )
     other = create_job(
         {"kg": "1", "service": str(s["service"].id), "notes": "SECRET other branch"},
         b,
