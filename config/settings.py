@@ -12,6 +12,7 @@ ALLOWED_HOSTS = os.environ.get(
 ).split(",")
 INSTALLED_APPS = [
     "rest_framework",
+    "django.contrib.admin",
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "django.contrib.sessions",
@@ -51,6 +52,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.request",
                 "django.contrib.messages.context_processors.messages",
                 "core.middleware.context",

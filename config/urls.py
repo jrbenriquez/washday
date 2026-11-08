@@ -1,5 +1,6 @@
 from django.urls import path, include, re_path
 from django.conf import settings
+from django.contrib import admin
 from django.conf.urls.static import static
 from people import views as people
 from owner import views as owner
@@ -12,6 +13,7 @@ from .health import health
 from .media import logo
 
 urlpatterns = [
+    path("washday-admin/", admin.site.urls),
     path("health/", health),
     path("media/<path:name>", logo),
     path("sync/push/", Push.as_view()),

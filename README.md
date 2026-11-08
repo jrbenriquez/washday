@@ -132,6 +132,17 @@ At the end of setup, an interactive terminal prompts for the owner's Google emai
 
 Sign in at `/owner/login/`, then use **Branches → Manage Branches** to add the first branch and its hours. Configure prices, machines, staff, devices and operational settings in the owner workspace before taking jobs. `seed_demo` remains development-only.
 
+### Django administration
+
+Django admin is available on the cloud service at `/washday-admin/`. It uses Django staff accounts and model permissions. To create the initial superuser inside the deployed container, run:
+
+```sh
+/app/.venv/bin/python manage.py migrate
+/app/.venv/bin/python manage.py createsuperuser
+```
+
+For a local checkout, use `uv run python manage.py createsuperuser`. The admin currently provides Django's built-in user and group management; shop operations remain in the owner workspace. Admin requests run without shop/device context and the admin is unavailable on branch hubs. Google owner approval alone does not grant admin access.
+
 ### Configure branch access
 
 Open **Settings → Shop branding** in the owner workspace to edit the shop name and upload or clear a logo (PNG, JPEG or WebP, up to 2 MB). Shop branding appears on owner/staff headers and claim stubs once a shop is in context. Signed-out screens use WashDay and its generic icon. Uploaded files live in the Git-ignored `media/` directory; include this directory in backups and serve `/media/` through the web server when deploying. Django serves these files during local DEBUG development.
