@@ -208,7 +208,7 @@ def test_owner_tenant_csrf_and_method_boundaries(own):
 def test_first_branch_empty_states_and_allocation(own):
     c, s = own
     # A separate empty shop exercises max(NULL) allocation without removing historical records.
-    empty = Shop.objects.create(name="Empty shop", code="EMPTY")
+    empty = Shop.objects.create(name="Empty shop", code="EMPTY", onboarding_completed_at=timezone.now())
     ShopOwner.objects.filter(user__username="branch-owner").update(shop=empty)
     with shop_context(empty):
         Settings.objects.create(shop=empty)

@@ -1,6 +1,7 @@
 from datetime import time
 
 import pytest
+from django.utils import timezone
 from core.models import Shop, Branch, Settings, JobStage
 from core.tenancy import shop_context
 from catalog.models import Service, PieceItem, PieceVariant, AddOn, Fee
@@ -9,7 +10,7 @@ from people.models import Staff
 
 @pytest.fixture
 def setup_shop(db):
-    shop = Shop.objects.create(name="TEST ONLY Ivan & Ivy Laundry", code="TEST")
+    shop = Shop.objects.create(name="TEST ONLY Ivan & Ivy Laundry", code="TEST", onboarding_completed_at=timezone.now())
     with shop_context(shop):
         branch = Branch.objects.create(
             shop=shop, name="TEST branch", number=1, code="TEST",

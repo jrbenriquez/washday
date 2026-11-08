@@ -1,0 +1,3 @@
+{% extends 'auth_base.html' %}
+{% block title %}Shop setup saved · WashDay{% endblock %}
+{% block content %}<section class="card stack auth-card"><h2>Your shop setup is saved</h2><p>Would you like to set up your Main Branch shared device now?</p><p class="muted">We’ll open Add device in Access and devices with your branch and device type selected.</p><form method="post" class="stack">{% csrf_token %}<button class="btn primary" name="setup_device" value="yes">Set up Main Branch shared device</button><button class="btn" name="setup_device" value="later">I’ll do this later</button></form></section>{% endblock %}

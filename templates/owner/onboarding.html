@@ -1,0 +1,25 @@
+{% extends 'auth_base.html' %}{% load static %}
+{% block title %}Set up your shop · WashDay{% endblock %}
+{% block content %}
+<div class="screen-head"><div><h2>Let’s set up your shop</h2><p>Choose what you offer and how you charge. You can change these later in Settings.</p></div></div>
+<form method="post" class="stack owner-form" id="shop-onboarding">
+{% csrf_token %}
+<section class="card stack" data-onboarding-group="services">
+<h3>1. Services</h3><p>Start with these suggestions, or add your own. Keep at least one service.</p>
+{{ services.management_form }}{{ services.non_form_errors }}
+<div class="stack" data-rows>{% for form in services %}{% include 'owner/onboarding_row.html' %}{% endfor %}</div>
+<template data-empty-row>{% with form=services.empty_form %}{% include 'owner/onboarding_row.html' %}{% endwith %}</template>
+<button class="btn" type="button" data-add-row>Add service</button>
+</section>
+<section class="card stack" data-onboarding-group="pieces">
+<h3>2. Piece items</h3><p>Do you charge for any items by the piece? Plastic is suggested below. Remove it if you don’t need it, or add more items.</p>
+{{ pieces.management_form }}{{ pieces.non_form_errors }}
+<div class="stack" data-rows>{% for form in pieces %}{% include 'owner/onboarding_row.html' %}{% endfor %}</div>
+<template data-empty-row>{% with form=pieces.empty_form %}{% include 'owner/onboarding_row.html' %}{% endwith %}</template>
+<button class="btn" type="button" data-add-row>Add piece item</button>
+</section>
+<section class="card stack"><h3>3. Weight and load limits</h3>{{ limits.as_div }}</section>
+<button class="btn primary">Save shop setup</button>
+</form>
+<script src="{% static 'js/owner-onboarding.js' %}" defer></script>
+{% endblock %}

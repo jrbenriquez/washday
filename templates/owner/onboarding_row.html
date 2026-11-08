@@ -1,0 +1,4 @@
+<div class="card stack" data-onboarding-row>
+{{ form.non_field_errors }}
+{% for field in form %}{% if field.is_hidden %}{{ field }}{{ field.errors }}{% else %}<div class="field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endif %}{% endfor %}
+</div>

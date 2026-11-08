@@ -1,8 +1,10 @@
 from django.urls import path
 from . import views, supply_merge
-from . import workspace, reports
+from . import workspace, reports, onboarding
 
 urlpatterns = [
+    path("onboarding/", onboarding.setup, name="owner_onboarding"),
+    path("onboarding/device/", onboarding.device, name="owner_onboarding_device"),
     path("supplies/<uuid:source_id>/merge/", supply_merge.edit, name="owner_supply_merge"),
     path("", views.home, name="owner_home"),
     path("dashboard/", workspace.dashboard, name="owner_dashboard"),

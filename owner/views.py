@@ -68,7 +68,14 @@ def login(request):
 @require_GET
 @never_cache
 def home(request):
-    return render(request, "owner/home.html", dashboard_context(request))
+    extra = {}
+    if request.GET.get("setup") == "shared":
+        branch = scoped_branch(request.GET.get("branch"))
+        extra = {
+            "selected_branch": branch,
+            "device_form": DeviceForm(initial={"name": f"{branch.name} counter", "kind": "shared"}),
+        }
+    return render(request, "owner/home.html", dashboard_context(request, **extra))
 
 
 @require_POST

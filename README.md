@@ -184,6 +184,8 @@ These automated checks cover the real allauth callback pipeline with Google's ne
 
 ### Owner workspace
 
+New shops open a one-time setup form on the owner's first sign-in. It suggests **Wash + Dry + Fold**, **Wash + Dry**, and **Plastic**, with prices left for the owner to enter. Owners can add or remove entries, choose per-kilo or per-load billing, and set minimum kilos and maximum kilos per load. Saving updates the shared catalog and offers Main Branch shared-device setup through **Access and devices → Add device**. Shops without a branch get a Main Branch. Existing shops are marked complete by the onboarding migration, preserving their configuration.
+
 After owner sign-in, open [Dashboard](http://localhost:8000/owner/dashboard/) for collections, loads, received kilos, unclaimed jobs, low-stock/count alerts, supply requests, count history and Excel exports. Branch filters stay within the signed-in shop. [Live branches](http://localhost:8000/owner/live/) refreshes every 20 seconds and has no counter write controls.
 
 [Staff](http://localhost:8000/owner/staff/) manages branch access and PINs; branch transfers require a fresh PIN and end existing staff sessions. [Machines](http://localhost:8000/owner/machines/) manages categories and branch equipment. [Settings](http://localhost:8000/owner/settings/) edits operational values, simple mode, PIN policy, stages, prices, pieces, supplies and add-on recipes. Edits retain saved job price lines and stock/event history. Unload machines before changing their branch/category/service state or hiding machine tracking.

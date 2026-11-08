@@ -34,6 +34,7 @@ class Shop(UUIDModel):
     timezone = models.CharField(max_length=40, default="Asia/Manila")
     created_at = models.DateTimeField(auto_now_add=True)
     archived_at = models.DateTimeField(null=True, blank=True)
+    onboarding_completed_at = models.DateTimeField(null=True, blank=True)
 
     @property
     def logo_url(self):
