@@ -25,7 +25,7 @@ class ShopMiddleware:
             "/washday-admin/"
         )
         if settings.APP_ROLE == "hub" and (
-            admin_request or request.path.startswith(("/owner/", "/accounts/"))
+            admin_request or request.path.startswith(("/owner/", "/accounts/", "/hijack/"))
         ):
             return HttpResponseNotFound()
         request.sensitive_post_parameters = ("pin", "code")
@@ -53,6 +53,7 @@ class ShopMiddleware:
         if request.path.startswith(
             (
                 "/accounts/",
+                "/hijack/",
                 "/sync/",
                 "/health/",
                 "/device/start/",

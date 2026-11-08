@@ -13,6 +13,8 @@ ALLOWED_HOSTS = os.environ.get(
 INSTALLED_APPS = [
     "rest_framework",
     "django.contrib.admin",
+    "hijack",
+    "hijack.contrib.admin",
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "django.contrib.sessions",
@@ -40,6 +42,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "hijack.middleware.HijackUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "core.middleware.ShopMiddleware",
@@ -52,8 +55,8 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
-                "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.middleware.context",
             ]
@@ -176,3 +179,6 @@ if not DEBUG and APP_ROLE == "cloud":
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 3600
+
+# Keep impersonation restricted to superusers using the library permission check.
+HIJACK_PERMISSION_CHECK = "hijack.permissions.superusers_only"

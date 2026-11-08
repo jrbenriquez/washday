@@ -39,6 +39,25 @@ New branches start with Direct connection and Simple workflow. Internal numberin
 
 Owners can now sign in with an allow-listed Google account and manage staff access, device setup/revocation, branch hours, and shared-device PIN rules. Enrolled personal phones sign in once per shift and open Jobs in both modes; shared tablets start at New job. The owner workspace now includes Dashboard, Live branches, Staff, Machines, Settings and Access and devices. Daily collections can be exported to Excel; a prescribed BIR layout and physical rollout qualification remain later work. Undo and hub replication are described in [the operator guide](docs/offline-and-undo.md). See the [outcome plan](outcomes/washday-mvp/README.md) for their scope and dependencies.
 
+## Owner impersonation for support
+
+On the cloud app, create an operator account with `uv run python manage.py createsuperuser`
+and sign in at `/washday-admin/`. In **Users**, use the built-in **HIJACK** button to
+impersonate an active linked owner. Only superusers can impersonate users; staff
+status alone does not grant this permission. The owner workspace opens with the
+impersonated user's shop access. The standard visible django-hijack banner includes
+**stop impersonating**, which restores the operator session.
+
+`allow_owner` creates an allow-listed `ShopOwner` only. The owner must complete their
+first Google sign-in to create/link their Django user before appearing in the admin
+user list. Inactive owners and archived shops retain their normal access restrictions.
+Impersonation does not grant a staff/device identity. Admin and hijack routes are
+unavailable on branch hubs.
+
+The integration uses [django-hijack's standard installation and admin integration](https://django-hijack.readthedocs.io/en/stable/)
+and its built-in superuser-only permission check. Version 3.7.9 supports this project's
+Python 3.13 and Django 6.0; 3.8 requires Python 3.14.
+
 ## Direct, hub, simple, and full modes
 
 There are two separate choices for each branch:

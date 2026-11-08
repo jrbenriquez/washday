@@ -315,6 +315,18 @@ socialaccount = [
 ]
 
 [[package]]
+name = "django-hijack"
+version = "3.7.9"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/81/8c/7093814ce82d29034d339bdf660f6bc0276ccf8c2a31be26fcb0e378caf7/django_hijack-3.7.9.tar.gz", hash = "sha256:b43fb47b2501e230a7343aaae94e1748ee628a16161916e1edc83a52b3924347", size = 14559, upload-time = "2026-10-01T22:00:39.353Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/66/5a/c44e0453ff391f0052aeef49cb245b09e8df75eeede4cf20092d52abff29/django_hijack-3.7.9-py3-none-any.whl", hash = "sha256:76e451842684ad79ea27e79a1dea60518c845d239656c90735c2c5c6eb2f78a3", size = 31480, upload-time = "2026-10-01T22:00:38.097Z" },
+]
+
+[[package]]
 name = "djangorestframework"
 version = "3.18.3"
 source = { registry = "https://pypi.org/simple" }
@@ -708,6 +720,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "django" },
     { name = "django-allauth", extra = ["socialaccount"] },
+    { name = "django-hijack" },
     { name = "djangorestframework" },
     { name = "gunicorn" },
     { name = "pillow" },
@@ -726,6 +739,7 @@ dev = [
 requires-dist = [
     { name = "django", specifier = ">=6.0,<6.1" },
     { name = "django-allauth", extras = ["socialaccount"], specifier = ">=65,<66" },
+    { name = "django-hijack", specifier = ">=3.7.9,<3.8" },
     { name = "djangorestframework", specifier = ">=3.16,<4" },
     { name = "gunicorn", specifier = ">=23,<24" },
     { name = "pillow", specifier = ">=12,<13" },
