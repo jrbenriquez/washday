@@ -185,3 +185,163 @@ def test_timeline_override_and_dropoff_context(setup_shop, scoped_client):
         and b"Correction reason" in r.content
         and b"manual override from Received" in r.content
     )
+
+
+def test_list_pages_keep_search_and_only_project_page_jobs(
+    setup_shop, scoped_client, monkeypatch
+):
+    monkeypatch.setattr("jobs.history.PAGE_SIZE", 2)
+    jobs = [create(setup_shop, customer_name="Paging customer") for _ in range(5)]
+    seen = []
+    for page in (1, 2, 3):
+        response = scoped_client.get(
+            "/jobs/", {"view": "list", "q": "Paging customer", "page": page}
+        )
+        rows = response.context["rows"]
+        assert len(rows) == (1 if page == 3 else 2)
+        seen.extend(row["number"] for row in rows)
+        assert response.context["page_obj"].paginator.count == 5
+        assert b"q=Paging+customer" in response.content
+    assert seen == [j.number for j in reversed(jobs)]
+    for page in ("invalid", "999"):
+        assert (
+            scoped_client.get("/jobs/", {"view": "list", "page": page}).status_code
+            == 200
+        )
+
+
+def test_history_pages_keep_full_day_totals_and_nonjob_events(
+    setup_shop, scoped_client, monkeypatch
+):
+    monkeypatch.setattr("jobs.history.PAGE_SIZE", 2)
+    s = setup_shop
+    jobs = [create(s, pay_method="cash") for _ in range(3)]
+    from django.db import transaction
+
+    with transaction.atomic():
+        append_event(
+            s["branch"],
+            "stock_received",
+            {"description": "Stock arrived"},
+            timezone.now(),
+            s["staff"],
+        )
+    seen = []
+    for page in range(1, 5):
+        response = scoped_client.get("/jobs/", {"view": "history", "page": page})
+        seen.extend(e.id for e in response.context["events"])
+        assert len(response.context["events"]) <= 2
+        assert response.context["summary"]["received"] == 3
+        assert response.context["summary"]["cash"] == sum(j.total for j in jobs)
+    assert len(seen) == len(set(seen)) == 7
+
+
+def test_search_history_only_contains_matching_job_events(setup_shop, scoped_client):
+    target = create(setup_shop, customer_name="Snapshot customer", notes="Target bag")
+    create(setup_shop, customer_name="Unrelated customer")
+    # Historical customer text survives edits to the customer record.
+    target.customer.name = "Renamed customer"
+    target.customer.save()
+    for view in ("list", "history"):
+        response = scoped_client.get("/jobs/", {"view": view, "q": "Snapshot customer"})
+        if view == "list":
+            assert [r["number"] for r in response.context["rows"]] == [target.number]
+        else:
+            assert [e.payload["job_id"] for e in response.context["events"]] == [
+                str(target.id)
+            ]
+        response = scoped_client.get("/jobs/", {"view": view, "q": "Renamed customer"})
+        assert not response.context["rows"] and not response.context["events"]
+
+
+def test_timeline_does_not_load_unrelated_branch_history(setup_shop, scoped_client):
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+
+    target = create(setup_shop)
+    for _ in range(3):
+        ready(setup_shop, create(setup_shop))
+    with CaptureQueriesContext(connection) as captured:
+        response = scoped_client.get(f"/jobs/{target.number}/history/")
+    assert [e.payload["job_id"] for e in response.context["events"]] == [str(target.id)]
+    event_reads = [q["sql"] for q in captured if 'FROM "events_event"' in q["sql"]]
+    assert len(event_reads) == 1
+    assert str(target.id) in event_reads[0] and "job_id" in event_reads[0]
+
+
+def test_date_filters_use_manila_midnight(setup_shop, scoped_client):
+    s = setup_shop
+    day = timezone.localdate() - timedelta(days=2)
+    create(
+        s,
+        paper="1",
+        paper_ref="P-11",
+        paper_date=(day - timedelta(days=1)).isoformat(),
+        received_time="23:59",
+        written_total="99",
+    )
+    current = create(
+        s,
+        paper="1",
+        paper_ref="P-12",
+        paper_date=day.isoformat(),
+        received_time="00:00",
+        written_total="99",
+    )
+    create(
+        s,
+        paper="1",
+        paper_ref="P-13",
+        paper_date=(day + timedelta(days=1)).isoformat(),
+        received_time="00:00",
+        written_total="99",
+    )
+    response = scoped_client.get("/jobs/", {"view": "list", "date": day.isoformat()})
+    assert [r["number"] for r in response.context["rows"]] == [current.number]
+    response = scoped_client.get("/jobs/", {"view": "history", "date": day.isoformat()})
+    assert [e.payload["number"] for e in response.context["events"]] == [current.number]
+    assert response.context["summary"]["received"] == 1
+
+
+def test_search_and_totals_follow_latest_state_after_undo(setup_shop, scoped_client):
+    from events.models import Action
+    from events.undo import compensate
+    from people.context import device_context
+    from people.models import Device
+
+    s = setup_shop
+    device = Device.objects.create(
+        shop=s["shop"], branch=s["branch"], name="Test counter", kind="shared"
+    )
+    with device_context(device):
+        j = ready(s, create(s))
+        j = claim(
+            s["branch"], j.number, j.status_id, {"pay_method": "cash"}, s["staff"]
+        )
+        action = Action.objects.filter(device=device).order_by("-event__seq").first()
+        compensate(s["branch"], action.event_id, device, s["staff"])
+    for term in ("Claimed", "cash"):
+        response = scoped_client.get("/jobs/", {"view": "list", "q": term})
+        assert response.context["rows"] == []
+    response = scoped_client.get("/jobs/", {"view": "list", "q": "Ready"})
+    assert [r["number"] for r in response.context["rows"]] == [j.number]
+    response = scoped_client.get("/jobs/", {"view": "history", "q": "Ready"})
+    assert response.context["events"]
+    assert response.context["summary"]["released"] == 0
+    assert response.context["summary"]["cash"] == 0
+
+
+def test_board_query_count_does_not_grow_per_job(setup_shop):
+    from django.db import connection
+    from django.test.utils import CaptureQueriesContext
+    from jobs.board import columns
+
+    create(setup_shop)
+    with CaptureQueriesContext(connection) as first:
+        columns(setup_shop["branch"])
+    for _ in range(5):
+        create(setup_shop)
+    with CaptureQueriesContext(connection) as larger:
+        board = columns(setup_shop["branch"])
+    assert sum(len(column["cards"]) for column in board) == 6
+    assert len(larger) == len(first)
