@@ -9,7 +9,7 @@ def preserve_existing_shops(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    dependencies = [("core", "0008_branch_hub_url")]
+    dependencies = [("core", "0009_alter_branch_options_alter_machinecategory_options_and_more")]
     operations = [
         migrations.AddField(
             model_name="shop",
