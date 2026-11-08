@@ -86,6 +86,13 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = Path(os.environ.get("MEDIA_ROOT", str(BASE_DIR / "media")))
 WHITENOISE_USE_FINDERS = DEBUG
+if not DEBUG:
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        },
+    }
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 DEV_BRANCH_ID = os.environ.get("DEV_BRANCH_ID", "") if DEBUG else ""
 DEV_STAFF_ID = os.environ.get("DEV_STAFF_ID", "") if DEBUG else ""
@@ -149,3 +156,20 @@ if APP_ROLE == 'hub':
         raise ImproperlyConfigured('Hub role requires local SQLite storage')
 if not DEBUG and APP_ROLE == 'cloud' and DATABASES['default']['ENGINE'] != 'django.db.backends.postgresql':
     raise ImproperlyConfigured('Cloud production role requires PostgreSQL')
+if not DEBUG and APP_ROLE == "cloud":
+    for name in ("DJANGO_ALLOWED_HOSTS", "PGHOST", "PGUSER", "PGPASSWORD"):
+        if not os.environ.get(name, "").strip():
+            raise ImproperlyConfigured(f"Set {name} for cloud production")
+    ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()]
+    if "*" in ALLOWED_HOSTS:
+        raise ImproperlyConfigured("Use explicit DJANGO_ALLOWED_HOSTS for production")
+    ALLOWED_HOSTS += ["localhost", "127.0.0.1", "[::1]"]
+    CSRF_TRUSTED_ORIGINS = [
+        origin.strip()
+        for origin in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
+    # Only the trusted HTTPS edge may reach the cloud container.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 3600

@@ -1,0 +1,22 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      DJANGO_DEBUG: "0"
+      APP_ROLE: cloud
+      MEDIA_ROOT: /data/media
+      PGPORT: "5432"
+    expose:
+      - "8000"
+    volumes:
+      - washday-media:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; request = urllib.request.Request('http://127.0.0.1:8000/health/', headers={'X-Forwarded-Proto': 'https'}); urllib.request.urlopen(request, timeout=5).close()"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+volumes:
+  washday-media:
