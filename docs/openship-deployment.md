@@ -51,6 +51,13 @@ browser-enrolment bypasses in production. Missing Django secret, explicit host
 configuration, or PostgreSQL connection settings prevent startup. Missing Google
 credentials leave owner sign-in disabled; they must be configured before use.
 
+If PostgreSQL belongs to a separate Openship project, create an **internal
+project connection** from it to Washday. This establishes the shared Docker
+network. Copy the generated connection's hostname into `PGHOST`; a short service
+name from the database project's own network may not resolve from Washday.
+Openship can inject `DATABASE_URL`, but Washday currently uses the separate
+`PG*` variables instead.
+
 On macOS, generate and copy a Django secret without printing it:
 
 ```sh
@@ -67,6 +74,25 @@ Deploy after configuring the variables and database. Startup migrations are
 idempotent, but back up before every schema-changing upgrade. This small
 deployment uses one web service with two Gunicorn workers; do not run concurrent
 schema-changing deployments.
+
+Startup waits for PostgreSQL connectivity before running migrations. Openship's
+compose deployment can start the container before attaching its linked database
+network, so immediate migration attempts can fail DNS resolution. The readiness
+command retries connection failures for a 60-second window, with a five-second
+PostgreSQL connection timeout per attempt, then fails startup if the database is
+still unavailable. Migrations themselves run once and retain normal failure
+behavior. SQLite hubs skip this network-readiness check.
+
+To reproduce and check this startup ordering locally with disposable containers:
+
+```sh
+docker build -t washday-runtime .
+python3 scripts/check_database_startup.py --image washday-runtime
+```
+
+The check starts the app without its database network, attaches it after twelve
+seconds, and requires successful migrations and HTTP 200 without a container
+restart or traceback. It deletes only its own temporary local test resources.
 
 ## Persistence and verification
 
