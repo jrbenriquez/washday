@@ -84,6 +84,7 @@ class Branch(TenantModel):
     writer_epoch = models.PositiveIntegerField(default=0)
 
     class Meta(TenantModel.Meta):
+        verbose_name_plural = "branches"
         constraints = [
             models.UniqueConstraint(fields=["shop", "number"], name="branch_number"),
             models.UniqueConstraint(fields=["shop", "code"], name="branch_code"),
@@ -122,6 +123,8 @@ class Settings(TenantModel):
     pin_actions = models.JSONField(default=default_pin_actions)
 
     class Meta(TenantModel.Meta):
+        verbose_name = "shop settings"
+        verbose_name_plural = "shop settings"
         constraints = [models.UniqueConstraint(fields=["shop"], name="one_settings")]
 
 
@@ -145,6 +148,9 @@ class MachineCategory(TenantModel):
     uses_wash_supplies = models.BooleanField(default=False)
     sort_order = models.PositiveIntegerField(default=0)
     archived_at = models.DateTimeField(null=True)
+
+    class Meta(TenantModel.Meta):
+        verbose_name_plural = "machine categories"
 
 
 class Machine(TenantModel):

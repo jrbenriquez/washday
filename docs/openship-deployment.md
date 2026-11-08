@@ -133,9 +133,13 @@ accounts with the appropriate Django permissions. Inside the deployed container,
 create the initial superuser with `/app/.venv/bin/python manage.py createsuperuser`
 after migrations have run. The image collects admin static assets during the
 build; startup migrations also install the admin log tables. Admin provides
-built-in user/group management, requires no enrolled device, and is unavailable
-on branch hubs. Approved Google shop owners do not automatically receive admin
-access.
+built-in user/group management and read-only views of all application models,
+with shop filters and search. Model view permissions grant cross-shop inspection;
+assign them to platform operators deliberately. Application writes use the owner
+workspace or supported commands, including when impersonating an owner. Credential
+hashes are hidden and redacted from nested event/sync/undo JSON. Admin requires no
+enrolled device and is unavailable on branch hubs. Approved Google shop owners do
+not automatically receive admin access.
 
 Migrations create an empty database. They do not create a shop, business data,
 owner, or staff, and do not import the developer's local dataset. Production

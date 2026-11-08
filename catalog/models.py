@@ -71,3 +71,6 @@ class AddOnUse(TenantModel):
 class SupplyAlias(TenantModel):
     source = models.OneToOneField(SupplyType, on_delete=models.PROTECT, related_name="alias_source")
     target = models.ForeignKey(SupplyType, on_delete=models.PROTECT, related_name="alias_targets")
+
+    class Meta(TenantModel.Meta):
+        verbose_name_plural = "supply aliases"

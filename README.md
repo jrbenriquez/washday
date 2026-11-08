@@ -160,7 +160,9 @@ Django admin is available on the cloud service at `/washday-admin/`. It uses Dja
 /app/.venv/bin/python manage.py createsuperuser
 ```
 
-For a local checkout, use `uv run python manage.py createsuperuser`. The admin currently provides Django's built-in user and group management; shop operations remain in the owner workspace. Admin requests run without shop/device context and the admin is unavailable on branch hubs. Google owner approval alone does not grant admin access.
+For a local checkout, use `uv run python manage.py createsuperuser`. The admin provides Django's built-in user/group management and read-only inspection of all 34 application models: shops, branches, settings, owners, catalog, customers, jobs and price lines, machines and loads, staff, devices and shifts, supplies and stock history, and event/sync records. Application lists include shop filters and search. Superusers can inspect all shops; other staff need the relevant model's view permission, which also permits inspection across shops.
+
+Application records cannot be added, edited or deleted through admin. Use the owner workspace, supported management commands or the existing impersonation flow for changes so that validation, audits, stock deductions and replication stay consistent. Credential hashes are hidden, including nested hashes in event, undo and sync JSON. Admin requests run without shop/device context and the admin is unavailable on branch hubs. Google owner approval alone does not grant admin access.
 
 ### Configure branch access
 
