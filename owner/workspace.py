@@ -329,6 +329,8 @@ def sections(kinds):
                 val = getattr(obj, field)
                 if field == "mode":
                     val = obj.get_mode_display()
+                elif field == "show_in_simple_mode" and (obj.is_first or obj.is_last):
+                    val = "Always shown"
                 elif isinstance(val, bool):
                     val = "Yes" if val else "No"
                 elif hasattr(val, "name"):

@@ -48,6 +48,16 @@ class EditorForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for name, field in self.fields.items():
+            if name == "show_in_simple_mode" and isinstance(self.instance, JobStage):
+                if self.instance.is_first or self.instance.is_last:
+                    field.disabled = True
+                    field.initial = True
+                    self.initial[name] = True
+                    field.help_text = "Always shown. The first and last stages are always visible in simple mode."
+                else:
+                    field.help_text = "Show this middle stage on the simple-mode board."
+            if name == "move_on_when_unloaded":
+                field.help_text = "In full mode, automatically move the job to the next stage when staff unload its last active machine load. The next stage must not require a machine."
             if name == "sort_order" and isinstance(self.instance, JobStage):
                 field.help_text = "Position on the board. Other stages shift automatically; the first and Ready stages stay at the ends."
             if name == "machine_category":
