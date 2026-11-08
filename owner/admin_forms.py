@@ -227,7 +227,8 @@ class BranchForm(forms.ModelForm):
         help_texts = {
             "code": "A unique code for this branch within your shop.",
             "simple_mode": "Show the simplified job board and hide machine tracking. Clear for full workflow.",
-            "closing_time": "Staff sessions expire 24 hours after sign-in, independently of branch hours.",
+            "opening_time": "Jobs can only be created or updated during operating hours. Matching opening and closing times mean open 24 hours.",
+            "closing_time": "Job writes stop at closing. Overnight hours are supported. Staff sessions expire 24 hours after sign-in, independently of branch hours.",
         }
         widgets = {
             "opening_time": forms.TimeInput(attrs={"type": "time"}, format="%H:%M"),
