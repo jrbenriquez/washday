@@ -263,7 +263,7 @@ def test_timeline_does_not_load_unrelated_branch_history(setup_shop, scoped_clie
     assert [e.payload["job_id"] for e in response.context["events"]] == [str(target.id)]
     event_reads = [q["sql"] for q in captured if 'FROM "events_event"' in q["sql"]]
     assert len(event_reads) == 1
-    assert str(target.id) in event_reads[0] and '"job_id"' in event_reads[0]
+    assert str(target.id) in event_reads[0] and "job_id" in event_reads[0]
 
 
 def test_date_filters_use_manila_midnight(setup_shop, scoped_client):
