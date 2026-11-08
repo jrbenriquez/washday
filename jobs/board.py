@@ -27,7 +27,9 @@ def columns(branch):
             ),
             cols[0],
         )
-        job.next_stage = next_stage(job, branch)
+        job.next_stage = next(
+            (s for s in visible if s.sort_order > job.status.sort_order), None
+        )
         job.current_machine_start = bool(
             not branch.simple_mode and not job.paper_ref and job.status.ask_for_machine
         )

@@ -1,6 +1,22 @@
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from django.core.exceptions import ValidationError
+from django.core.paginator import Paginator
+from django.db.models import (
+    Case,
+    CharField,
+    Count,
+    DecimalField,
+    F,
+    IntegerField,
+    Q,
+    Sum,
+    Value,
+    When,
+    Window,
+)
+from django.db.models.fields.json import KT
+from django.db.models.functions import Cast, Coalesce, Concat, Replace, RowNumber
 from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_GET
 from django.utils import timezone
@@ -20,18 +36,17 @@ def day_of(at):
     return timezone.localdate(at)
 
 
-def project(branch):
+def project(branch, jobs=None):
     # Membership, state changes and collections come from Events, including released jobs.
     # Join stable job metadata for events created before customer snapshot fields were added.
-    jobs = {
-        str(j.id): j
-        for j in Job.objects.filter(branch=branch).select_related(
+    if jobs is None:
+        jobs = Job.objects.filter(branch=branch).select_related(
             "customer", "created_by", "status"
         )
-    }
+    jobs = {str(j.id): j for j in jobs}
     rows = {}
     events = list(
-        Event.objects.filter(branch=branch)
+        Event.objects.filter(branch=branch, payload__job_id__in=list(jobs))
         .select_related("actor_staff", "device")
         .order_by("seq")
     )
@@ -109,9 +124,7 @@ def annotate(event):
     event.actor = (
         event.actor_staff.name
         if event.actor_staff
-        else event.device.name
-        if event.device
-        else p.get("owner", "Development device")
+        else event.device.name if event.device else p.get("owner", "Development device")
     )
     if event.type == "job_created":
         details = f"{p.get('kg', '0.0')} kg · ₱{p.get('total', '0.00')}"
@@ -146,64 +159,205 @@ def annotate(event):
     return event
 
 
+PAGE_SIZE = 50
+
+
+def day_bounds(day):
+    start = timezone.make_aware(datetime.combine(day, time.min))
+    end = timezone.make_aware(datetime.combine(day + timedelta(days=1), time.min))
+    return start, end
+
+
+def matching_jobs(branch, day, query):
+    jobs = Job.objects.filter(branch=branch)
+    if not query:
+        start, end = day_bounds(day)
+        return jobs.filter(
+            Q(received_at__gte=start, received_at__lt=end)
+            | Q(paid_at__gte=start, paid_at__lt=end)
+            | Q(claimed_at__gte=start, claimed_at__lt=end)
+        )
+
+    # Search snapshots in sets, without a correlated event scan for every job.
+    events = Event.objects.filter(branch=branch)
+    created = events.filter(type="job_created")
+
+    def numbers(queryset):
+        return (
+            queryset.order_by()
+            .annotate(job_number=Cast(KT("payload__number"), IntegerField()))
+            .values("job_number")
+        )
+
+    def latest(queryset):
+        ids = (
+            queryset.annotate(
+                position=Window(
+                    RowNumber(),
+                    partition_by=[KT("payload__job_id")],
+                    order_by=F("seq").desc(),
+                )
+            )
+            .filter(position=1)
+            .values("pk")
+        )
+        # Keep text matching outside the window query: an old matching state
+        # must not hide a newer nonmatching state (especially after Undo).
+        return events.filter(pk__in=ids)
+
+    state_events = events.filter(
+        Q(type__in=["stage_changed", "stage_overridden", "job_claimed"])
+        | Q(type="action_undone", payload__job_state__status__isnull=False)
+    )
+    status = latest(state_events).alias(
+        label=Case(
+            When(type="job_claimed", then=Value("Claimed")),
+            When(type="action_undone", then=KT("payload__job_state__status")),
+            default=KT("payload__to"),
+            output_field=CharField(),
+        )
+    )
+    payment = latest(
+        events.filter(
+            Q(type="payment_recorded")
+            | Q(type="action_undone", payload__job_state__method__isnull=False)
+        )
+    ).alias(
+        label=Case(
+            When(type="action_undone", then=KT("payload__job_state__method")),
+            default=KT("payload__method"),
+            output_field=CharField(),
+        )
+    )
+    snapshots = created.alias(
+        text=Concat(
+            Coalesce(KT("payload__customer_name"), Value(""), output_field=CharField()),
+            Value(" "),
+            Coalesce(
+                KT("payload__customer_phone"), Value(""), output_field=CharField()
+            ),
+            Value(" "),
+            Coalesce(KT("payload__notes"), Value(""), output_field=CharField()),
+            output_field=CharField(),
+        )
+    ).filter(text__icontains=query)
+    jobs = jobs.alias(
+        number_text=Cast("number", CharField()),
+        customer_label=Coalesce("customer__name", Value("Walk-in")),
+    )
+    matches = (
+        Q(number_text__icontains=query)
+        | Q(paper_ref__icontains=query)
+        | Q(number__in=numbers(snapshots))
+        | Q(number__in=numbers(status.filter(label__icontains=query)))
+        | Q(number__in=numbers(payment.filter(label__icontains=query)))
+    )
+    if query.casefold() in "received":
+        matches |= ~Q(number__in=numbers(state_events))
+    # Older events predate customer/notes snapshots; retain their metadata fallback.
+    for key, field in [
+        ("customer_name", "customer_label"),
+        ("customer_phone", "customer__phone"),
+        ("notes", "notes"),
+    ]:
+        missing = created.filter(**{"payload__" + key + "__isnull": True})
+        matches |= Q(number__in=numbers(missing)) & Q(**{field + "__icontains": query})
+    return jobs.filter(number__in=numbers(created)).filter(matches)
+
+
+def events_for_jobs(branch, jobs):
+    # UUID storage differs between SQLite (hex) and PostgreSQL (hyphenated).
+    keys = jobs.annotate(
+        job_key=Replace(Cast("pk", CharField()), Value("-"), Value(""))
+    )
+    return (
+        Event.objects.filter(branch=branch)
+        .alias(
+            job_key=Replace(
+                KT("payload__job_id"), Value("-"), Value(""), output_field=CharField()
+            )
+        )
+        .filter(job_key__in=keys.order_by().values("job_key"))
+    )
+
+
+def day_summary(events):
+    money = DecimalField(max_digits=20, decimal_places=2)
+    amount = Cast(KT("payload__amount"), money)
+    signed = Case(
+        When(type="payment_reversed", then=-amount), default=amount, output_field=money
+    )
+    collections = Q(
+        type__in=["payment_recorded", "self_service_started", "payment_reversed"]
+    )
+    summary = events.aggregate(
+        received=Count("pk", filter=Q(type="job_created")),
+        claimed=Count("pk", filter=Q(type="job_claimed")),
+        reversed=Count("pk", filter=Q(type="claim_reversed")),
+        cash=Sum(
+            signed, filter=collections & Q(payload__method="cash"), default=Decimal("0")
+        ),
+        gcash=Sum(
+            signed,
+            filter=collections & Q(payload__method="gcash"),
+            default=Decimal("0"),
+        ),
+    )
+    summary["released"] = summary.pop("claimed") - summary.pop("reversed")
+    summary["total"] = summary["cash"] + summary["gcash"]
+    return summary
+
+
 @require_GET
 def listing(request):
     branch = require_branch(request)
     try:
         day = day_value(request.GET.get("date"))
-    except ValidationError as e:
+        start, end = day_bounds(day)
+    except (ValidationError, OverflowError, ValueError) as e:
+        error = (
+            " ".join(e.messages)
+            if isinstance(e, ValidationError)
+            else "Choose a valid calendar date."
+        )
         return render(
             request,
             "jobs/list.html",
-            {"error": " ".join(e.messages), "view": request.GET.get("view", "list")},
+            {"error": error, "view": request.GET.get("view", "list")},
             status=422,
         )
-    rows, events = project(branch)
-    query = request.GET.get("q", "").strip().casefold()
+    query = request.GET.get("q", "").strip()
     view = request.GET.get("view", "list")
-    matches = []
-    for r in rows:
-        text = " ".join(
-            [
-                str(r["number"]),
-                r["paper_ref"],
-                r["customer"],
-                r["phone"],
-                r["notes"],
-                r["status"],
-                r["method"],
-            ]
-        ).casefold()
-        if query:
-            if query in text:
-                matches.append(r)
-        elif any(
-            at and day_of(at) == day
-            for at in [r["received_at"], r["paid_at"], r["claimed_at"]]
-        ):
-            matches.append(r)
-    matches.sort(key=lambda r: r["received_at"], reverse=True)
-    day_events = [e for e in events if day_of(e.occurred_at) == day]
-    if query:
-        wanted = {str(r["job"].id) for r in matches}
-        display_events = [e for e in events if e.payload.get("job_id") in wanted]
+    day_events = Event.objects.filter(
+        branch=branch, occurred_at__gte=start, occurred_at__lt=end
+    )
+    rows, display_events = [], []
+    if view == "history":
+        events = (
+            events_for_jobs(branch, matching_jobs(branch, day, query))
+            if query
+            else day_events
+        )
+        page = Paginator(
+            events.select_related("actor_staff", "device").order_by(
+                "-occurred_at", "-seq"
+            ),
+            PAGE_SIZE,
+        ).get_page(request.GET.get("page"))
+        display_events = [annotate(e) for e in page]
+        summary = day_summary(day_events)
     else:
-        display_events = day_events
-    summary = {
-        "received": sum(e.type == "job_created" for e in day_events),
-        "released": sum(e.type == "job_claimed" for e in day_events)
-        - sum(e.type == "claim_reversed" for e in day_events),
-        "cash": Decimal("0.00"),
-        "gcash": Decimal("0.00"),
-    }
-    for e in day_events:
-        if e.type in ("payment_recorded", "self_service_started", "payment_reversed"):
-            method = e.payload.get("method")
-            if method in ("cash", "gcash"):
-                summary[method] += Decimal(e.payload["amount"]) * (
-                    -1 if e.type == "payment_reversed" else 1
-                )
-    summary["total"] = summary["cash"] + summary["gcash"]
+        jobs = (
+            matching_jobs(branch, day, query)
+            .select_related("customer", "created_by", "status")
+            .order_by("-received_at", "-number")
+        )
+        page = Paginator(jobs, PAGE_SIZE).get_page(request.GET.get("page"))
+        rows, _ = project(branch, page.object_list)
+        rows.sort(key=lambda r: (r["received_at"], r["number"]), reverse=True)
+        summary = {}
+    params = request.GET.copy()
+    params.pop("page", None)
     return render(
         request,
         "jobs/list.html",
@@ -213,14 +367,11 @@ def listing(request):
             "yesterday": timezone.localdate() - timedelta(days=1),
             "today": timezone.localdate(),
             "query": request.GET.get("q", ""),
-            "rows": matches,
-            "events": [
-                annotate(e)
-                for e in sorted(
-                    display_events, key=lambda e: (e.occurred_at, e.seq), reverse=True
-                )
-            ],
+            "rows": rows,
+            "events": display_events,
             "summary": summary,
+            "page_obj": page,
+            "page_query": params.urlencode(),
         },
     )
 
@@ -228,8 +379,14 @@ def listing(request):
 @require_GET
 def timeline(request, number):
     branch = require_branch(request)
-    job = get_object_or_404(Job, branch=branch, number=number)
-    rows, events = project(branch)
+    job = get_object_or_404(
+        Job.objects.select_related(
+            "customer", "created_by", "created_device", "status"
+        ),
+        branch=branch,
+        number=number,
+    )
+    rows, events = project(branch, [job])
     row = next((r for r in rows if r["job"].id == job.id), None)
     events = [annotate(e) for e in events if e.payload.get("job_id") == str(job.id)]
     return render(
