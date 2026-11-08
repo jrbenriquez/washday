@@ -114,13 +114,21 @@ Open [http://localhost:8000/owner/login/](http://localhost:8000/owner/login/) an
 After configuring the production environment and running `migrate`, create a shop without development fixtures:
 
 ```sh
+uv run --env-file .env python manage.py create_shop
+```
+
+In a terminal, the command asks for the Shop code, name, minimum billable kilos, kilos per load, timezone (press Enter for `Asia/Manila`), and an optional owner Google email. Required answers cannot be blank. Cancelling a prompt saves nothing.
+
+You can also supply flags, or mix flags with prompts for missing details:
+
+```sh
 uv run --env-file .env python manage.py create_shop \
   --shop-code MY-SHOP --name "My Laundry" --min-kg 3 --kg-per-load 7
 ```
 
 Replace the example code, name and weight settings with the shop's actual values. `--shop-code` identifies the **Shop**, not a branch. The timezone defaults to `Asia/Manila`; set `--timezone` to another IANA timezone if needed. The command creates settings, Washer/Dryer categories and the Received → Washing → Drying → Folding → Ready workflow. It does not create demo prices, staff, stock or branches, and refuses to overwrite an existing shop (including an archived one).
 
-At the end of setup, an interactive terminal prompts for the owner's Google email. Enter it to approve owner sign-in in the same command, or leave it blank to skip. For automation, pass `--owner-email owner@example.com --noinput`; `--noinput` alone provisions without an owner. Non-terminal runs never prompt. Invalid input or an email already assigned to another shop rolls back the entire setup. If you skip the owner email, use `allow_owner EMAIL --shop-code MY-SHOP` later. Google OAuth still needs to be configured; this command creates no password or login session.
+At the end of setup, an interactive terminal prompts for the owner's Google email. Enter it to approve owner sign-in in the same command, or leave it blank to skip. For automation, supply all four shop flags shown above and add `--owner-email owner@example.com --noinput`; omit `--owner-email` to provision without an owner. Non-terminal runs never prompt, and missing required flags produce an error. Invalid input or an email already assigned to another shop rolls back the entire setup. If you skip the owner email, use `allow_owner EMAIL --shop-code MY-SHOP` later. Google OAuth still needs to be configured; this command creates no password or login session.
 
 Sign in at `/owner/login/`, then use **Branches → Manage Branches** to add the first branch and its hours. Configure prices, machines, staff, devices and operational settings in the owner workspace before taking jobs. `seed_demo` remains development-only.
 

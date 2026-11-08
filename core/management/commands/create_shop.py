@@ -15,19 +15,12 @@ class Command(BaseCommand):
     help = "Provision a shop with settings and workflow, and optionally approve its Google owner email."
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--shop-code", required=True, help="Unique Shop code (not a branch code)."
-        )
-        parser.add_argument("--name", required=True, help="Shop name.")
-        parser.add_argument(
-            "--min-kg", required=True, help="Minimum billable kilos (zero or more)."
-        )
-        parser.add_argument(
-            "--kg-per-load", required=True, help="Kilos per load (greater than zero)."
-        )
+        parser.add_argument("--shop-code", help="Unique Shop code (not a branch code).")
+        parser.add_argument("--name", help="Shop name.")
+        parser.add_argument("--min-kg", help="Minimum billable kilos (zero or more).")
+        parser.add_argument("--kg-per-load", help="Kilos per load (greater than zero).")
         parser.add_argument(
             "--timezone",
-            default="Asia/Manila",
             help="IANA timezone (default: Asia/Manila).",
         )
         parser.add_argument(
@@ -39,10 +32,42 @@ class Command(BaseCommand):
             "--no-input",
             action="store_false",
             dest="interactive",
-            help="Skip the optional owner-email prompt.",
+            help="Disable prompts; supply all required shop details as flags.",
         )
 
+    def prompt(self, label, default=None):
+        while True:
+            try:
+                value = input(label).strip()
+            except (EOFError, KeyboardInterrupt):
+                raise CommandError("Shop creation cancelled; no records were saved.")
+            if value or default is not None:
+                return value or default
+            self.stderr.write("This value is required.")
+
     def handle(self, *args, **options):
+        interactive = options["interactive"] and sys.stdin.isatty()
+        fields = {
+            "shop_code": "Shop code (not a branch code): ",
+            "name": "Shop name: ",
+            "min_kg": "Minimum billable kilos (zero or more): ",
+            "kg_per_load": "Kilos per load (greater than zero): ",
+        }
+        missing = [key for key in fields if options[key] is None]
+        if missing and not interactive:
+            flags = ", ".join("--" + key.replace("_", "-") for key in missing)
+            raise CommandError(
+                f"Missing required options: {flags}. Supply these flags or run in an interactive terminal."
+            )
+        for key in missing:
+            options[key] = self.prompt(fields[key])
+        if options["timezone"] is None:
+            options["timezone"] = (
+                self.prompt("Timezone [Asia/Manila]: ", default="Asia/Manila")
+                if missing and interactive
+                else "Asia/Manila"
+            )
+
         shop = Shop(
             code=options["shop_code"].strip(),
             name=options["name"].strip(),
@@ -69,11 +94,10 @@ class Command(BaseCommand):
             )
 
         email = options["owner_email"]
-        if email is None and options["interactive"] and sys.stdin.isatty():
-            try:
-                email = input("Owner's Google email (leave blank to skip): ").strip()
-            except (EOFError, KeyboardInterrupt):
-                raise CommandError("Shop creation cancelled; no records were saved.")
+        if email is None and interactive:
+            email = self.prompt(
+                "Owner's Google email (leave blank to skip): ", default=""
+            )
 
         owner_output = StringIO()
         try:

@@ -106,6 +106,82 @@ def test_interactive_owner_prompt(monkeypatch):
     assert ShopOwner.unscoped.get().email == "prompt@example.com"
 
 
+def test_bare_command_prompts_for_all_details(monkeypatch):
+    monkeypatch.setattr("sys.stdin.isatty", lambda: True)
+    answers = iter(["GUIDED", "Guided Laundry", "0", "8.5", "", "Owner@Example.com"])
+    prompts = []
+
+    def answer(prompt):
+        prompts.append(prompt)
+        return next(answers)
+
+    monkeypatch.setattr("builtins.input", answer)
+    call_command("create_shop", stdout=StringIO())
+    shop = Shop.objects.get(code="GUIDED")
+    assert shop.name == "Guided Laundry" and shop.timezone == "Asia/Manila"
+    config = Settings.unscoped.get(shop=shop)
+    assert (config.min_kg, config.kg_per_load) == (Decimal(0), Decimal("8.5"))
+    assert ShopOwner.unscoped.get(shop=shop).email == "owner@example.com"
+    assert len(prompts) == 6 and "Google email" in prompts[-1]
+
+
+def test_partial_flags_prompt_only_for_missing_details(monkeypatch):
+    monkeypatch.setattr("sys.stdin.isatty", lambda: True)
+    prompts = []
+
+    def answer(prompt):
+        prompts.append(prompt)
+        return "Guided Laundry"
+
+    monkeypatch.setattr("builtins.input", answer)
+    create_shop(
+        name=None, interactive=True, timezone="UTC", owner_email="flag@example.com"
+    )
+    assert prompts == ["Shop name: "]
+    assert Shop.objects.get().timezone == "UTC"
+    assert ShopOwner.unscoped.get().email == "flag@example.com"
+
+
+def test_required_prompts_retry_blank_values(monkeypatch):
+    monkeypatch.setattr("sys.stdin.isatty", lambda: True)
+    answers = iter(["", "  ", "Guided Laundry"])
+    monkeypatch.setattr("builtins.input", lambda _: next(answers))
+    errors = StringIO()
+    create_shop(
+        name=None, interactive=True, timezone="UTC", owner_email="", stderr=errors
+    )
+    assert errors.getvalue().count("This value is required.") == 2
+    assert Shop.objects.get().name == "Guided Laundry"
+    assert not ShopOwner.unscoped.exists()
+
+
+@pytest.mark.parametrize("terminal,interactive", [(True, False), (False, True)])
+def test_missing_details_without_prompts_fail_clearly(
+    monkeypatch, terminal, interactive
+):
+    monkeypatch.setattr("sys.stdin.isatty", lambda: terminal)
+    monkeypatch.setattr("builtins.input", lambda _: pytest.fail("Unexpected prompt"))
+    with pytest.raises(
+        CommandError,
+        match="Missing required options: --shop-code, --name, --min-kg, --kg-per-load",
+    ):
+        call_command("create_shop", interactive=interactive, stdout=StringIO())
+    assert not Shop.objects.exists()
+
+
+@pytest.mark.parametrize("error", [EOFError, KeyboardInterrupt])
+def test_cancelled_shop_details_save_nothing(monkeypatch, error):
+    monkeypatch.setattr("sys.stdin.isatty", lambda: True)
+
+    def cancel(_):
+        raise error()
+
+    monkeypatch.setattr("builtins.input", cancel)
+    with pytest.raises(CommandError, match="cancelled"):
+        call_command("create_shop", stdout=StringIO())
+    assert not Shop.objects.exists()
+
+
 @pytest.mark.parametrize("email", [None, "", "flag@example.com"])
 def test_noinput_never_prompts(monkeypatch, email):
     monkeypatch.setattr("sys.stdin.isatty", lambda: True)
