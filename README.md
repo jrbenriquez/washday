@@ -42,7 +42,7 @@ Owners can now sign in with an allow-listed Google account and manage staff acce
 ## Owner impersonation for support
 
 On the cloud app, create an operator account with `uv run python manage.py createsuperuser`
-and sign in at `/admin/`. In **Users**, use the built-in **HIJACK** button to
+and sign in at `/washday-admin/`. In **Users**, use the built-in **HIJACK** button to
 impersonate an active linked owner. Only superusers can impersonate users; staff
 status alone does not grant this permission. The owner workspace opens with the
 impersonated user's shop access. The standard visible django-hijack banner includes
@@ -150,6 +150,17 @@ Replace the example code, name and weight settings with the shop's actual values
 At the end of setup, an interactive terminal prompts for the owner's Google email. Enter it to approve owner sign-in in the same command, or leave it blank to skip. For automation, supply all four shop flags shown above and add `--owner-email owner@example.com --noinput`; omit `--owner-email` to provision without an owner. Non-terminal runs never prompt, and missing required flags produce an error. Invalid input or an email already assigned to another shop rolls back the entire setup. If you skip the owner email, use `allow_owner EMAIL --shop-code MY-SHOP` later. Google OAuth still needs to be configured; this command creates no password or login session.
 
 Sign in at `/owner/login/`, then use **Branches → Manage Branches** to add the first branch and its hours. Configure prices, machines, staff, devices and operational settings in the owner workspace before taking jobs. `seed_demo` remains development-only.
+
+### Django administration
+
+Django admin is available on the cloud service at `/washday-admin/`. It uses Django staff accounts and model permissions. To create the initial superuser inside the deployed container, run:
+
+```sh
+/app/.venv/bin/python manage.py migrate
+/app/.venv/bin/python manage.py createsuperuser
+```
+
+For a local checkout, use `uv run python manage.py createsuperuser`. The admin currently provides Django's built-in user and group management; shop operations remain in the owner workspace. Admin requests run without shop/device context and the admin is unavailable on branch hubs. Google owner approval alone does not grant admin access.
 
 ### Configure branch access
 

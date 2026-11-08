@@ -128,6 +128,15 @@ redeploy. Confirm the running container was recreated after these changes.
 
 ## First shop and rollout
 
+Django admin is available on the cloud service at `/washday-admin/` for staff
+accounts with the appropriate Django permissions. Inside the deployed container,
+create the initial superuser with `/app/.venv/bin/python manage.py createsuperuser`
+after migrations have run. The image collects admin static assets during the
+build; startup migrations also install the admin log tables. Admin provides
+built-in user/group management, requires no enrolled device, and is unavailable
+on branch hubs. Approved Google shop owners do not automatically receive admin
+access.
+
 Migrations create an empty database. They do not create a shop, business data,
 owner, or staff, and do not import the developer's local dataset. Production
 shop provisioning and a deliberate data migration are separate steps. Do not

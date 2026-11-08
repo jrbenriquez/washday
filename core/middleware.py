@@ -21,11 +21,18 @@ class ShopMiddleware:
         request.shift = None
         request.owner = None
         request.dev_scope = False
-        if settings.APP_ROLE == "hub" and request.path.startswith(
-            ("/owner/", "/accounts/", "/admin/", "/hijack/")
+        admin_request = request.path == "/washday-admin" or request.path.startswith(
+            "/washday-admin/"
+        )
+        if settings.APP_ROLE == "hub" and (
+            admin_request or request.path.startswith(("/owner/", "/accounts/", "/hijack/"))
         ):
             return HttpResponseNotFound()
         request.sensitive_post_parameters = ("pin", "code")
+        if admin_request:
+            # Django admin authenticates staff accounts independently of shop/device access.
+            with shop_context(None), device_context(None):
+                return self.get_response(request)
         if request.user.is_authenticated:
             request.owner = (
                 ShopOwner.unscoped.filter(
@@ -46,7 +53,6 @@ class ShopMiddleware:
         if request.path.startswith(
             (
                 "/accounts/",
-                "/admin/",
                 "/hijack/",
                 "/sync/",
                 "/health/",

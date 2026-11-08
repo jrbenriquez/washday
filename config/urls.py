@@ -13,7 +13,7 @@ from .health import health
 from .media import logo
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path("washday-admin/", admin.site.urls),
     path("hijack/", include("hijack.urls")),
     path("health/", health),
     path("media/<path:name>", logo),

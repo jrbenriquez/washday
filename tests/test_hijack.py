@@ -107,7 +107,7 @@ def test_impersonation_preserves_owner_access_restrictions(client, identities, r
     assert int(client.session[SESSION_KEY]) == operator.pk
 
 
-@pytest.mark.parametrize("path", ["/admin/", "/hijack/acquire/", "/hijack/release/"])
+@pytest.mark.parametrize("path", ["/washday-admin/", "/hijack/acquire/", "/hijack/release/"])
 def test_operator_routes_unavailable_on_hub(client, settings, path):
     settings.APP_ROLE = "hub"
     assert client.get(path).status_code == 404
