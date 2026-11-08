@@ -4,7 +4,7 @@ from django.db.models import F
 import hashlib
 import re
 import secrets
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.contrib.auth.hashers import (
     make_password,
     check_password,
@@ -67,7 +67,7 @@ def _close_shift(shift, at, reason):
         shift.device.branch,
         "shift_ended",
         {
-            "description": f"Shift ended · {shift.staff.name} · {reason}",
+            "description": f"Staff signed out · {shift.staff.name} · {reason}",
             "shift_id": str(shift.id),
             "device_id": str(shift.device_id),
         },
@@ -263,11 +263,11 @@ def current_shift(device):
             .first()
         )
         if shift:
-            closing = shift.ends_at <= timezone.now()
+            expired = shift.ends_at <= timezone.now()
             _close_shift(
                 shift,
-                shift.ends_at if closing else timezone.now(),
-                "closing" if closing else "staff_changed",
+                shift.ends_at if expired else timezone.now(),
+                "expired" if expired else "staff_changed",
             )
     return None
 
@@ -282,23 +282,16 @@ def begin_shift(device, staff):
     if not staff.active or staff.branch_id != branch.id:
         raise ValidationError("Choose an active staff member at this branch.")
     if Shift.objects.filter(device=device, ended_at=None).exists():
-        raise ValidationError("End the current shift before starting another.")
-    if branch.closing_time is None:
-        raise ValidationError(
-            "Ask the owner to set this branch’s closing time before starting a shift."
-        )
+        raise ValidationError("Sign out before signing in again.")
     now = timezone.now()
-    local = timezone.localtime(now)
-    ends = timezone.make_aware(datetime.combine(local.date(), branch.closing_time))
-    if ends <= now:
-        ends += timedelta(days=1)
+    ends = now + timedelta(hours=24)
     shift = Shift.objects.create(
         shop_id=device.shop_id, device=device, staff=staff, started_at=now, ends_at=ends
     )
     audit(
         branch,
         "shift_started",
-        f"Shift started · {staff.name}",
+        f"Staff signed in · {staff.name}",
         staff,
         shift_id=str(shift.id),
         device_id=str(device.id),

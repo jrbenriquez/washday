@@ -215,3 +215,20 @@ document.addEventListener('submit',async e=>{
 // The server authorizes Undo; this timer only retires its short-lived control.
 function expireUndo(){document.querySelectorAll('[data-undo-until]').forEach(form=>{if(Date.now()>=Date.parse(form.dataset.undoUntil)){form.querySelector('button').disabled=true;form.hidden=true;}});}
 expireUndo();setInterval(expireUndo,250);
+
+// Expiry is enforced on the server; also return an idle or resumed page to sign-in.
+const staffSessionEnds = Date.parse(document.body.dataset.staffSessionEnds);
+if (Number.isFinite(staffSessionEnds)) {
+ const checkStaffSession = () => {
+  const remaining = staffSessionEnds - Date.now();
+  if (remaining <= 0) window.location.replace(document.body.dataset.staffSigninUrl);
+  else return window.setTimeout(checkStaffSession, remaining);
+ };
+ checkStaffSession();
+ document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && Date.now() >= staffSessionEnds) checkStaffSession();
+ });
+ window.addEventListener('pageshow', () => {
+  if (Date.now() >= staffSessionEnds) checkStaffSession();
+ });
+}

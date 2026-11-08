@@ -246,7 +246,7 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
                 label="TEST browser staff"
             )
             personal_page.get_by_label("Four-digit PIN").fill("1234")
-            personal_page.get_by_role("button", name="Start shift").click()
+            personal_page.get_by_role("button", name="Sign in").click()
             personal_page.wait_for_url("**/jobs/")
             assert (
                 "TEST browser staff" in personal_page.locator(".identity").inner_text()
@@ -259,7 +259,7 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
             personal_page.wait_for_url(re.compile(r".*/jobs/\d+/"))
             assert "TEST browser staff" in personal_page.locator("article").inner_text()
             capture(personal_page, "personal-stub")
-            personal_page.get_by_role("button", name="End shift").click()
+            personal_page.get_by_role("button", name="Sign out").click()
             personal_page.wait_for_url("**/shift/")
             assert any(c["name"] == "washday_device" for c in personal_ctx.cookies())
             state = personal_ctx.storage_state()
@@ -297,9 +297,9 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
                             "shared unpaid intake device actor",
                             "shared claim PIN and staff actor",
                             "wrong PIN no mutation",
-                            "personal shift and full-mode Jobs landing",
+                            "personal sign-in and full-mode Jobs landing",
                             "personal payment without another PIN",
-                            "end shift and reopen preserves enrolment",
+                            "sign out and reopen preserves enrolment",
                             "owner revocation blocks next request",
                         ],
                         "oauth": "Real allauth callback covered by tests with mocked Google exchange; real Google consent requires user local env credentials. No Google request in this probe.",

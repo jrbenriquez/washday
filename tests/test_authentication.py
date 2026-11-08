@@ -402,18 +402,18 @@ def test_personal_shift_landing_attribution_end_and_cookie_retention(auth):
     )
 
 
-def test_closing_and_pin_reset_invalidate_personal_shift(auth):
+def test_expiry_and_pin_reset_invalidate_personal_session(auth):
     a = auth
     c, _ = staff_client(a, "personal")
     c.post("/shift/", {"staff": str(a["auth_staff"].pk), "pin": "1234"})
     shift = Shift.objects.get(device=a["personal"], ended_at=None)
     with patch(
         "people.services.timezone.now",
-        return_value=shift.ends_at + timedelta(seconds=1),
+        return_value=shift.ends_at,
     ):
         assert c.get("/jobs/").url == "/shift/"
     shift.refresh_from_db()
-    assert shift.ended_by == "closing" and shift.ended_at == shift.ends_at
+    assert shift.ended_by == "expired" and shift.ended_at == shift.ends_at
     c.post("/shift/", {"staff": str(a["auth_staff"].pk), "pin": "1234"})
     save_staff(a["branch"], a["auth_staff"].name, "5678", staff=a["auth_staff"])
     assert c.get("/jobs/").url == "/shift/"
@@ -427,22 +427,52 @@ def test_closing_and_pin_reset_invalidate_personal_shift(auth):
     )
 
 
-def test_missing_closing_time_and_inactive_staff_refuse_signin(auth):
+def test_staff_session_lasts_24_hours_without_branch_hours(auth):
     a = auth
-    c, _ = staff_client(a, "personal")
+    c, token = staff_client(a, "personal")
     a["branch"].closing_time = None
     a["branch"].save(update_fields=["closing_time"])
-    assert (
-        c.post("/shift/", {"staff": str(a["auth_staff"].pk), "pin": "1234"}).status_code
-        == 422
-    )
-    assert not Shift.objects.exists()
+    page = c.get("/shift/")
+    assert b">Sign in</button>" in page.content
+    assert b"disabled" not in page.content
+    assert c.post("/shift/", {"staff": str(a["auth_staff"].pk), "pin": "1234"}).url == "/jobs/"
+    session = Shift.objects.get(device=a["personal"], ended_at=None)
+    assert session.ends_at == session.started_at + timedelta(hours=24)
+    # Ordinary activity must not extend the original expiry.
+    with patch("people.services.timezone.now", return_value=session.ends_at - timedelta(seconds=1)):
+        response = c.get("/jobs/")
+        assert response.status_code == 200
+        assert b">Sign out</button>" in response.content
+        assert timezone.localtime(session.ends_at).isoformat().encode() in response.content
+    session.refresh_from_db()
+    assert session.ends_at == session.started_at + timedelta(hours=24)
+    # An expired session cannot make a write, even while the device stays enrolled.
+    with patch("people.services.timezone.now", return_value=session.ends_at):
+        assert c.post("/jobs/new/", job_data(a)).url == "/shift/"
+    assert not Job.objects.exists()
+    assert c.cookies[config.DEVICE_COOKIE_NAME].value == token
+    assert c.post("/shift/", {"staff": str(a["auth_staff"].pk), "pin": "1234"}).url == "/jobs/"
+
+
+def test_branch_closing_does_not_end_staff_session(auth):
+    a = auth
+    c, _ = staff_client(a, "personal")
+    now = timezone.now()
+    a["branch"].closing_time = timezone.localtime(now + timedelta(minutes=1)).time().replace(tzinfo=None)
+    a["branch"].save(update_fields=["closing_time"])
+    with patch("people.services.timezone.now", return_value=now):
+        assert c.post("/shift/", {"staff": str(a["auth_staff"].pk), "pin": "1234"}).url == "/jobs/"
+    with patch("people.services.timezone.now", return_value=now + timedelta(minutes=2)):
+        assert c.get("/jobs/").status_code == 200
+
+
+def test_inactive_staff_refuse_signin(auth):
+    a = auth
+    c, _ = staff_client(a, "personal")
     a["auth_staff"].active = False
     a["auth_staff"].save(update_fields=["active"])
-    assert (
-        c.post("/shift/", {"staff": str(a["auth_staff"].pk), "pin": "1234"}).status_code
-        == 422
-    )
+    assert c.post("/shift/", {"staff": str(a["auth_staff"].pk), "pin": "1234"}).status_code == 422
+    assert not Shift.objects.exists()
 
 
 def test_shared_unpaid_create_records_device_and_no_shift(auth):

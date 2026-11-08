@@ -239,7 +239,7 @@ def hours(request, branch_id):
             owner=own.email,
         )
         messages.success(
-            request, "Branch hours saved. New shifts end at the next closing time."
+            request, "Branch hours saved. Staff sessions expire 24 hours after sign-in."
         )
         return redirect("owner_branch_manage")
     return render(
