@@ -1,9 +1,9 @@
 {% load static %}<!doctype html>
 <html lang="en" data-app-theme="{{ app_theme }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{% block title %}New job{% endblock %} · {{ branch.shop.name|default:'Washday' }}</title><link rel="stylesheet" href="{% static 'css/fonts.css' %}"><link rel="stylesheet" href="{% static 'css/tokens.css' %}"><link rel="stylesheet" href="{% static 'css/app.css' %}"><script src="{% static 'js/htmx.min.js' %}" defer></script><script src="{% static 'js/app.js' %}" defer></script></head>
-<body>
+<body{% if shift %} data-staff-session-ends="{{ shift.ends_at|date:'c' }}" data-staff-signin-url="{% url 'shift' %}"{% endif %}>
 <header class="top">
   {% include 'brand.html' %}
-  {% if device %}<span class="identity">{{ staff.name|default:device.name }}</span>{% if device.kind == 'personal' and shift %}<form method="post" action="{% url 'shift_end' %}">{% csrf_token %}<button class="btn small">End shift</button></form>{% endif %}{% endif %}
+  {% if device %}<span class="identity">{{ staff.name|default:device.name }}</span>{% if device.kind == 'personal' and shift %}<form method="post" action="{% url 'shift_end' %}">{% csrf_token %}<button class="btn small">Sign out</button></form>{% endif %}{% endif %}
   <form method="post" action="{% url 'theme' %}">
     {% csrf_token %}<input type="hidden" name="theme" value="{% if app_theme == 'dark' %}light{% else %}dark{% endif %}">
     <button class="iconbtn" aria-label="Switch to {% if app_theme == 'dark' %}light{% else %}dark{% endif %} theme" title="{% if app_theme == 'dark' %}Light{% else %}Dark{% endif %} theme">
