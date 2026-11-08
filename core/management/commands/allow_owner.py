@@ -24,7 +24,7 @@ class Command(BaseCommand):
             shop = Shop.objects.get(code=options["shop_code"], archived_at=None)
         except Shop.DoesNotExist:
             raise CommandError(
-                "Shop not found; migrate and provision/seed the local shop first."
+                "Shop not found; run migrate and create_shop first. --shop-code must identify a Shop, not a branch."
             )
         existing = ShopOwner.unscoped.filter(email__iexact=email).first()
         if existing and existing.shop_id != shop.pk:
