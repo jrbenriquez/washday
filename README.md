@@ -292,6 +292,18 @@ Settings are read from the **process environment**. A `.env` file is Git-ignored
 
 `APP_ROLE=cloud|hub` and `HUB_BRANCH_ID` are supported; hub worker configuration and mode switching are documented in the [operator guide](docs/offline-and-undo.md). Do not set `DEV_BRANCH_ID` as a substitute for production device authentication. Time zone and static paths are currently defined in [config/settings.py](config/settings.py).
 
+## Design maintenance skill
+
+Invoke `/maintain-washday-design` (or `$maintain-washday-design` in Codex) explicitly to review WashDay using the better-interface, better-layout and better-ui guides. With context, it reviews the supplied screen, flow, screenshots or change. With no context, it reviews the whole app as it currently exists, recording coverage and gaps. It reviews by default and implements fixes when requested.
+
+```text
+/maintain-washday-design
+/maintain-washday-design Review the owner onboarding on mobile and desktop.
+/maintain-washday-design Compact the supplied screen and verify the changes.
+```
+
+The canonical skill lives in `.agents/skills/maintain-washday-design/`, with a Claude skill symlink. Codex disables implicit invocation through `agents/openai.yaml`; the skill also sets `disable-model-invocation: true` and `user-invocable: true`. Ordinary UI requests and other agent workflows do not automatically invoke it.
+
 ## Tests and browser checks
 
 Run the Python suite and Django checks without a running server:
