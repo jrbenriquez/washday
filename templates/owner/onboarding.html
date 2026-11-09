@@ -8,15 +8,17 @@
 {% csrf_token %}
 {% if services.errors or pieces.errors or limits.errors %}<div class="error" role="alert" tabindex="-1" data-error-summary>Check the highlighted fields below, then save again.</div>{% endif %}
 <section class="onboarding-section" data-onboarding-group="services" aria-labelledby="services-title">
-<div class="onboarding-section-heading"><div class="onboarding-section-title"><span class="onboarding-number" aria-hidden="true">1</span><h2 id="services-title">Services</h2><button class="btn small" type="button" data-add-row><span aria-hidden="true">+</span> Add service</button></div><p>Choose what you offer and how you bill. Keep at least one service.</p></div>
+<div class="onboarding-section-heading"><div class="onboarding-section-title"><span class="onboarding-number" aria-hidden="true">1</span><h2 id="services-title">Services</h2></div><p>Choose what you offer and how you bill. Keep at least one service.</p></div>
 {{ services.management_form }}{{ services.non_form_errors }}
 <div class="onboarding-rows" data-rows>{% for form in services %}{% include 'owner/onboarding_row.html' %}{% endfor %}</div>
+<div class="onboarding-section-actions"><button class="btn small" type="button" data-add-row><span aria-hidden="true">+</span> Add service</button></div>
 <template data-empty-row>{% with form=services.empty_form %}{% include 'owner/onboarding_row.html' %}{% endwith %}</template>
 </section>
 <section class="onboarding-section" data-onboarding-group="pieces" aria-labelledby="pieces-title">
-<div class="onboarding-section-heading"><div class="onboarding-section-title"><span class="onboarding-number" aria-hidden="true">2</span><h2 id="pieces-title">Piece items <span class="onboarding-optional">Optional</span></h2><button class="btn small" type="button" data-add-row><span aria-hidden="true">+</span> Add piece item</button></div><p>Items charged individually, like Plastic. Remove it or add your own.</p></div>
+<div class="onboarding-section-heading"><div class="onboarding-section-title"><span class="onboarding-number" aria-hidden="true">2</span><h2 id="pieces-title">Piece items <span class="onboarding-optional">Optional</span></h2></div><p>Items charged individually, like Plastic. Remove it or add your own.</p></div>
 {{ pieces.management_form }}{{ pieces.non_form_errors }}
 <div class="onboarding-rows" data-rows>{% for form in pieces %}{% include 'owner/onboarding_row.html' %}{% endfor %}</div>
+<div class="onboarding-section-actions"><button class="btn small" type="button" data-add-row><span aria-hidden="true">+</span> Add piece item</button></div>
 <template data-empty-row>{% with form=pieces.empty_form %}{% include 'owner/onboarding_row.html' %}{% endwith %}</template>
 </section>
 <section class="onboarding-section" aria-labelledby="limits-title">
