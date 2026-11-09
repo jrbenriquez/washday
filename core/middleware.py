@@ -48,9 +48,15 @@ class ShopMiddleware:
             if (
                 request.owner
                 and not request.owner.shop.onboarding_completed_at
-                and request.path not in ("/owner/onboarding/", "/owner/theme/")
+                and request.path not in (
+                    "/owner/onboarding/", "/owner/onboarding/branch/", "/owner/theme/"
+                )
             ):
-                return redirect("owner_onboarding")
+                return redirect(
+                    "owner_onboarding_branch"
+                    if request.owner.shop.onboarding_catalog_saved_at
+                    else "owner_onboarding"
+                )
             with (
                 shop_context(request.owner.shop_id if request.owner else None),
                 device_context(None),

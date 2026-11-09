@@ -35,6 +35,7 @@ class Shop(UUIDModel):
     created_at = models.DateTimeField(auto_now_add=True)
     archived_at = models.DateTimeField(null=True, blank=True)
     onboarding_completed_at = models.DateTimeField(null=True, blank=True)
+    onboarding_catalog_saved_at = models.DateTimeField(null=True, blank=True)
 
     @property
     def logo_url(self):

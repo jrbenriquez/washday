@@ -108,3 +108,13 @@ def test_reset_preserves_data_and_reopens_owner_flow(setup_shop, client):
     setup = client.get(response.url)
     assert setup.status_code == 200
     assert {form.initial["name"] for form in setup.context["services"]} == {s["service"].name, s["load"].name}
+
+
+
+def test_reset_restarts_partially_completed_catalog():
+    shop = Shop.objects.create(name="Partial test", code="PARTIAL-TEST",
+                               onboarding_catalog_saved_at=timezone.now())
+    assert "Onboarding reset" in reset(shop.code)
+    shop.refresh_from_db()
+    assert shop.onboarding_catalog_saved_at is None
+    assert shop.onboarding_completed_at is None

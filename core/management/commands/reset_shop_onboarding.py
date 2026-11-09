@@ -38,12 +38,14 @@ class Command(BaseCommand):
         if options["dry_run"]:
             self.stdout.write(f"Dry run: {target} is eligible. No data was changed.")
             return
-        if shop.onboarding_completed_at is None:
+        if shop.onboarding_completed_at is None and shop.onboarding_catalog_saved_at is None:
             self.stdout.write(f"Onboarding is already pending for {target}.")
         else:
             # Owner-only metadata: avoid the shop post-save hook, which would
             # otherwise increment operational settings and trigger replication.
-            Shop.objects.filter(pk=shop.pk).update(onboarding_completed_at=None)
+            Shop.objects.filter(pk=shop.pk).update(
+                onboarding_completed_at=None, onboarding_catalog_saved_at=None,
+            )
             self.stdout.write(self.style.SUCCESS(f"Onboarding reset for {target}."))
         self.stdout.write(
             "The owner will see setup on their next owner workspace visit. "
