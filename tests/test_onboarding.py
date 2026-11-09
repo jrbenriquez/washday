@@ -1,7 +1,9 @@
 from decimal import Decimal
+from io import StringIO
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
 from django.test import Client
 
 from catalog.models import PieceItem, PieceVariant, Service
@@ -9,6 +11,12 @@ from core.models import Branch, Settings, Shop, ShopOwner
 from core.tenancy import shop_context
 
 pytestmark = pytest.mark.django_db
+
+
+def test_seeded_demo_shop_is_already_configured(settings):
+    settings.DEBUG = True
+    call_command("seed_demo", stdout=StringIO())
+    assert Shop.objects.get(code="DEV-ONLY").onboarding_completed_at
 
 
 @pytest.fixture
