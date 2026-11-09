@@ -1,0 +1,71 @@
+/* Keep first-owner setup compact without changing the shared owner editors. */
+.onboarding-shell{max-inline-size:920px;margin-inline:auto}
+.onboarding-heading{margin-block:4px 24px;display:grid;gap:8px}
+.onboarding-heading h1{font:700 1.75rem/1.2 var(--f-body);letter-spacing:-.02em;text-wrap:balance}
+.onboarding-heading p{margin:0;color:var(--muted);max-inline-size:70ch;line-height:1.5}
+.onboarding-form{display:grid;gap:16px}
+.onboarding-section{padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-inline-size:0}
+.onboarding-section-heading{display:grid;gap:6px;margin-block-end:16px}
+.onboarding-section-title{display:flex;align-items:center;gap:12px;min-inline-size:0}
+.onboarding-section-title h2{flex:1;min-inline-size:0}
+.onboarding-number{display:grid;place-items:center;flex:none;inline-size:28px;min-block-size:28px;border-radius:8px;background:var(--accent-soft);color:var(--ink);font-size:.8125rem;font-weight:700;font-variant-numeric:tabular-nums}
+.onboarding-section-heading h2{font:700 1rem/1.5 var(--f-body);letter-spacing:-.01em;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.onboarding-section-heading p{margin:0;font-size:.875rem;line-height:1.5;color:var(--muted)}
+.onboarding-optional{font-size:.75rem;line-height:1.5;font-weight:400;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+.onboarding-rows{display:grid;gap:12px}
+.onboarding-row{display:flex;align-items:end;gap:8px;min-inline-size:0}
+.onboarding-row-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,160px) minmax(0,120px);gap:12px;flex:1;min-inline-size:0}
+.onboarding-form .field{min-inline-size:0;gap:4px;align-content:start}
+.onboarding-form label{font-size:.8125rem;font-weight:500;line-height:1.5;overflow-wrap:anywhere}
+.onboarding-form .field input,.onboarding-form .field select{min-block-size:44px;min-inline-size:0;inline-size:100%;padding:8px 10px;border:1px solid var(--muted);border-radius:8px;background:var(--surface);color:var(--ink);font:400 .9375rem/1.5 var(--f-body)}
+.onboarding-form input[type=number]{font-variant-numeric:tabular-nums;appearance:textfield}
+.onboarding-form input[type=number]::-webkit-inner-spin-button,.onboarding-form input[type=number]::-webkit-outer-spin-button{appearance:none;margin:0}
+.onboarding-row-action{flex:none;min-block-size:44px;display:flex;align-items:center}
+.onboarding-remove{min-inline-size:44px;min-block-size:44px;border-radius:8px;border:1px solid var(--line);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;padding:8px;gap:4px}
+.onboarding-remove svg{inline-size:18px;block-size:18px}
+.onboarding-enhanced .onboarding-delete-fallback{display:none}
+.onboarding-delete-fallback{display:flex;align-items:center;gap:6px}
+.onboarding-row.is-removed{padding:6px 10px;background:var(--surface-2);border-radius:8px;align-items:center}
+.onboarding-row.is-removed .onboarding-row-fields{display:none}
+.onboarding-row.is-removed .onboarding-remove{color:var(--accent);font-weight:600;border-color:transparent;padding-inline:10px}
+.onboarding-row.is-removed .onboarding-remove svg{display:none}
+.onboarding-removed-summary{flex:1;min-inline-size:0;overflow-wrap:anywhere;color:var(--muted);font-size:.875rem}
+.onboarding-section-heading .btn{font-size:.8125rem;min-block-size:40px;border-radius:8px;font-weight:600}
+.onboarding-section-heading .btn>span{font-size:1.125rem;line-height:1}
+.onboarding-limits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.onboarding-unit{position:relative}
+.onboarding-form .onboarding-unit input{padding-inline-end:38px}
+.onboarding-unit>span{position:absolute;inset-inline-end:12px;inset-block-start:11px;font-size:.875rem;color:var(--muted);pointer-events:none}
+.onboarding-limits small{font-size:.8125rem;line-height:1.5;color:var(--muted)}
+.onboarding-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-block:4px}
+.onboarding-footer p{margin:0;color:var(--muted);font-size:.875rem;line-height:1.5}
+.onboarding-footer .primary{min-height:48px!important;border-radius:10px;font-size:.9375rem}
+.onboarding-form .errorlist{margin:4px 0 0;padding-inline-start:18px;font-size:.8125rem;line-height:1.5}
+.onboarding-form [aria-invalid=true]{border-color:var(--crit)}
+.onboarding-form :is(input,select,button),.onboarding-section-heading{scroll-margin-block:96px}
+.onboarding-success{max-inline-size:520px;margin:40px auto;padding:28px;display:grid;gap:16px}
+.onboarding-success h1{font:700 1.5rem/1.3 var(--f-body);letter-spacing:-.02em}
+.onboarding-success p{margin:0;color:var(--muted);line-height:1.5}
+.onboarding-success-icon{inline-size:44px;block-size:44px;display:grid;place-items:center;border-radius:12px;background:var(--good-soft);color:var(--good)}
+.onboarding-success-icon svg{inline-size:24px;block-size:24px}
+.onboarding-success form{display:grid;gap:8px;margin-block-start:4px}
+@media(hover:hover){.onboarding-remove:hover{background:var(--surface-2);color:var(--ink)}}
+@media(prefers-reduced-motion:no-preference){.onboarding-form button,.onboarding-success button{transition:scale 150ms ease-out}.onboarding-form button:not(:disabled):active,.onboarding-success button:not(:disabled):active{scale:.96}}
+@media(max-width:620px){
+  .onboarding-heading{margin-block-end:20px}
+  .onboarding-heading h1{font-size:1.5rem}
+  .onboarding-section{padding:16px}
+  .onboarding-rows{gap:20px}
+  .onboarding-row{align-items:start;padding:0;background:transparent;border-radius:0}
+  .onboarding-row-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .onboarding-row-fields>.field:first-child{grid-column:1/-1}
+  .onboarding-row-action{padding-block-start:24px}
+  .onboarding-row.is-removed .onboarding-row-action{padding-block-start:0}
+  .onboarding-form .field input,.onboarding-form .field select{font-size:1rem}
+  .onboarding-limits{grid-template-columns:minmax(0,1fr);gap:12px}
+  .onboarding-footer{align-items:stretch;flex-direction:column}
+  .onboarding-footer .btn{inline-size:100%}
+  .onboarding-success{margin-block:16px;padding:20px}
+}
+@media(max-width:380px){.onboarding-row{gap:4px}.onboarding-row-fields{gap:8px 6px}.onboarding-section{padding:12px}.onboarding-section-title{gap:8px}.onboarding-remove{min-inline-size:36px}}
+@media(forced-colors:active){.onboarding-form .field input,.onboarding-form .field select,.onboarding-remove{border-color:ButtonText}}

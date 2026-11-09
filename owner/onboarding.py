@@ -164,4 +164,4 @@ def device(request):
             branch = branch or Branch.objects.order_by("number").first()
             return redirect(reverse("owner_home") + f"?branch={branch.pk}&setup=shared#add-device")
         return redirect("owner_dashboard")
-    return render(request, "owner/onboarding_device.html")
+    return render(request, "owner/onboarding_device.html", {"onboarding": True})
