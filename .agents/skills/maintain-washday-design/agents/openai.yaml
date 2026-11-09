@@ -1,0 +1,6 @@
+interface:
+  display_name: "Maintain WashDay Design"
+  short_description: "Review WashDay design only when explicitly requested."
+  default_prompt: "Use $maintain-washday-design to review the supplied design context, or the whole current app if no context is supplied."
+policy:
+  allow_implicit_invocation: false
