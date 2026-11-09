@@ -4,6 +4,7 @@ from . import workspace, reports, onboarding
 
 urlpatterns = [
     path("onboarding/", onboarding.setup, name="owner_onboarding"),
+    path("onboarding/branch/", onboarding.branch, name="owner_onboarding_branch"),
     path("onboarding/device/", onboarding.device, name="owner_onboarding_device"),
     path("supplies/<uuid:source_id>/merge/", supply_merge.edit, name="owner_supply_merge"),
     path("", views.home, name="owner_home"),

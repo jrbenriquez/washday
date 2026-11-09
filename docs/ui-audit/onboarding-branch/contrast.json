@@ -1,0 +1,138 @@
+[
+  {
+    "theme": "light",
+    "samples": [
+      {
+        "selector": "h1",
+        "foreground": "rgb(32, 44, 69)",
+        "background": "rgb(244, 246, 250)",
+        "border": "rgb(32, 44, 69)",
+        "outline": "rgb(32, 44, 69)"
+      },
+      {
+        "selector": ".onboarding-heading p",
+        "foreground": "rgb(91, 103, 128)",
+        "background": "rgb(244, 246, 250)",
+        "border": "rgb(91, 103, 128)",
+        "outline": "rgb(91, 103, 128)"
+      },
+      {
+        "selector": ".onboarding-section-heading p",
+        "foreground": "rgb(91, 103, 128)",
+        "background": "rgb(255, 255, 255)",
+        "border": "rgb(91, 103, 128)",
+        "outline": "rgb(91, 103, 128)"
+      },
+      {
+        "selector": ".field label",
+        "foreground": "rgb(32, 44, 69)",
+        "background": "rgb(255, 255, 255)",
+        "border": "rgb(32, 44, 69)",
+        "outline": "rgb(32, 44, 69)"
+      },
+      {
+        "selector": ".field small",
+        "foreground": "rgb(91, 103, 128)",
+        "background": "rgb(255, 255, 255)",
+        "border": "rgb(91, 103, 128)",
+        "outline": "rgb(91, 103, 128)"
+      },
+      {
+        "selector": ".field input",
+        "foreground": "rgb(32, 44, 69)",
+        "background": "rgb(255, 255, 255)",
+        "border": "rgb(91, 103, 128)",
+        "outline": "rgb(32, 44, 69)"
+      },
+      {
+        "selector": ".onboarding-help",
+        "foreground": "rgb(91, 103, 128)",
+        "background": "rgb(255, 255, 255)",
+        "border": "rgb(91, 103, 128)",
+        "outline": "rgb(91, 103, 128)"
+      },
+      {
+        "selector": ".onboarding-footer p",
+        "foreground": "rgb(91, 103, 128)",
+        "background": "rgb(244, 246, 250)",
+        "border": "rgb(91, 103, 128)",
+        "outline": "rgb(91, 103, 128)"
+      },
+      {
+        "selector": ".onboarding-footer .primary",
+        "foreground": "rgb(255, 255, 255)",
+        "background": "rgb(52, 74, 196)",
+        "border": "rgba(0, 0, 0, 0)",
+        "outline": "rgb(255, 255, 255)"
+      }
+    ]
+  },
+  {
+    "theme": "dark",
+    "samples": [
+      {
+        "selector": "h1",
+        "foreground": "rgb(232, 237, 247)",
+        "background": "rgb(16, 23, 39)",
+        "border": "rgb(232, 237, 247)",
+        "outline": "rgb(232, 237, 247)"
+      },
+      {
+        "selector": ".onboarding-heading p",
+        "foreground": "rgb(172, 184, 206)",
+        "background": "rgb(16, 23, 39)",
+        "border": "rgb(172, 184, 206)",
+        "outline": "rgb(172, 184, 206)"
+      },
+      {
+        "selector": ".onboarding-section-heading p",
+        "foreground": "rgb(172, 184, 206)",
+        "background": "rgb(24, 34, 55)",
+        "border": "rgb(172, 184, 206)",
+        "outline": "rgb(172, 184, 206)"
+      },
+      {
+        "selector": ".field label",
+        "foreground": "rgb(232, 237, 247)",
+        "background": "rgb(24, 34, 55)",
+        "border": "rgb(232, 237, 247)",
+        "outline": "rgb(232, 237, 247)"
+      },
+      {
+        "selector": ".field small",
+        "foreground": "rgb(172, 184, 206)",
+        "background": "rgb(24, 34, 55)",
+        "border": "rgb(172, 184, 206)",
+        "outline": "rgb(172, 184, 206)"
+      },
+      {
+        "selector": ".field input",
+        "foreground": "rgb(232, 237, 247)",
+        "background": "rgb(24, 34, 55)",
+        "border": "rgb(172, 184, 206)",
+        "outline": "rgb(232, 237, 247)"
+      },
+      {
+        "selector": ".onboarding-help",
+        "foreground": "rgb(172, 184, 206)",
+        "background": "rgb(24, 34, 55)",
+        "border": "rgb(172, 184, 206)",
+        "outline": "rgb(172, 184, 206)"
+      },
+      {
+        "selector": ".onboarding-footer p",
+        "foreground": "rgb(172, 184, 206)",
+        "background": "rgb(16, 23, 39)",
+        "border": "rgb(172, 184, 206)",
+        "outline": "rgb(172, 184, 206)"
+      },
+      {
+        "selector": ".onboarding-footer .primary",
+        "foreground": "rgb(10, 18, 48)",
+        "background": "rgb(125, 145, 255)",
+        "border": "rgba(0, 0, 0, 0)",
+        "outline": "rgb(10, 18, 48)"
+      }
+    ]
+  }
+]

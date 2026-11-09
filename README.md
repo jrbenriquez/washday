@@ -149,7 +149,7 @@ Replace the example code, name and weight settings with the shop's actual values
 
 At the end of setup, an interactive terminal prompts for the owner's Google email. Enter it to approve owner sign-in in the same command, or leave it blank to skip. For automation, supply all four shop flags shown above and add `--owner-email owner@example.com --noinput`; omit `--owner-email` to provision without an owner. Non-terminal runs never prompt, and missing required flags produce an error. Invalid input or an email already assigned to another shop rolls back the entire setup. If you skip the owner email, use `allow_owner EMAIL --shop-code MY-SHOP` later. Google OAuth still needs to be configured; this command creates no password or login session.
 
-Sign in at `/owner/login/`, then use **Branches → Manage Branches** to add the first branch and its hours. Configure prices, machines, staff, devices and operational settings in the owner workspace before taking jobs. `seed_demo` remains development-only.
+Sign in at `/owner/login/` and complete shop details, branch details and the optional shared-device setup. You can manage additional branches and hours under **Branches → Manage Branches**. Configure staff and any remaining operational settings before taking jobs. `seed_demo` remains development-only.
 
 ### Django administration
 
@@ -186,7 +186,7 @@ These automated checks cover the real allauth callback pipeline with Google's ne
 
 ### Owner workspace
 
-New shops open a one-time setup form on the owner's first sign-in. It suggests **Wash + Dry + Fold**, **Wash + Dry**, and **Plastic**, with prices left for the owner to enter. Owners can add or remove entries, choose per-kilo or per-load billing, and set minimum kilos and maximum kilos per load. Saving updates the shared catalog and offers Main Branch shared-device setup through **Access and devices → Add device**. Shops without a branch get a Main Branch. Existing shops are marked complete by the onboarding migration, preserving their configuration.
+New shops open a one-time setup form on the owner's first sign-in. It suggests **Wash + Dry + Fold**, **Wash + Dry**, and **Plastic**, with prices left for the owner to enter. Owners can add or remove entries, choose per-kilo or per-load billing, and set minimum kilos and maximum kilos per load. Saving updates the shared catalog and opens branch setup. Enter a branch name, an editable code defaulting to **ONE**, and opening/closing hours. **Use simple workflow** is checked by default and can be cleared for full workflow. Codes must be unique within the shop, including case-insensitive matches; validation errors keep the entered details. Saving the branch offers shared-device setup through **Access and devices → Add device**, with the saved branch selected. Interrupted setup resumes at branch details after the catalog is saved. Existing shops are marked complete by the onboarding migration, preserving their configuration.
 
 To retry onboarding for an existing test shop, run this in the production app environment after deploying the onboarding migration:
 
@@ -195,7 +195,7 @@ python manage.py reset_shop_onboarding --shop-code YOUR-TEST-SHOP --dry-run
 python manage.py reset_shop_onboarding --shop-code YOUR-TEST-SHOP
 ```
 
-Replace `YOUR-TEST-SHOP` with the exact **Shop code**, not a branch code. Both the stored shop name and shop code must contain `test` (case-insensitive); the command refuses other shops, missing codes and archived shops. `--dry-run` checks eligibility without changing anything. The reset clears only onboarding completion: catalog, settings, branches, jobs, staff and devices remain intact. Refresh an existing owner workspace page or sign in again to open setup. Existing catalog items appear in the form; the suggested defaults apply when the catalog is empty. Saving onboarding applies the changes you enter to that test shop. Repeating the reset is safe.
+Replace `YOUR-TEST-SHOP` with the exact **Shop code**, not a branch code. Both the stored shop name and shop code must contain `test` (case-insensitive); the command refuses other shops, missing codes and archived shops. `--dry-run` checks eligibility without changing anything. The reset clears only onboarding progress and completion: catalog, settings, branches, jobs, staff and devices remain intact. Refresh an existing owner workspace page or sign in again to open setup. Existing catalog items appear in the form; the suggested defaults apply when the catalog is empty. The branch step loads the existing first branch when one exists, preserving its number and counters. Saving onboarding applies the changes you enter to that test shop. Repeating the reset is safe.
 
 After owner sign-in, open [Dashboard](http://localhost:8000/owner/dashboard/) for collections, loads, received kilos, unclaimed jobs, low-stock/count alerts, supply requests, count history and Excel exports. Branch filters stay within the signed-in shop. [Live branches](http://localhost:8000/owner/live/) refreshes every 20 seconds and has no counter write controls.
 

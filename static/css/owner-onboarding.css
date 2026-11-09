@@ -1,5 +1,13 @@
 /* Keep first-owner setup compact without changing the shared owner editors. */
 .onboarding-shell{max-inline-size:920px;margin-inline:auto}
+.onboarding-branch{max-inline-size:720px}
+.onboarding-branch .field input:not([aria-invalid=true]){border-color:var(--control-border)}
+.onboarding-branch-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.onboarding-branch .field small,.onboarding-help{font-size:.8125rem;line-height:1.5;color:var(--muted)}
+.onboarding-help{margin:12px 0 0}
+.onboarding-workflow{display:flex;align-items:center;gap:8px;min-block-size:44px}
+.onboarding-workflow input{flex:none}
+.onboarding-workflow label{padding-block:10px}
 .onboarding-heading{margin-block:4px 24px;display:grid;gap:8px}
 .onboarding-heading h1{font:700 1.75rem/1.2 var(--f-body);letter-spacing:-.02em;text-wrap:balance}
 .onboarding-heading p{margin:0;color:var(--muted);max-inline-size:70ch;line-height:1.5}
@@ -41,6 +49,8 @@
 .onboarding-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-block:4px}
 .onboarding-footer p{margin:0;color:var(--muted);font-size:.875rem;line-height:1.5}
 .onboarding-footer .primary{min-height:48px!important;border-radius:10px;font-size:.9375rem}
+.onboarding-footer .btn>span{display:inline-block}
+[dir=rtl] .onboarding-footer .btn>span{transform:scaleX(-1)}
 .onboarding-form .errorlist{margin:4px 0 0;padding-inline-start:18px;font-size:.8125rem;line-height:1.5}
 .onboarding-form [aria-invalid=true]{border-color:var(--crit)}
 .onboarding-form :is(input,select,button),.onboarding-section-heading{scroll-margin-block:96px}
@@ -64,6 +74,7 @@
   .onboarding-row.is-removed .onboarding-row-action{padding-block-start:0}
   .onboarding-form .field input,.onboarding-form .field select{font-size:1rem}
   .onboarding-limits{grid-template-columns:minmax(0,1fr);gap:12px}
+  .onboarding-branch-fields{grid-template-columns:minmax(0,1fr);gap:12px}
   .onboarding-footer{align-items:stretch;flex-direction:column}
   .onboarding-footer .btn{inline-size:100%}
   .onboarding-success{margin-block:16px;padding:20px}
