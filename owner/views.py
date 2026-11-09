@@ -10,8 +10,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_POST
 from core.models import Branch, Settings
 from people.models import Device, DeviceSetupCode, Staff
-from people.services import save_staff, issue_code, revoke_device, audit
-from .forms import StaffForm, DeviceForm, HoursForm, PolicyForm
+from people.services import save_staff, issue_code, revoke_device, assign_device_staff, audit
+from .forms import StaffForm, DeviceForm, DeviceAssignmentForm, HoursForm, PolicyForm
 
 
 def owner(request):
@@ -32,10 +32,14 @@ def scoped_branch(value):
 def dashboard_context(request, **extra):
     owner(request)
     devices = list(
-        Device.objects.select_related("branch").order_by("branch__name", "name")
+        Device.objects.select_related("branch", "assigned_staff").order_by("branch__name", "name")
     )
     now = timezone.now()
     for device in devices:
+        device.assignment_form = DeviceAssignmentForm(
+            branch=device.branch, prefix=str(device.pk),
+            initial={"assigned_staff": device.assigned_staff_id},
+        )
         challenge = DeviceSetupCode.objects.filter(
             device=device, used_at=None, expires_at__gt=now
         ).first()
@@ -189,9 +193,9 @@ def code_page(request, device, code, challenge):
 def device_new(request):
     own = owner(request)
     branch = scoped_branch(request.POST.get("branch"))
-    form = DeviceForm(request.POST)
+    Branch.objects.select_for_update().get(pk=branch.pk)
+    form = DeviceForm(request.POST, branch=branch)
     if form.is_valid():
-        Branch.objects.select_for_update().get(pk=branch.pk)
         device = Device.objects.create(
             shop_id=own.shop_id, branch=branch, **form.cleaned_data
         )
@@ -212,6 +216,25 @@ def device_code(request, device_id):
     device = get_object_or_404(Device, pk=device_id)
     code, challenge = issue_code(device, own.email)
     return code_page(request, device, code, challenge)
+
+
+@require_POST
+@never_cache
+@transaction.atomic
+def device_assign(request, device_id):
+    own = owner(request)
+    device = get_object_or_404(Device, pk=device_id, kind="personal")
+    Branch.objects.select_for_update().get(pk=device.branch_id)
+    form = DeviceAssignmentForm(request.POST, branch=device.branch, prefix=str(device.pk))
+    if form.is_valid():
+        device = assign_device_staff(device, form.cleaned_data["assigned_staff"], own.email)
+        code, challenge = issue_code(device, own.email)
+        return code_page(request, device, code, challenge)
+    return render(
+        request, "owner/home.html",
+        dashboard_context(request, error="Choose an active staff member at this phone’s branch."),
+        status=422,
+    )
 
 
 @require_POST

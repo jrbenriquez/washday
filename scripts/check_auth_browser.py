@@ -112,10 +112,6 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
                 "access and devices"
                 in owner_page.locator("h2").first.inner_text().casefold()
             )
-            hours = owner_page.locator('form[action$="/hours/"]').first
-            hours.get_by_label("Opening time").fill("08:00")
-            hours.get_by_label("Closing time").fill("23:59")
-            hours.get_by_role("button", name="Save hours").click()
             owner_page.get_by_role("link", name="Staff", exact=True).click()
             add_staff = owner_page.locator('form[action="/owner/staff/new/"]')
             add_staff.get_by_label("Staff name").fill("TEST browser staff")
@@ -160,6 +156,8 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
                 form = owner_page.locator('form[action="/owner/devices/new/"]')
                 form.get_by_label("Device name").fill(name)
                 form.get_by_label("Device type").select_option(kind)
+                if kind == "personal":
+                    form.get_by_label("Assigned staff").select_option(label="TEST browser staff · DEMO branch · not operating data")
                 form.get_by_role("button", name="Create setup invitation").click()
                 owner_page.locator("#install-qr svg").wait_for()
                 assert owner_page.locator("#install-qr svg").count() == 1
@@ -242,9 +240,8 @@ with tempfile.TemporaryDirectory(prefix="washday-auth-browser-") as td:
 
             with ThreadPoolExecutor(max_workers=1) as pool:
                 pool.submit(full_mode).result()
-            personal_page.get_by_label("Staff name").select_option(
-                label="TEST browser staff"
-            )
+            assert personal_page.locator('select[name="staff"]').count() == 0
+            assert "TEST browser staff" in personal_page.locator("main").inner_text()
             personal_page.get_by_label("Four-digit PIN").fill("1234")
             personal_page.get_by_role("button", name="Sign in").click()
             personal_page.wait_for_url("**/jobs/")

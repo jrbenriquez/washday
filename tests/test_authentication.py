@@ -41,7 +41,7 @@ def auth(setup_shop, settings):
         shop=s["shop"], branch=b, name="TEST counter tablet", kind="shared"
     )
     personal = Device.objects.create(
-        shop=s["shop"], branch=b, name="TEST personal phone", kind="personal"
+        shop=s["shop"], branch=b, name="TEST personal phone", kind="personal", assigned_staff=staff
     )
     # Authentication scenarios run during trading hours regardless of wall clock.
     now = timezone.localtime().replace(hour=12, minute=0, second=0, microsecond=0)
@@ -756,3 +756,116 @@ def test_manifest_launch_reuses_enrolment_without_redeeming_code_again(auth):
     personal.post("/shift/end/")
     response = personal.get(url, follow=True)
     assert response.request["PATH_INFO"] == "/shift/"
+
+
+def test_personal_phone_accepts_only_assigned_staff_pin(auth):
+    from people.services import begin_shift, verify_pin
+
+    other, _ = save_staff(auth['branch'], 'Other staff', '5678')
+    c, token = staff_client(auth, 'personal')
+    page = c.get('/shift/')
+    assert auth['auth_staff'].name.encode() in page.content
+    assert b'<select' not in page.content and other.name.encode() not in page.content
+    # The URL and posted staff identifier cannot replace the enrolled identity.
+    assert c.post('/shift/', {'staff': str(other.pk), 'pin': '5678'}).status_code == 422
+    assert c.post('/shift/', {'pin': '5678'}).status_code == 422
+    assert verify_pin(auth['personal'], '5678')[0] is None
+    with pytest.raises(ValidationError):
+        begin_shift(auth['personal'], other)
+    assert not Shift.objects.exists()
+    assert c.post('/shift/?staff=' + str(other.pk), {'pin': '1234'}).url == '/jobs/'
+    assert Shift.objects.get(ended_at=None).staff == auth['auth_staff']
+    assert c.post('/shift/end/').url == '/shift/'
+    assert c.cookies[config.DEVICE_COOKIE_NAME].value == token
+    assert c.post('/shift/', {'pin': '1234'}).url == '/jobs/'
+
+
+def test_personal_phone_assignment_is_required_and_owner_controlled(auth):
+    c = owner_client(auth)
+    base = {'branch': str(auth['branch'].pk), 'name': 'New phone', 'kind': 'personal'}
+    assert c.post('/owner/devices/new/', base).status_code == 422
+    assert not Device.objects.filter(name='New phone').exists()
+    base['assigned_staff'] = str(auth['auth_staff'].pk)
+    assert c.post('/owner/devices/new/', base).status_code == 200
+    assert Device.objects.get(name='New phone').assigned_staff == auth['auth_staff']
+    phone, _ = staff_client(auth, 'personal')
+    url = f'/owner/devices/{auth["personal"].pk}/assign/'
+    data = {f'{auth["personal"].pk}-assigned_staff': str(auth['auth_staff'].pk)}
+    assert phone.post(url, data).url == '/owner/login/'
+    assert Client().post(url, data).url == '/owner/login/'
+
+
+def test_reassignment_revokes_previous_phone_and_requires_setup(auth):
+    c, token = staff_client(auth, 'personal')
+    assert c.post('/shift/', {'pin': '1234'}).url == '/jobs/'
+    other, _ = save_staff(auth['branch'], 'Replacement staff', '5678')
+    device = auth['personal']
+    url = f'/owner/devices/{device.pk}/assign/'
+    r = owner_client(auth).post(url, {f'{device.pk}-assigned_staff': str(other.pk)})
+    assert r.status_code == 200
+    device.refresh_from_db()
+    assert device.assigned_staff == other and device.key_hash is None and device.revoked_at
+    assert not Shift.objects.filter(device=device, ended_at=None).exists()
+    assert c.get('/jobs/').url == '/device/setup/'
+    challenge = DeviceSetupCode.objects.get(device=device, used_at=None)
+    assert challenge.expires_at > timezone.now()
+    # The one-time setup code is shown to the owner, and must enroll a fresh credential.
+    import re
+    code = re.search(rb'aria-label="Six-digit setup code">([0-9]{6})', r.content).group(1).decode()
+    assert c.post('/device/setup/', {'invite': str(device.pk), 'code': code}).url == '/shift/'
+    assert c.cookies[config.DEVICE_COOKIE_NAME].value != token
+    assert c.post('/shift/', {'pin': '1234'}).status_code == 422
+    assert c.post('/shift/', {'pin': '5678'}).url == '/jobs/'
+    assert Shift.objects.get(device=device, ended_at=None).staff == other
+
+
+@pytest.mark.parametrize('invalid', ['unassigned', 'inactive', 'transferred', 'mismatched'])
+def test_invalid_assignment_closes_existing_session_and_blocks_signin(auth, invalid):
+    c, _ = staff_client(auth, 'personal')
+    c.post('/shift/', {'pin': '1234'})
+    if invalid == 'unassigned':
+        Device.objects.filter(pk=auth['personal'].pk).update(assigned_staff=None)
+    elif invalid == 'mismatched':
+        other, _ = save_staff(auth['branch'], 'Other staff', '5678')
+        Device.objects.filter(pk=auth['personal'].pk).update(assigned_staff=other)
+    elif invalid == 'inactive':
+        Staff.objects.filter(pk=auth['auth_staff'].pk).update(active=False)
+    else:
+        other_branch = Branch.objects.create(shop=auth['shop'], name='Other', code='O', number=2)
+        Staff.objects.filter(pk=auth['auth_staff'].pk).update(branch=other_branch)
+    assert c.get('/jobs/').url == '/shift/'
+    assert not Shift.objects.filter(ended_at=None).exists()
+    assert c.post('/shift/', {'pin': '1234'}).status_code == 422
+    if invalid != 'mismatched':
+        assert b'name="pin"' not in c.get('/shift/').content
+
+
+def test_owner_cannot_assign_inactive_foreign_or_wrong_branch_staff(auth):
+    other_branch = Branch.objects.create(shop=auth['shop'], name='Other', code='O', number=2)
+    wrong_branch, _ = save_staff(other_branch, 'Wrong branch', '5678')
+    inactive, _ = save_staff(auth['branch'], 'Inactive', '6789', active=False)
+    foreign_shop = Shop.objects.create(code='FOREIGN-ASSIGN', name='Foreign')
+    with shop_context(foreign_shop):
+        branch = Branch.objects.create(shop=foreign_shop, name='Foreign', code='F', number=1)
+        foreign = Staff.objects.create(shop=foreign_shop, branch=branch, name='Foreign', pin_hash='!')
+    c = owner_client(auth)
+    device = auth['personal']
+    for staff in (wrong_branch, inactive, foreign):
+        assert c.post('/owner/devices/new/', {
+            'branch': str(auth['branch'].pk), 'name': 'Bad phone', 'kind': 'personal',
+            'assigned_staff': str(staff.pk),
+        }).status_code == 422
+        assert c.post(f'/owner/devices/{device.pk}/assign/', {
+            f'{device.pk}-assigned_staff': str(staff.pk),
+        }).status_code == 422
+    device.refresh_from_db()
+    assert device.assigned_staff == auth['auth_staff']
+    assert not Device.objects.filter(name='Bad phone').exists()
+
+
+def test_wrong_personal_pins_still_trigger_lockout(auth):
+    c, _ = staff_client(auth, 'personal')
+    for _ in range(5):
+        assert c.post('/shift/', {'pin': '9999'}).status_code == 422
+    assert b'one minute' in c.post('/shift/', {'pin': '1234'}).content
+    assert not Shift.objects.exists()

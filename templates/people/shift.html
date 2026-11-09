@@ -1,1 +1,21 @@
-{% extends 'auth_base.html' %}{% block title %}Staff sign in{% endblock %}{% block content %}<section class="card stack auth-card"><h2>Staff sign in</h2><p>{{ device.name }} · {{ branch.name }}</p><form method="post" class="stack">{% csrf_token %}<label class="field">Staff name<select name="staff" required><option value="">Choose your name</option>{% for person in people %}<option value="{{ person.id }}">{{ person.name }}</option>{% endfor %}</select></label><label class="field">Four-digit PIN<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="current-password" required></label>{% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}<button class="btn primary">Sign in</button></form><p class="muted">You’ll be signed out automatically 24 hours after signing in. Sign out keeps this device enrolled.</p></section>{% endblock %}
+{% extends 'auth_base.html' %}
+{% block title %}Staff sign in{% endblock %}
+{% block content %}
+<section class="card stack auth-card">
+  <h2>Staff sign in</h2>
+  <p>{{ device.name }} · {{ branch.name }}</p>
+  {% if assignment_valid %}
+  <p>Signing in as <strong>{{ assigned_staff.name }}</strong></p>
+  <form method="post" class="stack">
+    {% csrf_token %}
+    <label class="field">Four-digit PIN<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4}" minlength="4" maxlength="4" autocomplete="current-password" required></label>
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+    <button class="btn primary">Sign in</button>
+  </form>
+  <p class="muted">This phone is assigned to you. Ask the owner to change its assignment.</p>
+  <p class="muted">You’ll be signed out automatically 24 hours after signing in. Sign out keeps this device enrolled.</p>
+  {% else %}
+  <p class="error" role="alert">Ask the owner to assign this phone to an active staff member at this branch before signing in.</p>
+  {% endif %}
+</section>
+{% endblock %}

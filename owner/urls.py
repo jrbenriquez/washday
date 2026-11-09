@@ -38,6 +38,7 @@ urlpatterns = [
     path("staff/new/", views.staff_new, name="owner_staff_new"),
     path("staff/<uuid:staff_id>/", views.staff_update, name="owner_staff_update"),
     path("devices/new/", views.device_new, name="owner_device_new"),
+    path("devices/<uuid:device_id>/assign/", views.device_assign, name="owner_device_assign"),
     path("devices/<uuid:device_id>/code/", views.device_code, name="owner_device_code"),
     path(
         "devices/<uuid:device_id>/revoke/",
