@@ -795,6 +795,20 @@ def test_personal_phone_assignment_is_required_and_owner_controlled(auth):
     assert Client().post(url, data).url == '/owner/login/'
 
 
+def test_device_validation_keeps_selected_branch(auth):
+    branch = Branch.objects.create(
+        shop=auth['shop'], name='Second branch', code='SECOND', number=2
+    )
+    response = owner_client(auth).post('/owner/devices/new/', {
+        'branch': str(branch.pk), 'name': 'Second branch phone', 'kind': 'personal',
+    })
+    assert response.status_code == 422
+    assert response.context['selected_branch'] == branch
+    assert response.context['device_form']['name'].value() == 'Second branch phone'
+    assert f'value="{branch.pk}" selected'.encode() in response.content
+    assert not Device.objects.filter(name='Second branch phone').exists()
+
+
 def test_reassignment_revokes_previous_phone_and_requires_setup(auth):
     c, token = staff_client(auth, 'personal')
     assert c.post('/shift/', {'pin': '1234'}).url == '/jobs/'

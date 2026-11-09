@@ -1,4 +1,5 @@
 :root{
+  --control-border:#5B6780;
   --bg:#F4F6FA; --surface:#FFFFFF; --surface-2:#F0F3F8; --ink:#202C45; --muted:#5B6780; --line:#DAE1EC;
   --accent:#344AC4; --accent-ink:#FFFFFF; --accent-soft:#EBEEFD;
   --teal:#19B5AF; --sky:#4AA8E0; --bubble:#A9B4C8;
@@ -11,6 +12,7 @@
   --r:14px; color-scheme:light;
 }
 :root[data-app-theme="dark"]{
+  --control-border:#ACB8CE;
   --bg:#101727; --surface:#182237; --surface-2:#202D44; --ink:#E8EDF7; --muted:#ACB8CE; --line:#34425B;
   --accent:#7D91FF; --accent-ink:#0A1230; --accent-soft:#29365C;
   --teal:#2CC6BF; --sky:#5BB6EC; --bubble:#6F7BA0;

@@ -1,0 +1,27 @@
+/* Compact owner setup forms. Container widths keep paired fields usable even
+   when a form sits beside supporting information. */
+.staff-setup{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px;align-items:start}
+.device-setup{max-width:820px}
+.compact-form{container-type:inline-size;min-width:0}
+.compact-form .compact-fields{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.compact-field{display:grid;gap:6px;min-width:0}
+.compact-form .compact-fields>.field{min-width:0}
+.compact-form .helptext{font-size:.875rem;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+.compact-form .errorlist{margin:0;font-size:.875rem}
+.owner-form.compact-form input:not([type=checkbox]):not([type=radio]),.owner-form.compact-form select{font-size:1rem;border-color:var(--control-border)}
+.compact-form .compact-check{display:grid;grid-template-columns:24px minmax(0,1fr);gap:6px 10px;align-items:center}
+.compact-check>label{grid-column:2;grid-row:1;min-height:44px;display:flex;align-items:center}
+.compact-check>input[type=checkbox]{grid-column:1;grid-row:1;width:22px;height:22px;margin:0}
+.compact-check>.helptext,.compact-check>.errorlist{grid-column:2}
+.compact-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.compact-form>.compact-actions{display:flex;gap:10px}
+.compact-actions>.btn{max-width:100%;min-height:48px;padding-block:10px;white-space:normal;text-align:center;overflow-wrap:anywhere}
+.branch-editor:has(.compact-form){max-width:820px}
+@container (min-width:540px){
+  .compact-form .compact-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .compact-wide{grid-column:1/-1}
+}
+@container (min-width:640px){
+  .staff-setup .compact-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(140px,.7fr)}
+}
+@media(max-width:1000px){.staff-setup{grid-template-columns:minmax(0,1fr)}}

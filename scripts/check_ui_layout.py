@@ -17,9 +17,13 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--phase", choices=["before", "after"], required=True)
+parser.add_argument("--output-dir", type=Path, default=ROOT / "docs/ui-audit")
+parser.add_argument("--compact-forms", action="store_true", help="Capture and exercise compact owner forms")
 args = parser.parse_args()
-OUT = ROOT / "docs/ui-audit" / args.phase
+OUT = args.output_dir / args.phase
 OUT.mkdir(parents=True, exist_ok=True)
+if args.compact_forms:
+    (OUT / "form-checks.json").unlink(missing_ok=True)
 with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
     os.environ["SQLITE_PATH"] = str(Path(td) / "db.sqlite3")
     os.environ.pop("PGDATABASE", None)
@@ -170,6 +174,7 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
             errors = []
             responses = []
             results = []
+            form_metrics = {}
             page.on("pageerror", lambda e: errors.append(str(e)))
             page.on(
                 "response",
@@ -203,8 +208,10 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
             # Keep the reviewable image set small; inspect all routes at every size.
             pictured = {"dashboard", "intake", "board", "settings", "supplies",
                         "branches", "staff", "machines", "access"}
+            if args.compact_forms:
+                pictured = {"staff", "access", "branch-editor", "settings"}
             for name, path in paths.items():
-                for width in [360, 390, 768, 1280]:
+                for width in ([320, 390, 768, 1280] if args.compact_forms else [360, 390, 768, 1280]):
                     for theme in ["light", "dark"]:
                         page.set_viewport_size({"width": width, "height": 900})
                         ctx.add_cookies([{"name": "app_theme", "value": theme, "url": base}])
@@ -224,6 +231,10 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
                             })"""), (name, width, theme, "overlapping catalog cells")
                         if args.phase == "after" and name == "board" and width == 1280:
                             assert page.locator(".board").evaluate("e => e.scrollWidth <= e.clientWidth"), "Five stages should fit on desktop"
+                        if args.compact_forms and (width, theme) == (1280, "light"):
+                            selector = {"staff": 'form[action="/owner/staff/new/"]', "access": 'form[action="/owner/devices/new/"]', "branch-editor": '.branch-editor form', "settings": '.branding-settings form'}.get(name)
+                            if selector:
+                                form_metrics[name] = page.locator(selector).evaluate("e => ({width:e.offsetWidth,height:e.offsetHeight,cardHeight:e.closest('.card').offsetHeight})")
                         if name in pictured and (width, theme) in [(1280, "light"), (390, "dark")]:
                             page.screenshot(path=str(OUT / f"{name}-{width}-{theme}.png"), full_page=True)
                         results.append({"page": name, "width": width, "theme": theme, "overflow": False})
@@ -254,7 +265,12 @@ with tempfile.TemporaryDirectory(prefix="washday-parity-") as td:
             signed_out.close()
             assert not errors, errors
             assert not responses, responses
-            (OUT / "checks.json").write_text(json.dumps({"layouts": results, "errors": errors, "failed_responses": responses, "dialog_focus": "PASS"}, indent=2) + "\n")
+            (OUT / "checks.json").write_text(json.dumps({"forms": form_metrics, "layouts": results, "errors": errors, "failed_responses": responses, "dialog_focus": "PASS"}, indent=2) + "\n")
+            if args.compact_forms and args.phase == "after":
+                from compact_form_checks import verify_compact_forms
+                verify_compact_forms(page, ctx, base, paths, OUT)
+                assert not errors, errors
+                assert all(r["status"] == 422 for r in responses), responses
             browser.close()
     finally:
         server.terminate()
