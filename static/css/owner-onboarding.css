@@ -30,8 +30,9 @@
 .onboarding-row.is-removed .onboarding-remove{color:var(--accent);font-weight:600;border-color:transparent;padding-inline:10px}
 .onboarding-row.is-removed .onboarding-remove svg{display:none}
 .onboarding-removed-summary{flex:1;min-inline-size:0;overflow-wrap:anywhere;color:var(--muted);font-size:.875rem}
-.onboarding-section-heading .btn{font-size:.8125rem;min-block-size:40px;border-radius:8px;font-weight:600}
-.onboarding-section-heading .btn>span{font-size:1.125rem;line-height:1}
+.onboarding-section-actions{display:flex;justify-content:flex-end;margin-block-start:16px}
+.onboarding-section-actions .btn{font-size:.8125rem;min-block-size:40px;border-radius:8px;font-weight:600}
+.onboarding-section-actions .btn>span{font-size:1.125rem;line-height:1}
 .onboarding-limits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .onboarding-unit{position:relative}
 .onboarding-form .onboarding-unit input{padding-inline-end:38px}
