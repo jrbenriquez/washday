@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from datetime import time
 from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 from core.models import Shop, Branch, Settings, JobStage, MachineCategory, Machine
 from core.tenancy import shop_context
@@ -23,6 +24,7 @@ class Command(BaseCommand):
             code="DEV-ONLY",
             defaults={
                 "name": "Bula & Banlaw Laundry",
+                "onboarding_completed_at": timezone.now(),
             },
         )
         with shop_context(shop):

@@ -285,6 +285,10 @@ def test_new_owner_can_open_workspace_and_add_first_branch(client):
         owner.user = user
         owner.save(update_fields=["user"])
     client.force_login(user, backend="django.contrib.auth.backends.ModelBackend")
+    assert client.get("/owner/dashboard/").url == reverse("owner_onboarding")
+    # Exercise branch management independently after first-owner setup.
+    owner.shop.onboarding_completed_at = timezone.now()
+    owner.shop.save(update_fields=["onboarding_completed_at"])
     for path in [
         "/owner/dashboard/",
         "/owner/settings/",

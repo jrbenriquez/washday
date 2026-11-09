@@ -4,6 +4,7 @@ import pytest
 from django.contrib.auth import SESSION_KEY, get_user_model
 from django.test import Client
 from django.urls import reverse
+from django.utils import timezone
 
 from core.models import Branch, Shop, ShopOwner
 from core.tenancy import shop_context
@@ -15,7 +16,7 @@ def identities(setup_shop):
     operator = users.create_superuser("operator", "operator@example.invalid", "test-only")
     target = users.create_user("owner", "owner@example.invalid")
     ShopOwner.objects.create(shop=setup_shop["shop"], user=target, email=target.email)
-    other_shop = Shop.objects.create(name="Other shop", code="OTHER")
+    other_shop = Shop.objects.create(name="Other shop", code="OTHER", onboarding_completed_at=timezone.now())
     with shop_context(other_shop):
         other_branch = Branch.objects.create(shop=other_shop, name="Other branch", number=1, code="OTHER")
         ShopOwner.objects.create(shop=other_shop, user=operator, email=operator.email)

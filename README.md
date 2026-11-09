@@ -186,6 +186,17 @@ These automated checks cover the real allauth callback pipeline with Google's ne
 
 ### Owner workspace
 
+New shops open a one-time setup form on the owner's first sign-in. It suggests **Wash + Dry + Fold**, **Wash + Dry**, and **Plastic**, with prices left for the owner to enter. Owners can add or remove entries, choose per-kilo or per-load billing, and set minimum kilos and maximum kilos per load. Saving updates the shared catalog and offers Main Branch shared-device setup through **Access and devices → Add device**. Shops without a branch get a Main Branch. Existing shops are marked complete by the onboarding migration, preserving their configuration.
+
+To retry onboarding for an existing test shop, run this in the production app environment after deploying the onboarding migration:
+
+```sh
+python manage.py reset_shop_onboarding --shop-code YOUR-TEST-SHOP --dry-run
+python manage.py reset_shop_onboarding --shop-code YOUR-TEST-SHOP
+```
+
+Replace `YOUR-TEST-SHOP` with the exact **Shop code**, not a branch code. Both the stored shop name and shop code must contain `test` (case-insensitive); the command refuses other shops, missing codes and archived shops. `--dry-run` checks eligibility without changing anything. The reset clears only onboarding completion: catalog, settings, branches, jobs, staff and devices remain intact. Refresh an existing owner workspace page or sign in again to open setup. Existing catalog items appear in the form; the suggested defaults apply when the catalog is empty. Saving onboarding applies the changes you enter to that test shop. Repeating the reset is safe.
+
 After owner sign-in, open [Dashboard](http://localhost:8000/owner/dashboard/) for collections, loads, received kilos, unclaimed jobs, low-stock/count alerts, supply requests, count history and Excel exports. Branch filters stay within the signed-in shop. [Live branches](http://localhost:8000/owner/live/) refreshes every 20 seconds and has no counter write controls.
 
 [Staff](http://localhost:8000/owner/staff/) manages branch access and PINs; branch transfers require a fresh PIN and end existing staff sessions. [Machines](http://localhost:8000/owner/machines/) manages categories and branch equipment. [Settings](http://localhost:8000/owner/settings/) edits operational values, simple mode, PIN policy, stages, prices, pieces, supplies and add-on recipes. Edits retain saved job price lines and stock/event history. Unload machines before changing their branch/category/service state or hiding machine tracking.

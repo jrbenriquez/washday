@@ -45,6 +45,12 @@ class ShopMiddleware:
         if request.path.startswith("/owner/"):
             if request.path != "/owner/login/" and not request.owner:
                 return redirect("owner_login")
+            if (
+                request.owner
+                and not request.owner.shop.onboarding_completed_at
+                and request.path not in ("/owner/onboarding/", "/owner/theme/")
+            ):
+                return redirect("owner_onboarding")
             with (
                 shop_context(request.owner.shop_id if request.owner else None),
                 device_context(None),
