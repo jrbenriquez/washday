@@ -1,0 +1,478 @@
+{
+  "metrics": {
+    "staff": {
+      "width": 686,
+      "height": 173
+    },
+    "access": {
+      "width": 778,
+      "height": 304
+    },
+    "branch-editor": {
+      "width": 778,
+      "height": 605
+    },
+    "settings": {
+      "width": 1190,
+      "height": 171
+    }
+  },
+  "contrast": {
+    "staff-light": {
+      "ink": {
+        "colors": [
+          "rgb(32, 44, 69)",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 13.93
+      },
+      "muted": {
+        "colors": [
+          "#5B6780",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 5.68
+      },
+      "boundary": {
+        "colors": [
+          "rgb(91, 103, 128)",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 5.68
+      },
+      "focus": {
+        "colors": [
+          "#344AC4",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 7.19
+      },
+      "primary": {
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(52, 74, 196)"
+        ],
+        "ratio": 7.19
+      }
+    },
+    "staff-dark": {
+      "ink": {
+        "colors": [
+          "rgb(232, 237, 247)",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 13.52
+      },
+      "muted": {
+        "colors": [
+          "#ACB8CE",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 7.94
+      },
+      "boundary": {
+        "colors": [
+          "rgb(172, 184, 206)",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 7.94
+      },
+      "focus": {
+        "colors": [
+          "#7D91FF",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 5.57
+      },
+      "primary": {
+        "colors": [
+          "rgb(10, 18, 48)",
+          "rgb(125, 145, 255)"
+        ],
+        "ratio": 6.45
+      }
+    },
+    "access-light": {
+      "ink": {
+        "colors": [
+          "rgb(32, 44, 69)",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 13.93
+      },
+      "muted": {
+        "colors": [
+          "#5B6780",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 5.68
+      },
+      "boundary": {
+        "colors": [
+          "rgb(91, 103, 128)",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 5.68
+      },
+      "focus": {
+        "colors": [
+          "#344AC4",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 7.19
+      },
+      "primary": {
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(52, 74, 196)"
+        ],
+        "ratio": 7.19
+      }
+    },
+    "access-dark": {
+      "ink": {
+        "colors": [
+          "rgb(232, 237, 247)",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 13.52
+      },
+      "muted": {
+        "colors": [
+          "#ACB8CE",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 7.94
+      },
+      "boundary": {
+        "colors": [
+          "rgb(172, 184, 206)",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 7.94
+      },
+      "focus": {
+        "colors": [
+          "#7D91FF",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 5.57
+      },
+      "primary": {
+        "colors": [
+          "rgb(10, 18, 48)",
+          "rgb(125, 145, 255)"
+        ],
+        "ratio": 6.45
+      }
+    },
+    "branch-editor-light": {
+      "ink": {
+        "colors": [
+          "rgb(32, 44, 69)",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 13.93
+      },
+      "muted": {
+        "colors": [
+          "#5B6780",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 5.68
+      },
+      "boundary": {
+        "colors": [
+          "rgb(91, 103, 128)",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 5.68
+      },
+      "focus": {
+        "colors": [
+          "#344AC4",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 7.19
+      },
+      "primary": {
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(52, 74, 196)"
+        ],
+        "ratio": 7.19
+      }
+    },
+    "branch-editor-dark": {
+      "ink": {
+        "colors": [
+          "rgb(232, 237, 247)",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 13.52
+      },
+      "muted": {
+        "colors": [
+          "#ACB8CE",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 7.94
+      },
+      "boundary": {
+        "colors": [
+          "rgb(172, 184, 206)",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 7.94
+      },
+      "focus": {
+        "colors": [
+          "#7D91FF",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 5.57
+      },
+      "primary": {
+        "colors": [
+          "rgb(10, 18, 48)",
+          "rgb(125, 145, 255)"
+        ],
+        "ratio": 6.45
+      }
+    },
+    "settings-light": {
+      "ink": {
+        "colors": [
+          "rgb(32, 44, 69)",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 13.93
+      },
+      "muted": {
+        "colors": [
+          "#5B6780",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 5.68
+      },
+      "boundary": {
+        "colors": [
+          "rgb(91, 103, 128)",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 5.68
+      },
+      "focus": {
+        "colors": [
+          "#344AC4",
+          "rgb(255, 255, 255)"
+        ],
+        "ratio": 7.19
+      },
+      "primary": {
+        "colors": [
+          "rgb(255, 255, 255)",
+          "rgb(52, 74, 196)"
+        ],
+        "ratio": 7.19
+      }
+    },
+    "settings-dark": {
+      "ink": {
+        "colors": [
+          "rgb(232, 237, 247)",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 13.52
+      },
+      "muted": {
+        "colors": [
+          "#ACB8CE",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 7.94
+      },
+      "boundary": {
+        "colors": [
+          "rgb(172, 184, 206)",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 7.94
+      },
+      "focus": {
+        "colors": [
+          "#7D91FF",
+          "rgb(24, 34, 55)"
+        ],
+        "ratio": 5.57
+      },
+      "primary": {
+        "colors": [
+          "rgb(10, 18, 48)",
+          "rgb(125, 145, 255)"
+        ],
+        "ratio": 6.45
+      }
+    }
+  },
+  "checks": [
+    {
+      "page": "staff",
+      "width": 320,
+      "direction": "ltr",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "staff",
+      "width": 1280,
+      "direction": "rtl",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "staff",
+      "width": 1280,
+      "direction": "ltr",
+      "css_zoom": 2,
+      "long_labels": false
+    },
+    {
+      "page": "staff",
+      "width": 640,
+      "direction": "ltr",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "staff",
+      "width": 320,
+      "direction": "rtl",
+      "css_zoom": 1,
+      "long_labels": true
+    },
+    {
+      "page": "access",
+      "width": 320,
+      "direction": "ltr",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "access",
+      "width": 1280,
+      "direction": "rtl",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "access",
+      "width": 1280,
+      "direction": "ltr",
+      "css_zoom": 2,
+      "long_labels": false
+    },
+    {
+      "page": "access",
+      "width": 640,
+      "direction": "ltr",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "access",
+      "width": 320,
+      "direction": "rtl",
+      "css_zoom": 1,
+      "long_labels": true
+    },
+    {
+      "page": "branch-editor",
+      "width": 320,
+      "direction": "ltr",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "branch-editor",
+      "width": 1280,
+      "direction": "rtl",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "branch-editor",
+      "width": 1280,
+      "direction": "ltr",
+      "css_zoom": 2,
+      "long_labels": false
+    },
+    {
+      "page": "branch-editor",
+      "width": 640,
+      "direction": "ltr",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "branch-editor",
+      "width": 320,
+      "direction": "rtl",
+      "css_zoom": 1,
+      "long_labels": true
+    },
+    {
+      "page": "settings",
+      "width": 320,
+      "direction": "ltr",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "settings",
+      "width": 1280,
+      "direction": "rtl",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "settings",
+      "width": 1280,
+      "direction": "ltr",
+      "css_zoom": 2,
+      "long_labels": false
+    },
+    {
+      "page": "settings",
+      "width": 640,
+      "direction": "ltr",
+      "css_zoom": 1,
+      "long_labels": false
+    },
+    {
+      "page": "settings",
+      "width": 320,
+      "direction": "rtl",
+      "css_zoom": 1,
+      "long_labels": true
+    },
+    {
+      "interaction": "branch validation and recovery",
+      "result": "PASS"
+    },
+    {
+      "interaction": "personal phone validation, recovery and invitation",
+      "result": "PASS"
+    },
+    {
+      "interaction": "staff validation, recovery and generated PIN",
+      "result": "PASS"
+    },
+    {
+      "interaction": "branding name save",
+      "result": "PASS"
+    }
+  ],
+  "native_zoom": "Not verified; CSS zoom and 640px reflow tested",
+  "screen_reader": "Not verified"
+}

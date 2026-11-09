@@ -4,8 +4,12 @@
 {% include 'owner/branch_tabs.html' with branch_view='manage' %}
 <div class="screen-head"><div><h2>{% if editing_branch %}Edit {{ editing_branch.name }}{% else %}Add branch{% endif %}</h2><p>{% if editing_branch %}Update branch details, hours and workflow.{% else %}New branches start with Direct connection and Simple workflow.{% endif %}</p></div></div>
 <section class="card stack branch-editor">
-<form method="post" class="stack owner-form">{% csrf_token %}{{ form.as_div }}
+<form method="post" class="stack owner-form compact-form">{% csrf_token %}
+{{ form.non_field_errors }}
+<div class="compact-fields">
+{% for field in form %}<div class="compact-field{% if field.name == 'simple_mode' or field.name == 'connection_mode' %} compact-wide{% endif %}{% if field.name == 'simple_mode' %} compact-check{% endif %}">{% include 'owner/compact_field.html' %}</div>{% endfor %}
+</div>
 {% if not editing_branch or editing_branch.mode == 'direct' %}<p class="muted">This branch stops working whenever its internet is down. Staff use the paper job sheet until it's back.</p>{% endif %}
-<div class="branch-actions"><button class="btn primary">{% if editing_branch %}Save branch{% else %}Add branch{% endif %}</button><a class="btn" href="{% url 'owner_branch_manage' %}">Cancel</a></div>
+<div class="compact-actions"><button class="btn primary">{% if editing_branch %}Save branch{% else %}Add branch{% endif %}</button><a class="btn" href="{% url 'owner_branch_manage' %}">Cancel</a></div>
 </form></section>
 {% endblock %}

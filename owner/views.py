@@ -204,7 +204,7 @@ def device_new(request):
     return render(
         request,
         "owner/home.html",
-        dashboard_context(request, device_form=form),
+        dashboard_context(request, device_form=form, selected_branch=branch),
         status=422,
     )
 

@@ -36,7 +36,8 @@ class StaffForm(forms.Form):
     pin = forms.RegexField(
         regex=r"^[0-9]{4}$",
         required=False,
-        label="Four-digit PIN (leave blank to generate)",
+        label="Four-digit PIN",
+        help_text="Leave blank to generate.",
         widget=forms.PasswordInput(
             render_value=False,
             attrs={
