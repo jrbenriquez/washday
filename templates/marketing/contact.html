@@ -1,0 +1,41 @@
+{% extends 'marketing/base.html' %}
+{% block title %}Let’s talk about your shop — WashDay{% endblock %}
+{% block meta %}<link rel="canonical" href="https://washdayph.com/contact/">{% endblock %}
+{% block content %}
+<div class="contact-layout wrap">
+  <section class="contact-intro" aria-labelledby="contact-title">
+    <a class="back-link" href="{% url 'marketing:home' %}"><span aria-hidden="true">←</span> Back to WashDay</a>
+    <p class="eyebrow">A GOOD DAY STARTS WITH A CONVERSATION</p>
+    <h1 id="contact-title">Let’s talk<br>about <span class="hand-underline">your shop.</span></h1>
+    <p class="lead">Curious how WashDay would work for you? Have something else in mind? You’re in the right place.</p>
+    <div class="what-next"><h2>What happens next?</h2><p>We’ll review your request and use the contact details you share to get back to you.</p><p>For demos, we’ll agree on a time together. No account needed.</p></div>
+    <p class="contact-signoff">Here’s to a little less busywork.<br><b>The WashDay team</b></p>
+  </section>
+  <section class="contact-panel" aria-label="Contact WashDay">
+    <form method="post" action="{% url 'marketing:contact' %}" novalidate>
+      {% csrf_token %}{{ form.submission_token }}
+      <div class="honey" aria-hidden="true"><label for="id_website">Leave this field empty</label>{{ form.website }}</div>
+      {% if form.errors %}
+      <div class="error-summary" tabindex="-1" autofocus>
+        <h2>Let’s check a few things.</h2>
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        <ul>{% for field in form %}{% for error in field.errors %}<li>{% if field.is_hidden %}{{ error }}{% else %}<a href="#id_{{ field.name }}">{{ field.label }}: {{ error }}</a>{% endif %}</li>{% endfor %}{% endfor %}</ul>
+      </div>
+      {% endif %}
+      <fieldset class="request-type"><legend>How can we help?</legend><div class="type-options">
+        {% for radio in form.type %}<label class="type-option">{{ radio.tag }}<span>{% if radio.data.value == 'demo' %}<b>Show me WashDay</b><small>I’d like a free demo.</small>{% else %}<b>I have a question</b><small>Let’s talk about it.</small>{% endif %}</span></label>{% endfor %}
+      </div><div id="id_type_errors" class="field-errors">{{ form.type.errors }}</div></fieldset>
+      <div class="field-pair">{% include 'marketing/field.html' with field=form.name %}{% include 'marketing/field.html' with field=form.email %}</div>
+      <div class="field-pair">{% include 'marketing/field.html' with field=form.shop_name help='Required for demos; optional for questions.' %}{% include 'marketing/field.html' with field=form.phone %}</div>
+      <div class="demo-fields">
+        {% include 'marketing/field.html' with field=form.branch_count %}
+        {% include 'marketing/field.html' with field=form.availability help='A preference, not a confirmed booking. Please include your timezone.' %}
+      </div>
+      {% include 'marketing/field.html' with field=form.message help='Required for questions; optional for demos. A little context helps.' %}
+      <p class="privacy-note">Your details are used to respond to this request and arrange a demo if you ask for one. Please don’t include passwords or sensitive customer information.</p>
+      <button class="button submit-button" type="submit">Send my request <span aria-hidden="true">↗</span></button>
+      <p class="form-footnote">A conversation, not a commitment.</p>
+    </form>
+  </section>
+</div>
+{% endblock %}
