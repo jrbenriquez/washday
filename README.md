@@ -14,6 +14,7 @@ New branches start with Direct connection and Simple workflow. Internal numberin
 
 ## Contents
 
+- [Public homepage, contact flow and domain setup](docs/public-website.md)
 - [UI audit and before/after screenshots](docs/ui-audit/README.md)
 - [Core features](#core-features)
 - [Direct, hub, simple, and full modes](#direct-hub-simple-and-full-modes)

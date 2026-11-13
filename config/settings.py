@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "supplies",
     "events",
     "owner",
+    "marketing",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -45,9 +46,23 @@ MIDDLEWARE = [
     "hijack.middleware.HijackUserMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "marketing.middleware.MarketingHostMiddleware",
     "core.middleware.ShopMiddleware",
 ]
 ROOT_URLCONF = "config.urls"
+# Public pages share the cloud deployment, but have a separate URL configuration.
+MARKETING_HOSTS = tuple(
+    host.strip().lower()
+    for host in os.environ.get("MARKETING_HOSTS", "washdayph.com,www.washdayph.com").split(",")
+    if host.strip()
+)
+MARKETING_PREVIEW_HOSTS = (
+    ("localhost", "127.0.0.1", "::1")
+    if DEBUG and os.environ.get("MARKETING_PREVIEW", "0") == "1"
+    else ()
+)
+MARKETING_APP_LOGIN_URL = "https://app.washdayph.com/owner/login/"
+MARKETING_VIDEO_URL = os.environ.get("MARKETING_VIDEO_URL", "")
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",

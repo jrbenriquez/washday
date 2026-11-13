@@ -21,6 +21,9 @@ class ShopMiddleware:
         request.shift = None
         request.owner = None
         request.dev_scope = False
+        if getattr(request, "is_marketing", False):
+            with shop_context(None), device_context(None):
+                return self.get_response(request)
         admin_request = request.path == "/washday-admin" or request.path.startswith(
             "/washday-admin/"
         )

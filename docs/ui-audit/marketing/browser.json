@@ -1,0 +1,9 @@
+{
+  "video": "Plays on request; caption track present; no autoplay",
+  "error_focus": "Error summary receives focus; inputs retain values",
+  "responsive": "No horizontal overflow at 320, 390, 768, 1024, 1440px on home and both contact types",
+  "no_javascript": "Native form, type selection and server validation render without JS",
+  "flows": "Demo request and custom inquiry submitted successfully using fictional local data",
+  "page_errors": [],
+  "recording": "docs/ui-audit/marketing/contact-flow.mp4"
+}

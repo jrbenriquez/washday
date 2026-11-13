@@ -1,0 +1,46 @@
+{% extends 'marketing/base.html' %}{% load static %}
+{% block meta %}<link rel="canonical" href="https://washdayph.com/">{% endblock %}
+{% block content %}
+<section class="hero wrap" aria-labelledby="hero-title">
+  <div class="film-column">
+    <div class="section-label"><span class="status-dot" aria-hidden="true"></span> MEET YOUR SHOP’S NEW ROUTINE <span class="film-length">30 seconds</span></div>
+    <div class="film">
+      <video id="intro-video" controls playsinline preload="metadata" poster="{% static 'marketing/poster.jpg' %}" aria-label="WashDay: a 30-second introduction">
+        <source src="{{ intro_video_url }}" type="video/mp4">
+        <track kind="captions" src="{% static 'marketing/captions.vtt' %}" srclang="en" label="English" default>
+        <p>Your browser can’t play this video. <a href="{{ intro_video_url }}">Download the 30-second introduction.</a></p>
+      </video>
+      <button class="film-play" type="button" hidden aria-label="Play the 30-second WashDay introduction"><span class="play-circle" aria-hidden="true"></span><span>See WashDay in action <small>Sound on, when you’re ready.</small></span></button>
+    </div>
+    <p class="film-caption">From the first drop-off to the last pickup. <span>That’s a WashDay.</span></p>
+  </div>
+  <div class="hero-copy">
+    <p class="eyebrow">LAUNDRY SHOP SOFTWARE</p>
+    <h1 id="hero-title">Less paperwork.<br>More <span class="hand-underline">peace of mind.</span></h1>
+    <p class="lead">Orders, machines, supplies, and collections. One clear place to keep your laundry business moving.</p>
+    <a class="button" href="{% url 'marketing:contact' %}?type=demo">Book a free demo <span aria-hidden="true">↗</span></a>
+    <a class="text-link" href="{% url 'marketing:contact' %}?type=custom">Have a question? Talk to us.</a>
+  </div>
+</section>
+<div class="journey wrap" aria-label="The laundry workflow"><span>DROP OFF</span><i aria-hidden="true">→</i><span>WASH</span><i aria-hidden="true">→</i><span>DRY</span><i aria-hidden="true">→</i><span>FOLD</span><i aria-hidden="true">→</i><span>PICK UP</span><b>Everything in view.</b></div>
+<section class="letter narrow" aria-labelledby="letter-title">
+  <p class="eyebrow">A BUSY SHOP. A CLEARER DAY.</p>
+  <h2 id="letter-title">You have enough moving parts.<br>Your software shouldn’t add more.</h2>
+  <p>A customer is here for a pickup. A washer just finished. Someone needs to check the detergent. And somewhere, there’s a receipt you need.</p>
+  <p>WashDay brings the work together, so your team can see what needs doing—and you can see how the shop is doing.</p>
+</section>
+<section class="benefits wrap" aria-labelledby="benefits-title">
+  <div class="benefits-heading"><p class="eyebrow">THE THINGS THAT MATTER</p><h2 id="benefits-title">Built around<br>your actual day.</h2><a class="text-link" href="{% url 'marketing:contact' %}?type=demo">Let’s walk through it together <span aria-hidden="true">↗</span></a></div>
+  <dl class="benefit-list">
+    <div><dt><span>01</span> Know where every order stands.</dt><dd>Log a drop-off, follow it through washing, drying, and folding, then mark it ready for pickup. No hunting through loose slips.</dd></div>
+    <div><dt><span>02</span> Keep machines and supplies in view.</dt><dd>See running loads and available machines. Track stock usage and low supplies before they become the day’s surprise.</dd></div>
+    <div><dt><span>03</span> See what came in. Know what was paid.</dt><dd>Record cash and GCash payments, check daily collections, and look back at job histories when a question comes up.</dd></div>
+    <div><dt><span>04</span> Stay close to every branch.</dt><dd>Give staff a clear counter workflow while you review branch activity and collections from the owner workspace.</dd></div>
+  </dl>
+</section>
+<section class="hub-section wrap" aria-labelledby="hub-title">
+  <div><p class="eyebrow">INTERNET TAKING A BREAK?</p><h2 id="hub-title">Your counter<br>can keep going.</h2></div>
+  <div class="hub-copy"><p>With a configured local hub, your team can keep recording orders over the shop’s local network. When the internet returns, queued updates sync to the cloud.</p><p class="fine-print">Local hub setup is required. Direct cloud connections need internet access.</p><a class="text-link" href="{% url 'marketing:contact' %}?type=custom">Ask us which setup fits your shop <span aria-hidden="true">↗</span></a></div>
+</section>
+<section class="closing narrow" aria-labelledby="closing-title"><p class="eyebrow">LET’S MAKE THE NEXT WASHDAY EASIER</p><h2 id="closing-title">Your shop. Your questions.<br>A proper conversation.</h2><p>Tell us how you work. We’ll walk you through WashDay and help you see whether it fits.</p><a class="button" href="{% url 'marketing:contact' %}?type=demo">Book a free demo <span aria-hidden="true">↗</span></a><p class="small-note">Just exploring? <a href="{% url 'marketing:contact' %}?type=custom">Send us a question instead.</a></p></section>
+{% endblock %}

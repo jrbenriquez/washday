@@ -1,0 +1,31 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}WashDay — A calmer day at your laundry shop{% endblock %}</title>
+  <meta name="description" content="Bring laundry orders, machines, supplies and collections into one clear workflow. Meet WashDay, laundry shop software built around your day.">
+  <meta name="theme-color" content="#F9F8F4">
+  <link rel="icon" href="{% static 'img/app-icon.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'marketing/site.css' %}">
+  <script src="{% static 'marketing/site.js' %}" defer></script>
+  {% block meta %}{% endblock %}
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header wrap">
+  <a class="wordmark" href="{% url 'marketing:home' %}" aria-label="WashDay home"><img src="{% static 'img/app-icon.svg' %}" width="36" height="36" alt=""><span>WASHDAY<span class="brand-dot">.</span></span></a>
+  <nav aria-label="Main navigation">
+    <a class="login-link" href="{{ app_login_url }}">App login <span aria-hidden="true">↗</span></a>
+    <a class="nav-contact" href="{% url 'marketing:contact' %}">Let’s talk <span aria-hidden="true">↗</span></a>
+  </nav>
+</header>
+<main id="main">{% block content %}{% endblock %}</main>
+<footer class="site-footer wrap">
+  <a class="footer-brand" href="{% url 'marketing:home' %}">WashDay</a>
+  <p>A little more order. A little less worry.</p>
+  <a href="{% url 'marketing:contact' %}?type=custom">Contact us <span aria-hidden="true">↗</span></a>
+</footer>
+</body>
+</html>

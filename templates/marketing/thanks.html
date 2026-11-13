@@ -1,0 +1,14 @@
+{% extends 'marketing/base.html' %}
+{% block title %}Request received — WashDay{% endblock %}
+{% block meta %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<section class="thanks narrow" aria-labelledby="thanks-title">
+  <div class="success-mark" aria-hidden="true">✓</div>
+  <p class="eyebrow">YOU’RE ALL SET</p>
+  <h1 id="thanks-title">{% if is_demo %}Let’s find a time<br>to show you around.{% else %}Good question.<br>We’re glad you asked.{% endif %}</h1>
+  <p class="lead">{% if is_demo %}Your demo request is saved. We’ll review your details and get in touch to agree on a time.{% else %}Your inquiry is saved. We’ll review it and get back to you using the contact details you shared.{% endif %}</p>
+  {% if is_demo %}<p class="confirmation-note">Your demo isn’t scheduled yet. We’ll confirm the time with you.</p>{% endif %}
+  <a class="button" href="{% url 'marketing:home' %}">Back to WashDay <span aria-hidden="true">↗</span></a>
+  <p class="contact-signoff">Thanks for making time for us.<br><b>The WashDay team</b></p>
+</section>
+{% endblock %}
